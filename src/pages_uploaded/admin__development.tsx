@@ -14,13 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
   Briefcase,
   FolderKanban,
@@ -41,7 +38,6 @@ import {
   ChevronRight,
   GanttChart,
   Layers,
-  Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +50,8 @@ type SectionKey =
   | "boards"
   | "backlog"
   | "reports"
-  | "timeline";
+  | "timeline"
+  | "epics";
 
 const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: "your-work", label: "Your work", icon: Briefcase },
