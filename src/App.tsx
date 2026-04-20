@@ -71,6 +71,8 @@ import AdminRolesPage from "./pages_uploaded/admin__roles";
 import AdminSchedulerPage from "./pages_uploaded/admin__scheduler";
 import AdminSearchenginePage from "./pages_uploaded/admin__search-engine";
 import AdminSecretsPage from "./pages_uploaded/admin__secrets";
+import AdminServerPage from "./pages_uploaded/admin__server";
+import AdminDevelopmentPage from "./pages_uploaded/admin__development";
 import AdminSecurityPage from "./pages_uploaded/admin__security";
 import AdminSettingsPage from "./pages_uploaded/admin__settings";
 import AdminSlaPage from "./pages_uploaded/admin__sla";
@@ -241,6 +243,8 @@ const App = () => (
               <Route path="scheduler" element={<AdminSchedulerPage />} />
               <Route path="search-engine" element={<AdminSearchenginePage />} />
               <Route path="secrets" element={<AdminSecretsPage />} />
+              <Route path="server" element={<AdminServerPage />} />
+              <Route path="development" element={<AdminDevelopmentPage />} />
               <Route path="security" element={<AdminSecurityPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
               <Route path="sla" element={<AdminSlaPage />} />

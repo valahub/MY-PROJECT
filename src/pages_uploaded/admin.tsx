@@ -157,6 +157,8 @@ const navItems = [
   { title: "Observability", href: "/admin/observability", icon: Activity },
   { title: "Cost Optimization", href: "/admin/cost-optimization", icon: TrendingDown },
   { title: "AI Assist", href: "/admin/ai-assist", icon: Brain },
+  { title: "Server Panel", href: "/admin/server", icon: Cpu },
+  { title: "Development", href: "/admin/development", icon: GitBranch },
 ];
 
 // silence unused warnings for icons declared for documentation
