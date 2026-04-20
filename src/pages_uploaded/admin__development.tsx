@@ -14,10 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Briefcase,
   FolderKanban,
@@ -36,6 +39,9 @@ import {
   Calendar,
   Flag,
   ChevronRight,
+  GanttChart,
+  Layers,
+  Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
