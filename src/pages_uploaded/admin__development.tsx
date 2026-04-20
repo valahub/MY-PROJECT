@@ -162,6 +162,8 @@ export default function AdminDevelopmentPage() {
           {section === "issues" && <IssuesSection onOpen={setOpenIssue} />}
           {section === "boards" && <BoardSection onOpen={setOpenIssue} />}
           {section === "backlog" && <BacklogSection onOpen={setOpenIssue} />}
+          {section === "timeline" && <TimelineSection onOpen={setOpenIssue} />}
+          {section === "epics" && <EpicsSection onOpen={setOpenIssue} />}
           {section === "reports" && <ReportsSection />}
         </main>
       </div>
