@@ -73,6 +73,10 @@ import AdminSearchenginePage from "./pages_uploaded/admin__search-engine";
 import AdminSecretsPage from "./pages_uploaded/admin__secrets";
 import AdminServerPage from "./pages_uploaded/admin__server";
 import AdminDevelopmentPage from "./pages_uploaded/admin__development";
+import AdminServerDashboardPage from "./pages_uploaded/admin__server__dashboard";
+import AdminServerManagementPage from "./pages_uploaded/admin__server__management";
+import AdminDevelopmentDashboardPage from "./pages_uploaded/admin__development__dashboard";
+import AdminDevelopmentManagementPage from "./pages_uploaded/admin__development__management";
 import AdminSecurityPage from "./pages_uploaded/admin__security";
 import AdminSettingsPage from "./pages_uploaded/admin__settings";
 import AdminSlaPage from "./pages_uploaded/admin__sla";
@@ -245,6 +249,10 @@ const App = () => (
               <Route path="secrets" element={<AdminSecretsPage />} />
               <Route path="server" element={<AdminServerPage />} />
               <Route path="development" element={<AdminDevelopmentPage />} />
+              <Route path="server/dashboard" element={<AdminServerDashboardPage />} />
+              <Route path="server/management" element={<AdminServerManagementPage />} />
+              <Route path="development/dashboard" element={<AdminDevelopmentDashboardPage />} />
+              <Route path="development/management" element={<AdminDevelopmentManagementPage />} />
               <Route path="security" element={<AdminSecurityPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
               <Route path="sla" element={<AdminSlaPage />} />
