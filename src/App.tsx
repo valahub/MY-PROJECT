@@ -83,11 +83,11 @@ import AdminTrustscoresPage from "./pages_uploaded/admin__trust-scores";
 import AdminPage from "./pages_uploaded/admin";
 import AdminVersioningPage from "./pages_uploaded/admin__versioning";
 import AdminWebhooksPage from "./pages_uploaded/admin__webhooks";
-import AuthForgotpasswordPage from "./pages_uploaded/auth__forgot-password";
-import AuthLoginPage from "./pages_uploaded/auth__login";
-import AuthRegisterPage from "./pages_uploaded/auth__register";
-import AuthResetpasswordPage from "./pages_uploaded/auth__reset-password";
-import AuthPage from "./pages_uploaded/auth";
+import AuthLayoutReal from "./pages/auth/AuthLayout";
+import LoginReal from "./pages/auth/Login";
+import RegisterReal from "./pages/auth/Register";
+import ForgotPasswordReal from "./pages/auth/ForgotPassword";
+import ResetPasswordReal from "./pages/auth/ResetPassword";
 import AuthVerifyemailPage from "./pages_uploaded/auth__verify-email";
 import CheckoutPage from "./pages_uploaded/checkout";
 import CustomerAccountPage from "./pages_uploaded/customer__account";
@@ -253,11 +253,11 @@ const App = () => (
               <Route path="versioning" element={<AdminVersioningPage />} />
               <Route path="webhooks" element={<AdminWebhooksPage />} />
           </Route>
-          <Route path="/auth" element={<AuthPage />}>
-              <Route path="forgot-password" element={<AuthForgotpasswordPage />} />
-              <Route path="login" element={<AuthLoginPage />} />
-              <Route path="register" element={<AuthRegisterPage />} />
-              <Route path="reset-password" element={<AuthResetpasswordPage />} />
+          <Route path="/auth" element={<AuthLayoutReal />}>
+              <Route path="login" element={<LoginReal />} />
+              <Route path="register" element={<RegisterReal />} />
+              <Route path="forgot-password" element={<ForgotPasswordReal />} />
+              <Route path="reset-password" element={<ResetPasswordReal />} />
               <Route path="verify-email" element={<AuthVerifyemailPage />} />
           </Route>
           <Route path="/customer" element={<CustomerPage />}>
