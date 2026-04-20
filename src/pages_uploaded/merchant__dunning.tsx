@@ -150,3 +150,5 @@ function MerchantDunningPage() {
     </div>
   );
 }
+
+export default MerchantDunningPage;

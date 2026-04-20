@@ -289,3 +289,5 @@ function AdminDeploymentsPage() {
     </div>
   );
 }
+
+export default AdminDeploymentsPage;

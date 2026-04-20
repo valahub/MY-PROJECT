@@ -157,3 +157,5 @@ function MarketplaceSettings() {
     </div>
   );
 }
+
+export default MarketplaceSettings;

@@ -398,3 +398,5 @@ function AdminConsistencyPage() {
     </div>
   );
 }
+
+export default severityVariant;

@@ -188,3 +188,5 @@ function AdminLayout() {
     <DashboardLayout navItems={navItems} panelName="Admin Panel" userEmail="admin@erpvala.com" />
   );
 }
+
+export default AdminLayout;

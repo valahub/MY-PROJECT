@@ -36,3 +36,5 @@ function MerchantProductsPage() {
     </div>
   );
 }
+
+export default MerchantProductsPage;

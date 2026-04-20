@@ -241,3 +241,5 @@ function MarketplaceAdminOverview() {
     </div>
   );
 }
+
+export default MarketplaceAdminOverview;

@@ -196,3 +196,5 @@ function CustomerPrivacyPage() {
     </div>
   );
 }
+
+export default CustomerPrivacyPage;

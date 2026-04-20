@@ -453,3 +453,5 @@ function AdminBiSyncPage() {
     </div>
   );
 }
+
+export default AdminBiSyncPage;

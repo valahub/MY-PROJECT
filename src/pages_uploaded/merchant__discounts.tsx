@@ -108,3 +108,5 @@ function MerchantDiscounts() {
     </div>
   );
 }
+
+export default MerchantDiscounts;

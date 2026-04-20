@@ -308,3 +308,5 @@ function AdminSearchEnginePage() {
     </div>
   );
 }
+
+export default AdminSearchEnginePage;

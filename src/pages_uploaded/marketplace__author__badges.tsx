@@ -138,3 +138,5 @@ function Badges() {
     </div>
   );
 }
+
+export default Badges;

@@ -197,3 +197,5 @@ function AdminSecurity() {
     </div>
   );
 }
+
+export default AdminSecurity;

@@ -125,3 +125,5 @@ function MerchantFilesPage() {
     </div>
   );
 }
+
+export default MerchantFilesPage;

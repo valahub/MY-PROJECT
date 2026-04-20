@@ -258,3 +258,5 @@ function CreateWebhookPage() {
     </div>
   );
 }
+
+export default CreateWebhookPage;

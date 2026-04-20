@@ -79,3 +79,5 @@ function BecomeAuthor() {
     </div>
   );
 }
+
+export default BecomeAuthor;

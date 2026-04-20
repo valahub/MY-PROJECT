@@ -130,3 +130,5 @@ function SupportTicketsPage() {
     </div>
   );
 }
+
+export default SupportTicketsPage;

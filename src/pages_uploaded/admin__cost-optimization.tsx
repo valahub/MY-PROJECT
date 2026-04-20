@@ -329,3 +329,5 @@ function AdminCostOptimizationPage() {
     </div>
   );
 }
+
+export default AdminCostOptimizationPage;

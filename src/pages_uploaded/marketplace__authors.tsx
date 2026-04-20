@@ -61,3 +61,5 @@ function AuthorsPage() {
     </div>
   );
 }
+
+export default AuthorsPage;

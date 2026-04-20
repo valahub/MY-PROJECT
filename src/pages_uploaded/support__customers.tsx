@@ -59,3 +59,5 @@ function SupportCustomersPage() {
     </div>
   );
 }
+
+export default SupportCustomersPage;

@@ -238,3 +238,5 @@ function CreatePricingPage() {
     </div>
   );
 }
+
+export default CreatePricingPage;

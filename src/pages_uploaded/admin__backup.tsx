@@ -216,3 +216,5 @@ function AdminBackupPage() {
     </div>
   );
 }
+
+export default AdminBackupPage;

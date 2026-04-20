@@ -169,3 +169,5 @@ function CustomerDownloadsPage() {
     </div>
   );
 }
+
+export default CustomerDownloadsPage;

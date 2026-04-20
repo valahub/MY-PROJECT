@@ -181,3 +181,5 @@ function AuthorProfile() {
     </div>
   );
 }
+
+export default AuthorProfile;

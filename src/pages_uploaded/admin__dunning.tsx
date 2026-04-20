@@ -178,3 +178,5 @@ function AdminDunningPage() {
     </div>
   );
 }
+
+export default AdminDunningPage;

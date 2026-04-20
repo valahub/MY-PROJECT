@@ -199,3 +199,5 @@ function AdminSettings() {
     </div>
   );
 }
+
+export default AdminSettings;

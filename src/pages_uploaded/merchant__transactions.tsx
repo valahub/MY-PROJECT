@@ -99,3 +99,5 @@ function MerchantTransactions() {
     </div>
   );
 }
+
+export default MerchantTransactions;

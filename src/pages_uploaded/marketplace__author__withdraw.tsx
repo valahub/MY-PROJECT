@@ -139,3 +139,5 @@ function Withdraw() {
     </div>
   );
 }
+
+export default Withdraw;

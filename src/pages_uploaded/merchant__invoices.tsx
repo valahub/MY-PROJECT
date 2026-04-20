@@ -108,3 +108,5 @@ function MerchantInvoices() {
     </div>
   );
 }
+
+export default MerchantInvoices;

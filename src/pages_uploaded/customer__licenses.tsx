@@ -188,3 +188,5 @@ function CustomerLicenses() {
     </div>
   );
 }
+
+export default CustomerLicenses;

@@ -431,3 +431,5 @@ function AdminGatewaysPage() {
     </div>
   );
 }
+
+export default AdminGatewaysPage;

@@ -95,3 +95,5 @@ function MerchantCustomers() {
     </div>
   );
 }
+
+export default MerchantCustomers;

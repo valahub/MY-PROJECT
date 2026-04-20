@@ -102,3 +102,5 @@ function SupportSettingsPage() {
     </div>
   );
 }
+
+export default SupportSettingsPage;

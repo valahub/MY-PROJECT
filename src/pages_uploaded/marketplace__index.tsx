@@ -120,3 +120,5 @@ function MarketplaceHome() {
     </div>
   );
 }
+
+export default MarketplaceHome;

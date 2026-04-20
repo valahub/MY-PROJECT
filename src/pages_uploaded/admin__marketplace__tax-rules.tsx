@@ -220,3 +220,5 @@ function TaxRules() {
     </div>
   );
 }
+
+export default TaxRules;

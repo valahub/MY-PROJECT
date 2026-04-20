@@ -76,3 +76,5 @@ function Followers() {
     </div>
   );
 }
+
+export default Followers;

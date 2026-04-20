@@ -442,3 +442,5 @@ function AdminFraudMlPage() {
     </div>
   );
 }
+
+export default AdminFraudMlPage;

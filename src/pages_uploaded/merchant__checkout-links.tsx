@@ -120,3 +120,5 @@ function MerchantCheckoutLinks() {
     </div>
   );
 }
+
+export default MerchantCheckoutLinks;

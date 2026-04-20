@@ -80,3 +80,5 @@ function MerchantSubscriptions() {
     </div>
   );
 }
+
+export default MerchantSubscriptions;

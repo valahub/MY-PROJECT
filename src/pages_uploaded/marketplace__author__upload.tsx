@@ -386,3 +386,5 @@ function UploadItem() {
     </div>
   );
 }
+
+export default UploadItem;

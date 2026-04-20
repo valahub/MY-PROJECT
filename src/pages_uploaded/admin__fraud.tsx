@@ -229,3 +229,5 @@ function AdminFraudPage() {
     </div>
   );
 }
+
+export default AdminFraudPage;

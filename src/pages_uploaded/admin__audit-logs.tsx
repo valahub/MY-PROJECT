@@ -133,3 +133,5 @@ function AdminAuditLogsPage() {
     </div>
   );
 }
+
+export default AdminAuditLogsPage;

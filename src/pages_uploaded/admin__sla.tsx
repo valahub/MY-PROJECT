@@ -449,3 +449,5 @@ function AdminSlaPage() {
     </div>
   );
 }
+
+export default AdminSlaPage;

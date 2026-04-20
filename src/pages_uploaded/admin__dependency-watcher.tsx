@@ -289,3 +289,5 @@ function AdminDependencyWatcherPage() {
     </div>
   );
 }
+
+export default AdminDependencyWatcherPage;

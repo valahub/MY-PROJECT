@@ -261,3 +261,5 @@ function AdminCostGovernorPage() {
     </div>
   );
 }
+
+export default AdminCostGovernorPage;

@@ -268,3 +268,5 @@ function AdminCdnEdgePage() {
     </div>
   );
 }
+
+export default AdminCdnEdgePage;

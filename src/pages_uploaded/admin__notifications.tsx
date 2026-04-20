@@ -163,3 +163,5 @@ function AdminNotifications() {
     </div>
   );
 }
+
+export default AdminNotifications;

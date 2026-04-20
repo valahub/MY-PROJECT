@@ -274,3 +274,5 @@ function CustomerSecurityPage() {
     </div>
   );
 }
+
+export default CustomerSecurityPage;

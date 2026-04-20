@@ -109,3 +109,5 @@ function SupportDashboardPage() {
     </div>
   );
 }
+
+export default SupportDashboardPage;

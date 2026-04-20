@@ -45,3 +45,5 @@ function VerifyEmailPage() {
     </form>
   );
 }
+
+export default VerifyEmailPage;

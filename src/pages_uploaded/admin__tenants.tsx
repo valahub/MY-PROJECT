@@ -285,3 +285,5 @@ function AdminTenantsPage() {
     </div>
   );
 }
+
+export default AdminTenantsPage;

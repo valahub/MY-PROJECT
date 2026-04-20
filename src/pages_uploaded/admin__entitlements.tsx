@@ -128,3 +128,5 @@ function AdminEntitlementsPage() {
     </div>
   );
 }
+
+export default AdminEntitlementsPage;

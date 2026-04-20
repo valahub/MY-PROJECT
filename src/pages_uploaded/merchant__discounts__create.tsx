@@ -196,3 +196,5 @@ function CreateDiscountPage() {
     </div>
   );
 }
+
+export default CreateDiscountPage;

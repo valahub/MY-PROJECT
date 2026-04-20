@@ -180,3 +180,5 @@ function Collections() {
     </div>
   );
 }
+
+export default Collections;

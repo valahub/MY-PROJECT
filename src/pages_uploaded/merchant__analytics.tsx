@@ -435,3 +435,5 @@ function MerchantAnalytics() {
     </div>
   );
 }
+
+export default MerchantAnalytics;

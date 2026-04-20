@@ -184,3 +184,5 @@ function MarketplaceReports() {
     </div>
   );
 }
+
+export default MarketplaceReports;

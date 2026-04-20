@@ -127,3 +127,5 @@ function MerchantEntitlementsPage() {
     </div>
   );
 }
+
+export default MerchantEntitlementsPage;

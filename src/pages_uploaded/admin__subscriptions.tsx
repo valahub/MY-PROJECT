@@ -182,3 +182,5 @@ function AdminSubscriptions() {
     </div>
   );
 }
+
+export default AdminSubscriptions;

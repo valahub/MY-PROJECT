@@ -113,3 +113,5 @@ function EarningsPage() {
     </div>
   );
 }
+
+export default EarningsPage;

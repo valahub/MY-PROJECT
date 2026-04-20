@@ -282,3 +282,5 @@ function AdminDigitalTwinPage() {
     </div>
   );
 }
+
+export default AdminDigitalTwinPage;

@@ -192,3 +192,5 @@ function CustomerAccountPage() {
     </div>
   );
 }
+
+export default CustomerAccountPage;

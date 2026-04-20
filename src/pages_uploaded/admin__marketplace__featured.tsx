@@ -115,3 +115,5 @@ function FeaturedManager() {
     </div>
   );
 }
+
+export default FeaturedManager;
