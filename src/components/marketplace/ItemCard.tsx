@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { Star, ShoppingCart } from "lucide-react";
 import { coverFor, type MarketItem } from "@/lib/marketplace-data";
 import { Button } from "@/components/ui/button";
