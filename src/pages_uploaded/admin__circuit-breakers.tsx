@@ -325,4 +325,4 @@ function AdminCircuitBreakersPage() {
   );
 }
 
-export default stateToVariant;
+export default AdminCircuitBreakersPage;

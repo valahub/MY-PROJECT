@@ -139,4 +139,4 @@ function Badges() {
   );
 }
 
-export default Badges;
+export default LEVELS;

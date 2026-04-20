@@ -190,4 +190,4 @@ function Takedowns() {
   );
 }
 
-export default Takedowns;
+export default REQUESTS;

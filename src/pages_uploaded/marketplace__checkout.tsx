@@ -625,4 +625,4 @@ function MarketplaceCheckout() {
   );
 }
 
-export default MarketplaceCheckout;
+export default COUNTRIES;

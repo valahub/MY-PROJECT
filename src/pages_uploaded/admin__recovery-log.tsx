@@ -392,4 +392,4 @@ function AdminRecoveryLogPage() {
   );
 }
 
-export default outcomeVariant;
+export default AdminRecoveryLogPage;

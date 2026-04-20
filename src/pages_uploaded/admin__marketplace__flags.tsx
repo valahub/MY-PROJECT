@@ -215,4 +215,4 @@ function FlagsManager() {
   );
 }
 
-export default FlagsManager;
+export default REPORTS;

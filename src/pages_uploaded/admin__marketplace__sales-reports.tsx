@@ -221,4 +221,4 @@ function SalesReports() {
   );
 }
 
-export default SalesReports;
+export default COLORS;

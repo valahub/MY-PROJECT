@@ -140,4 +140,4 @@ function Withdraw() {
   );
 }
 
-export default Withdraw;
+export default HISTORY;

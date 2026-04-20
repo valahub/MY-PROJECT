@@ -252,4 +252,4 @@ function MerchantDashboard() {
   );
 }
 
-export default MerchantDashboard;
+export default PRIMARY;

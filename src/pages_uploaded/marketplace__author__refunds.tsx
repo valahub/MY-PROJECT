@@ -111,4 +111,4 @@ function AuthorRefunds() {
   );
 }
 
-export default AuthorRefunds;
+export default REFUNDS;
