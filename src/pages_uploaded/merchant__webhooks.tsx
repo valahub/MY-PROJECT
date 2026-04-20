@@ -127,7 +127,7 @@ function MerchantWebhooks() {
         data={endpoints}
         searchable={false}
         onEdit={(e) => {
-          navigate({ to: "/merchant/webhooks/create", search: { endpointId: e.id } });
+          navigate("/merchant/webhooks/create");
         }}
         onDelete={handleDelete}
         getItemLabel={(e) => e.url}

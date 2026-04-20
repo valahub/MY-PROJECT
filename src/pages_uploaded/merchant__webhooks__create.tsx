@@ -63,7 +63,7 @@ function CreateWebhookPage() {
         const existing = endpoints.find((ep) => ep.id === endpointId);
         if (!existing) {
           toast.error("Webhook endpoint not found.");
-          navigate({ to: "/merchant/webhooks" });
+          navigate("/merchant/webhooks");
           return;
         }
         setUrl(existing.url);
@@ -125,7 +125,7 @@ function CreateWebhookPage() {
         selectedEvents,
       });
       toast.success(endpointId ? "Webhook endpoint updated." : "Webhook endpoint created.");
-      navigate({ to: "/merchant/webhooks" });
+      navigate("/merchant/webhooks");
     } catch (error) {
       toast.error(getUiErrorMessage(error, "Could not save endpoint."));
     } finally {

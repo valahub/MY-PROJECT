@@ -99,7 +99,7 @@ function MerchantDiscounts() {
         searchKey="code"
         onEdit={(d) => {
           toast.info(`Editing ${d.code} (mock)`);
-          navigate({ to: "/merchant/discounts/create" });
+          navigate("/merchant/discounts/create");
         }}
         onDelete={(d) => handleDelete(d)}
         getItemLabel={(d) => d.code}

@@ -40,7 +40,7 @@ function MarketplaceLayout() {
   const [mobileQ, setMobileQ] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const isHome = location.pathname === "/marketplace" || location.pathname === "/marketplace/";
-  const submitSearch = (q: string) => navigate({ to: "/marketplace/search", search: { q } });
+  const submitSearch = (q: string) => navigate("/marketplace/search");
 
   useEffect(() => {
     let mounted = true;

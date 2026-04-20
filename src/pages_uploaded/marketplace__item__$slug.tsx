@@ -89,15 +89,11 @@ function ItemDetail() {
 
   useEffect(() => {
     if (!matched) {
-      navigate({ to: "/marketplace" });
+      navigate("/marketplace");
       return;
     }
     if (slug !== matched.slug) {
-      navigate({
-        to: "/marketplace/item/$slug",
-        params: { slug: matched.slug },
-        replace: true,
-      });
+      navigate(`/marketplace/item/${matched.slug}`);
     }
   }, [matched, navigate, slug]);
 
@@ -128,11 +124,7 @@ function ItemDetail() {
     const canonical = canonicalizeSeoPath(url.pathname, url.searchParams);
     const current = `${url.pathname}${url.search}`;
     if (canonical !== current) {
-      navigate({
-        to: "/marketplace/item/$slug",
-        params: { slug: item.slug },
-        replace: true,
-      });
+      navigate(`/marketplace/item/${item.slug}`);
     }
   }, [item?.slug, location.pathname, navigate]);
 
@@ -141,7 +133,7 @@ function ItemDetail() {
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-2">Item not found</h1>
         <p className="text-muted-foreground">The requested marketplace item could not be found.</p>
-        <Button className="mt-4" onClick={() => navigate({ to: "/marketplace" })}>
+        <Button className="mt-4" onClick={() => navigate("/marketplace")}>
           Return to Marketplace
         </Button>
       </div>
@@ -180,7 +172,7 @@ function ItemDetail() {
 
   const handleBuyNow = async () => {
     await addToCartAction.trigger({ itemId: item.id });
-    navigate({ to: "/marketplace/checkout" });
+    navigate("/marketplace/checkout");
   };
 
   return (
@@ -428,10 +420,7 @@ function ItemDetail() {
                 size="sm"
                 className="w-full mt-3"
                 onClick={() =>
-                  navigate({
-                    to: "/marketplace/author/$username",
-                    params: { username: item.author },
-                  })
+                  navigate(`/marketplace/author/${item.author}`)
                 }
               >
                 Contact Author

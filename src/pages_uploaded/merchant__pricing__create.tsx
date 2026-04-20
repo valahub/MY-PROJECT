@@ -56,7 +56,7 @@ function CreatePricingPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Price created successfully");
-      navigate({ to: "/merchant/pricing" });
+      navigate("/merchant/pricing");
     } catch (error) {
       toast.error("Failed to create price");
     } finally {

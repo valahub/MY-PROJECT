@@ -54,7 +54,7 @@ function CreateDiscountPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Discount created successfully");
-      navigate({ to: "/merchant/discounts" });
+      navigate("/merchant/discounts");
     } catch (error) {
       toast.error("Failed to create discount");
     } finally {

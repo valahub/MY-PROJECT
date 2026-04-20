@@ -96,7 +96,7 @@ function CreateProductPage() {
       onSuccess: (_result) => {
         clearDraft();
         toast.success("Product created successfully");
-        void navigate({ to: "/merchant/products" });
+        void navigate("/merchant/products");
       },
       onError: (err) => {
         const msg = err instanceof Error ? err.message : "Failed to create product";

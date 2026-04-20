@@ -83,7 +83,7 @@ function MerchantPricing() {
 
   const handleEdit = (p: (typeof initialPrices)[0]) => {
     toast.info(`Editing ${p.product} — ${p.description} (mock)`);
-    navigate({ to: "/merchant/pricing/create" });
+    navigate("/merchant/pricing/create");
   };
 
   const confirmDelete = async () => {
