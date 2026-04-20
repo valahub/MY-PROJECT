@@ -263,6 +263,7 @@ function BoardSection({ onOpen }: { onOpen: (i: Issue) => void }) {
 }
 
 function BacklogSection({ onOpen }: { onOpen: (i: Issue) => void }) {
+  const [planOpen, setPlanOpen] = useState(false);
   return (
     <>
       <div className="flex items-center justify-between">
@@ -270,7 +271,12 @@ function BacklogSection({ onOpen }: { onOpen: (i: Issue) => void }) {
           <h2 className="text-2xl font-bold">Backlog</h2>
           <p className="text-sm text-muted-foreground">Plan upcoming sprints</p>
         </div>
-        <Button><Plus className="h-4 w-4 mr-1" /> Create Issue</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setPlanOpen(true)}>
+            <Calendar className="h-4 w-4 mr-1" /> Plan Sprint
+          </Button>
+          <Button><Plus className="h-4 w-4 mr-1" /> Create Issue</Button>
+        </div>
       </div>
 
       <Card>
@@ -296,7 +302,77 @@ function BacklogSection({ onOpen }: { onOpen: (i: Issue) => void }) {
           ))}
         </CardContent>
       </Card>
+
+      <SprintPlanDialog open={planOpen} onClose={() => setPlanOpen(false)} />
     </>
+  );
+}
+
+function SprintPlanDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [picked, setPicked] = useState<Set<string>>(new Set(["ERP-101", "ERP-102"]));
+  const toggle = (id: string) => {
+    const next = new Set(picked);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setPicked(next);
+  };
+  const total = SEED_ISSUES.filter((i) => picked.has(i.id)).reduce((s, i) => s + i.points, 0);
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Plan Sprint 15</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <label className="text-xs text-muted-foreground">Sprint name</label>
+            <Input defaultValue="ERP Sprint 15" className="mt-1" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">Goal</label>
+            <Input defaultValue="Ship author payouts MVP" className="mt-1" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">Start</label>
+            <Input type="date" defaultValue="2026-04-27" className="mt-1" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">End</label>
+            <Input type="date" defaultValue="2026-05-10" className="mt-1" />
+          </div>
+        </div>
+        <Separator />
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold">Pick issues from backlog</p>
+            <Badge variant="secondary">{picked.size} selected · {total} pts</Badge>
+          </div>
+          <div className="max-h-64 overflow-auto border border-border rounded-md">
+            {SEED_ISSUES.map((i) => (
+              <label
+                key={i.id}
+                className="flex items-center gap-3 px-3 py-2 border-b border-border last:border-0 hover:bg-muted/40 cursor-pointer text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={picked.has(i.id)}
+                  onChange={() => toggle(i.id)}
+                  className="h-4 w-4"
+                />
+                <TypeBadge type={i.type} />
+                <span className="font-mono text-xs text-muted-foreground w-20">{i.id}</span>
+                <span className="flex-1 truncate">{i.title}</span>
+                <Badge variant="secondary" className="text-[10px]">{i.points}</Badge>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>Start Sprint</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
