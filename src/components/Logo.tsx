@@ -1,7 +1,21 @@
 import logoImg from "@/assets/erp-vala-logo.jpg";
+import { cn } from "@/lib/utils";
 
-export function Logo({ className = "h-8" }: { className?: string }) {
-  return <img src={logoImg} alt="ERP Vala" className={className} />;
+interface LogoProps {
+  className?: string;
+  size?: number;
+}
+
+export function Logo({ className, size }: LogoProps) {
+  const style = size ? { height: size, width: size } : undefined;
+  return (
+    <img
+      src={logoImg}
+      alt="ERP Vala"
+      className={cn(!size && "h-8", className)}
+      style={style}
+    />
+  );
 }
 
 export function LogoText() {
