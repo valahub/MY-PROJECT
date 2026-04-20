@@ -327,12 +327,51 @@ function FilesSection() {
     { name: "tmp", children: [] as string[] },
   ];
   const files = [
-    { name: "index.html", size: "4.2 KB", modified: "2026-04-19 14:22" },
-    { name: "app.js", size: "182 KB", modified: "2026-04-19 14:22" },
-    { name: "styles.css", size: "22 KB", modified: "2026-04-18 10:01" },
-    { name: ".env.production", size: "1.1 KB", modified: "2026-04-15 09:14" },
-    { name: "robots.txt", size: "210 B", modified: "2026-04-10 12:00" },
+    { name: "index.html", size: "4.2 KB", modified: "2026-04-19 14:22", lang: "html" },
+    { name: "app.js", size: "182 KB", modified: "2026-04-19 14:22", lang: "js" },
+    { name: "styles.css", size: "22 KB", modified: "2026-04-18 10:01", lang: "css" },
+    { name: ".env.production", size: "1.1 KB", modified: "2026-04-15 09:14", lang: "env" },
+    { name: "robots.txt", size: "210 B", modified: "2026-04-10 12:00", lang: "txt" },
   ];
+  const SAMPLES: Record<string, string> = {
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ERPVala</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>`,
+    js: `// app.js — entry bundle (minified in prod)
+import { mount } from "./runtime";
+
+mount("#root", {
+  apiBase: "/api",
+  features: { checkout: true, licenses: true },
+});`,
+    css: `:root {
+  --brand: #EB0045;
+  --ink:   #00205C;
+}
+
+body { font-family: Inter, system-ui; color: var(--ink); }
+.btn-primary { background: var(--brand); color: #fff; }`,
+    env: `NODE_ENV=production
+APP_URL=https://erpvala.com
+DATABASE_URL=postgres://prod:***@db:5432/erpvala_prod
+REDIS_URL=redis://cache:6379`,
+    txt: `User-agent: *
+Allow: /
+Sitemap: https://erpvala.com/sitemap.xml`,
+  };
+
+  const [selected, setSelected] = useState(files[0]);
+  const [mode, setMode] = useState<"list" | "edit">("list");
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -347,7 +386,7 @@ function FilesSection() {
       </div>
       <Card>
         <CardContent className="p-0">
-          <div className="grid grid-cols-12 min-h-[420px]">
+          <div className="grid grid-cols-12 min-h-[520px]">
             {/* Tree */}
             <div className="col-span-3 border-r border-border p-3 text-sm space-y-1">
               {tree.map((dir) => (
@@ -366,36 +405,77 @@ function FilesSection() {
                 </div>
               ))}
             </div>
-            {/* Right panel */}
-            <div className="col-span-9">
-              <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground font-mono">
-                /var/www/erpvala.com/public
+            {/* Middle: file list */}
+            <div className="col-span-4 border-r border-border">
+              <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground font-mono flex items-center justify-between">
+                <span>/var/www/erpvala.com/public</span>
+                <span>{files.length} items</span>
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Modified</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {files.map((f) => (
-                    <TableRow key={f.name}>
-                      <TableCell className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" /> {f.name}
-                      </TableCell>
-                      <TableCell className="text-sm">{f.size}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{f.modified}</TableCell>
-                      <TableCell className="text-right space-x-1">
-                        <Button size="sm" variant="ghost">Edit</Button>
-                        <Button size="sm" variant="ghost">Download</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div>
+                {files.map((f) => (
+                  <button
+                    key={f.name}
+                    onClick={() => { setSelected(f); setMode("list"); }}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-4 py-2 border-b border-border last:border-0 text-left text-sm hover:bg-muted/40",
+                      selected.name === f.name && "bg-accent/40",
+                    )}
+                  >
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="flex-1 truncate">{f.name}</span>
+                    <span className="text-xs text-muted-foreground">{f.size}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Right: editor/preview pane */}
+            <div className="col-span-5 flex flex-col">
+              <div className="px-4 py-2 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-mono">{selected.name}</span>
+                  <Badge variant="secondary" className="text-[10px] uppercase">{selected.lang}</Badge>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant={mode === "list" ? "default" : "ghost"}
+                    onClick={() => setMode("list")}
+                  >
+                    Preview
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={mode === "edit" ? "default" : "ghost"}
+                    onClick={() => setMode("edit")}
+                  >
+                    Edit
+                  </Button>
+                  <Button size="sm" variant="outline">Save</Button>
+                </div>
+              </div>
+              <div className="flex-1 bg-muted/30 font-mono text-xs overflow-auto">
+                {mode === "list" ? (
+                  <pre className="p-4 whitespace-pre leading-relaxed">{SAMPLES[selected.lang]}</pre>
+                ) : (
+                  <div className="flex">
+                    <div className="select-none px-3 py-4 text-right text-muted-foreground border-r border-border">
+                      {SAMPLES[selected.lang].split("\n").map((_, i) => (
+                        <div key={i}>{i + 1}</div>
+                      ))}
+                    </div>
+                    <textarea
+                      defaultValue={SAMPLES[selected.lang]}
+                      className="flex-1 bg-transparent outline-none p-4 resize-none leading-relaxed"
+                      rows={SAMPLES[selected.lang].split("\n").length + 2}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="px-4 py-1.5 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground bg-card">
+                <span>UTF-8 · LF · {selected.size}</span>
+                <span>Modified {selected.modified}</span>
+              </div>
             </div>
           </div>
         </CardContent>
