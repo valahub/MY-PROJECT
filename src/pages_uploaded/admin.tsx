@@ -157,8 +157,24 @@ const navItems = [
   { title: "Observability", href: "/admin/observability", icon: Activity },
   { title: "Cost Optimization", href: "/admin/cost-optimization", icon: TrendingDown },
   { title: "AI Assist", href: "/admin/ai-assist", icon: Brain },
-  { title: "Server Panel", href: "/admin/server", icon: Cpu },
-  { title: "Development", href: "/admin/development", icon: GitBranch },
+  {
+    title: "Server",
+    href: "/admin/server",
+    icon: Cpu,
+    children: [
+      { title: "Server Dashboard", href: "/admin/server/dashboard" },
+      { title: "Server Management", href: "/admin/server/management" },
+    ],
+  },
+  {
+    title: "Development",
+    href: "/admin/development",
+    icon: GitBranch,
+    children: [
+      { title: "Developer Management", href: "/admin/development/management" },
+      { title: "Developer Dashboard", href: "/admin/development/dashboard" },
+    ],
+  },
 ];
 
 // silence unused warnings for icons declared for documentation
