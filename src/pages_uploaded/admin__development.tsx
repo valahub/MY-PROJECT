@@ -87,8 +87,8 @@ const SEED_ISSUES: Issue[] = [
   { id: "ERP-108", title: "Webhook retry exponential backoff", status: "inprogress", type: "Bug", priority: "Medium", assignee: "DV", points: 5 },
 ];
 
-export default function AdminDevelopmentPage() {
-  const [section, setSection] = useState<SectionKey>("boards");
+export default function AdminDevelopmentPage({ initialSection = "boards" }: { initialSection?: SectionKey } = {}) {
+  const [section, setSection] = useState<SectionKey>(initialSection);
   const [openIssue, setOpenIssue] = useState<Issue | null>(null);
 
   return (

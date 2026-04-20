@@ -76,7 +76,8 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<{ cl
 ];
 
 export default function AdminServerPage() {
-  const [section, setSection] = useState<SectionKey>("dashboard");
+export default function AdminServerPage({ initialSection = "dashboard" }: { initialSection?: SectionKey } = {}) {
+  const [section, setSection] = useState<SectionKey>(initialSection);
 
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[600px] border border-border rounded-lg overflow-hidden bg-background">
