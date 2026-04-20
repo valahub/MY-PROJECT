@@ -132,4 +132,4 @@ function AuthorReviews() {
   );
 }
 
-export default REVIEWS;
+export default AuthorReviews;

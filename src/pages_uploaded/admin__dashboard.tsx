@@ -274,4 +274,4 @@ function AdminDashboard() {
   );
 }
 
-export default PRIMARY;
+export default AdminDashboard;

@@ -181,4 +181,4 @@ function Collections() {
   );
 }
 
-export default COLLECTIONS;
+export default Collections;

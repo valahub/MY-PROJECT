@@ -77,4 +77,4 @@ function Followers() {
   );
 }
 
-export default FOLLOWERS;
+export default Followers;

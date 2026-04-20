@@ -136,4 +136,4 @@ function Levels() {
   );
 }
 
-export default LEVELS;
+export default Levels;

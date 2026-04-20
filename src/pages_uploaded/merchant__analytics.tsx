@@ -436,4 +436,4 @@ function MerchantAnalytics() {
   );
 }
 
-export default PRIMARY;
+export default MerchantAnalytics;

@@ -221,4 +221,4 @@ function TaxRules() {
   );
 }
 
-export default RULES;
+export default TaxRules;
