@@ -191,11 +191,11 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   const envelope = await parseEnvelope<T>(response);
   if (!response.ok) {
-    const message = envelope && !envelope.success ? envelope.error.message : response.statusText;
-    const fieldErrors =
-      envelope && !envelope.success ? (envelope.error.details?.fieldErrors ?? {}) : {};
+    const failure = envelope && !envelope.success ? (envelope as ApiFailure) : null;
+    const message = failure ? failure.error.message : response.statusText;
+    const fieldErrors = failure ? (failure.error.details?.fieldErrors ?? {}) : {};
     throw new ApiClientError(message || "Request failed", response.status, {
-      code: envelope && !envelope.success ? envelope.error.code : undefined,
+      code: failure ? failure.error.code : undefined,
       fieldErrors,
     });
   }
@@ -204,9 +204,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     throw new ApiClientError("Invalid server response", response.status);
   }
   if (!envelope.success) {
-    throw new ApiClientError(envelope.error.message, response.status, {
-      code: envelope.error.code,
-      fieldErrors: envelope.error.details?.fieldErrors ?? {},
+    const failure = envelope as ApiFailure;
+    throw new ApiClientError(failure.error.message, response.status, {
+      code: failure.error.code,
+      fieldErrors: failure.error.details?.fieldErrors ?? {},
     });
   }
   return envelope.data;

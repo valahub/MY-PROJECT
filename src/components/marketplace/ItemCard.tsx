@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { Star, ShoppingCart } from "lucide-react";
 import { coverFor, type MarketItem } from "@/lib/marketplace-data";
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 export function ItemCard({ item }: { item: MarketItem }) {
   return (
     <Link
-      to="/marketplace/item/$slug"
-      params={{ slug: item.slug }}
+      to={`/marketplace/item/${item.slug}`}
       className="group block rounded-lg border bg-card overflow-hidden hover:shadow-lg hover:border-primary/40 transition-all"
     >
       <div

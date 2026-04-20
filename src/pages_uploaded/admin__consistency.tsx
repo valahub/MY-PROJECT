@@ -399,4 +399,4 @@ function AdminConsistencyPage() {
   );
 }
 
-export default severityVariant;
+export default AdminConsistencyPage;

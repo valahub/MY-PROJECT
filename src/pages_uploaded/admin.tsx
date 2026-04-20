@@ -60,16 +60,9 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-({
-  beforeLoad: async (ctx) => {
-    await enforceAuth({ roles: ["admin"] })(ctx);
-    const user = authService.getCurrentUser();
-    if (user && !user.twoFactorEnabled) {
-      throw redirect({ to: "/customer/security" });
-    }
-  },
-  component: AdminLayout,
-});
+// Route guard placeholder (TanStack-style; not used by react-router-dom).
+void enforceAuth;
+void authService;
 
 const navItems = [
   { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },

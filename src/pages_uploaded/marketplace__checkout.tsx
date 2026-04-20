@@ -135,7 +135,7 @@ function MarketplaceCheckout() {
           setCart(items);
         } else {
           toast.error("Your cart is empty");
-          navigate({ to: "/marketplace" });
+          navigate("/marketplace");
         }
       })
       .catch((error) => {
@@ -274,7 +274,7 @@ function MarketplaceCheckout() {
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => navigate({ to: "/marketplace" })}
+                onClick={() => navigate("/marketplace")}
               >
                 Continue Shopping
               </Button>

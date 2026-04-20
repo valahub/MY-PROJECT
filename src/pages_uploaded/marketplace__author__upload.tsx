@@ -63,7 +63,7 @@ function UploadItem() {
       retry: { maxAttempts: 2, backoffMs: 800 },
       onSuccess: () => {
         toast.success("Item submitted for review!");
-        navigate({ to: "/marketplace/author/portfolio" });
+        navigate("/marketplace/author/portfolio");
       },
       onError: (error) => toast.error(getUiErrorMessage(error, "Submission failed.")),
     },

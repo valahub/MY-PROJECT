@@ -367,4 +367,4 @@ function AdminSystemHealthPage() {
   );
 }
 
-export default statusToVariant;
+export default AdminSystemHealthPage;

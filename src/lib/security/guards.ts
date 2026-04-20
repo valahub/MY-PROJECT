@@ -1,4 +1,9 @@
-import { redirect } from "@tanstack/react-router";
+// Stubbed: TanStack Router redirect not available in this app (uses react-router-dom).
+const redirect = (opts: { to: string; search?: Record<string, unknown> }) => {
+  const err = new Error(`Redirect to ${opts.to}`);
+  (err as unknown as { redirect: typeof opts }).redirect = opts;
+  return err;
+};
 import { authService } from "./auth";
 import type { Role } from "./types";
 

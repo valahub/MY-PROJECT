@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from "@tanstack/react-router";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { LogoText } from "./Logo";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";

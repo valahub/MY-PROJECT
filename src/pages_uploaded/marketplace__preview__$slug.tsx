@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useParams} from "react-router-dom";
 import { ITEMS, coverFor } from "@/lib/marketplace-data";
 import { Button } from "@/components/ui/button";
 import { Monitor, Tablet, Smartphone, ExternalLink, ArrowLeft } from "lucide-react";
@@ -31,7 +31,7 @@ import { buildMarketplaceProductMeta, normalizeSeoSlug } from "@/lib/marketplace
 });
 
 function LivePreview() {
-  const { slug } = Route.useParams();
+  const { slug } = useParams() as Record<string, string>;
   const item = ITEMS.find((i) => i.slug === slug) || (ITEMS.length > 0 ? ITEMS[0] : null);
 
   if (!item) {
