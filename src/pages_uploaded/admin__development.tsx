@@ -64,6 +64,8 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<{ cl
   { key: "issues", label: "Issues", icon: ListChecks },
   { key: "boards", label: "Boards", icon: Columns3 },
   { key: "backlog", label: "Backlog", icon: ListOrdered },
+  { key: "timeline", label: "Timeline", icon: GanttChart },
+  { key: "epics", label: "Epics", icon: Layers },
   { key: "reports", label: "Reports", icon: BarChart3 },
 ];
 
