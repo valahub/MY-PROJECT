@@ -99,3 +99,5 @@ function AuthorSettings() {
     </div>
   );
 }
+
+export default AuthorSettings;

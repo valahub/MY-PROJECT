@@ -205,3 +205,5 @@ function CategoriesManager() {
     </div>
   );
 }
+
+export default CategoriesManager;

@@ -184,3 +184,5 @@ function AdminRateLimitsPage() {
     </div>
   );
 }
+
+export default AdminRateLimitsPage;

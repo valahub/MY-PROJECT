@@ -35,3 +35,5 @@ function SupportLayout() {
     />
   );
 }
+
+export default SupportLayout;

@@ -133,3 +133,5 @@ function LivePreview() {
     </div>
   );
 }
+
+export default LivePreview;

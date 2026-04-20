@@ -279,3 +279,5 @@ function CreateProductPage() {
     </div>
   );
 }
+
+export default CreateProductPage;

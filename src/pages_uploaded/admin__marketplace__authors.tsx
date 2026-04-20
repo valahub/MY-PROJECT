@@ -120,3 +120,5 @@ function AdminAuthors() {
     </div>
   );
 }
+
+export default AdminAuthors;

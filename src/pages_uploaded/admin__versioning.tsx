@@ -299,3 +299,5 @@ function AdminVersioningPage() {
     </div>
   );
 }
+
+export default AdminVersioningPage;

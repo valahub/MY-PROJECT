@@ -335,3 +335,5 @@ function AdminTrustScoresPage() {
     </div>
   );
 }
+
+export default AdminTrustScoresPage;

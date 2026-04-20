@@ -172,3 +172,5 @@ function AdminBillingPage() {
     </div>
   );
 }
+
+export default AdminBillingPage;

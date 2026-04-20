@@ -282,3 +282,5 @@ function AdminConfigSyncPage() {
     </div>
   );
 }
+
+export default AdminConfigSyncPage;

@@ -365,3 +365,5 @@ function MarketplaceLayout() {
     </div>
   );
 }
+
+export default MarketplaceLayout;

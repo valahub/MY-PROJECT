@@ -198,3 +198,5 @@ function AdminWebhooksPage() {
     </div>
   );
 }
+
+export default AdminWebhooksPage;

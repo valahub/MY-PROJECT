@@ -381,3 +381,5 @@ function AdminFeatureFlagsPage() {
     </div>
   );
 }
+
+export default AdminFeatureFlagsPage;

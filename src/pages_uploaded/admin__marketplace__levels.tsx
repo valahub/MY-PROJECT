@@ -135,3 +135,5 @@ function Levels() {
     </div>
   );
 }
+
+export default Levels;

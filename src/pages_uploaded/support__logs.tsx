@@ -155,3 +155,5 @@ function SupportLogsPage() {
     </div>
   );
 }
+
+export default SupportLogsPage;

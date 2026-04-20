@@ -230,3 +230,5 @@ function PayoutsManager() {
     </div>
   );
 }
+
+export default PayoutsManager;

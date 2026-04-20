@@ -364,3 +364,5 @@ function AdminAiAssistPage() {
     </div>
   );
 }
+
+export default AdminAiAssistPage;

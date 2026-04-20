@@ -241,3 +241,5 @@ function AdminPolicyEnginePage() {
     </div>
   );
 }
+
+export default AdminPolicyEnginePage;

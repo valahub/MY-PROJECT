@@ -189,3 +189,5 @@ function Takedowns() {
     </div>
   );
 }
+
+export default Takedowns;

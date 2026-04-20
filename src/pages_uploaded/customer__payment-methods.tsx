@@ -123,3 +123,5 @@ function CustomerPaymentMethods() {
     </div>
   );
 }
+
+export default CustomerPaymentMethods;

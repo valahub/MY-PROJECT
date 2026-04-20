@@ -348,3 +348,5 @@ function AdminApiSelfTestPage() {
     </div>
   );
 }
+
+export default AdminApiSelfTestPage;

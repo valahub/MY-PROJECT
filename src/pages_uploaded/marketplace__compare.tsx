@@ -117,3 +117,5 @@ function Compare() {
     </div>
   );
 }
+
+export default Compare;

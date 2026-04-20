@@ -114,3 +114,5 @@ function AuthorAnalytics() {
     </div>
   );
 }
+
+export default AuthorAnalytics;

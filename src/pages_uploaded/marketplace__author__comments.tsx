@@ -97,3 +97,5 @@ function CommentsPage() {
     </div>
   );
 }
+
+export default CommentsPage;

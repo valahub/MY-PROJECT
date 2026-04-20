@@ -573,3 +573,5 @@ function CheckoutPage() {
     </div>
   );
 }
+
+export default CheckoutPage;

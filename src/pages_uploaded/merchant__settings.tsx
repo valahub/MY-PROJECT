@@ -187,3 +187,5 @@ function MerchantSettings() {
     </div>
   );
 }
+
+export default MerchantSettings;

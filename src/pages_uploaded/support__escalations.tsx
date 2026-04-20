@@ -71,3 +71,5 @@ function SupportEscalationsPage() {
     </div>
   );
 }
+
+export default SupportEscalationsPage;

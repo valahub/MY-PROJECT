@@ -378,3 +378,5 @@ function AdminObservabilityPage() {
     </div>
   );
 }
+
+export default AdminObservabilityPage;

@@ -169,3 +169,5 @@ function MerchantAPI() {
     </div>
   );
 }
+
+export default MerchantAPI;

@@ -286,3 +286,5 @@ function AdminEventBusPage() {
     </div>
   );
 }
+
+export default AdminEventBusPage;

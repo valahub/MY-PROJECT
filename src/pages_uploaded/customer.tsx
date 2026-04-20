@@ -37,3 +37,5 @@ function CustomerLayout() {
     <DashboardLayout navItems={navItems} panelName="Customer Portal" userEmail="john@example.com" />
   );
 }
+
+export default CustomerLayout;

@@ -276,3 +276,5 @@ function AdminSchedulerPage() {
     </div>
   );
 }
+
+export default AdminSchedulerPage;

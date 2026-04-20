@@ -238,3 +238,5 @@ function MarketplaceDownloads() {
     </div>
   );
 }
+
+export default MarketplaceDownloads;

@@ -75,3 +75,5 @@ function AuthorLayout() {
     </div>
   );
 }
+
+export default AuthorLayout;

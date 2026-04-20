@@ -101,3 +101,5 @@ function CustomerInvoices() {
     </div>
   );
 }
+
+export default CustomerInvoices;

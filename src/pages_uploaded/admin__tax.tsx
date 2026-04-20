@@ -231,3 +231,5 @@ function AdminTaxPage() {
     </div>
   );
 }
+
+export default AdminTaxPage;

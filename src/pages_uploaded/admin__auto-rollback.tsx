@@ -292,3 +292,5 @@ function AdminAutoRollbackPage() {
     </div>
   );
 }
+
+export default AdminAutoRollbackPage;

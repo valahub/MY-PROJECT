@@ -329,3 +329,5 @@ function AdminDocumentsPage() {
     </div>
   );
 }
+
+export default AdminDocumentsPage;

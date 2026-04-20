@@ -143,3 +143,5 @@ function AuthorDashboard() {
     </div>
   );
 }
+
+export default AuthorDashboard;

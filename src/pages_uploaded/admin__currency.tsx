@@ -163,3 +163,5 @@ function AdminCurrencyPage() {
     </div>
   );
 }
+
+export default AdminCurrencyPage;

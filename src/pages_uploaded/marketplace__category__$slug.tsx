@@ -164,3 +164,5 @@ function CategoryPage() {
     </div>
   );
 }
+
+export default CategoryPage;

@@ -148,3 +148,5 @@ function MerchantLicenses() {
     </div>
   );
 }
+
+export default MerchantLicenses;

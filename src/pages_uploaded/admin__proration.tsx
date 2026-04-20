@@ -178,3 +178,5 @@ function AdminProrationPage() {
     </div>
   );
 }
+
+export default AdminProrationPage;

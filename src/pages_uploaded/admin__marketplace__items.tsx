@@ -150,3 +150,5 @@ function AdminItems() {
     </div>
   );
 }
+
+export default AdminItems;

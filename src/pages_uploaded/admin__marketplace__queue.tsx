@@ -331,3 +331,5 @@ function ReviewQueue() {
     </div>
   );
 }
+
+export default ReviewQueue;

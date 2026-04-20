@@ -249,3 +249,5 @@ function AdminApiLogsPage() {
     </div>
   );
 }
+
+export default AdminApiLogsPage;

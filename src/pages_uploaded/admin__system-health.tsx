@@ -366,3 +366,5 @@ function AdminSystemHealthPage() {
     </div>
   );
 }
+
+export default statusToVariant;

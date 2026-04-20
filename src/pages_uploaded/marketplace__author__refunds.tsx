@@ -110,3 +110,5 @@ function AuthorRefunds() {
     </div>
   );
 }
+
+export default AuthorRefunds;

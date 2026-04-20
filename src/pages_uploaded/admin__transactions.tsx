@@ -200,3 +200,5 @@ function AdminTransactions() {
     </div>
   );
 }
+
+export default AdminTransactions;

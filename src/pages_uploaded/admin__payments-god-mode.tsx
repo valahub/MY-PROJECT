@@ -502,3 +502,5 @@ function AdminPaymentsGodModePage() {
     </div>
   );
 }
+
+export default AdminPaymentsGodModePage;

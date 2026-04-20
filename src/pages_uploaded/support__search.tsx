@@ -109,3 +109,5 @@ function SupportSearchPage() {
     </div>
   );
 }
+
+export default SupportSearchPage;

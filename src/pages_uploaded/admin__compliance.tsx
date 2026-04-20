@@ -456,3 +456,5 @@ function AdminCompliancePage() {
     </div>
   );
 }
+
+export default AdminCompliancePage;

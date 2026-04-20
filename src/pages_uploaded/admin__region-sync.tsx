@@ -305,3 +305,5 @@ function AdminRegionSyncPage() {
     </div>
   );
 }
+
+export default AdminRegionSyncPage;

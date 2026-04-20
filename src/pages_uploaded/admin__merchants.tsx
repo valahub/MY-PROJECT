@@ -124,3 +124,5 @@ function AdminMerchants() {
     </div>
   );
 }
+
+export default AdminMerchants;

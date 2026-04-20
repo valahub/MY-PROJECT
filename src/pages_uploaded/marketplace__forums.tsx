@@ -38,3 +38,5 @@ function ForumsPage() {
     </div>
   );
 }
+
+export default ForumsPage;

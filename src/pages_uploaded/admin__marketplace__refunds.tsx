@@ -149,3 +149,5 @@ function AdminRefunds() {
     </div>
   );
 }
+
+export default AdminRefunds;

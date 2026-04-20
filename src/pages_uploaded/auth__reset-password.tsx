@@ -57,3 +57,5 @@ function ResetPasswordPage() {
     </form>
   );
 }
+
+export default ResetPasswordPage;

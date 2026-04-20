@@ -179,3 +179,5 @@ function MerchantPricing() {
     </div>
   );
 }
+
+export default MerchantPricing;

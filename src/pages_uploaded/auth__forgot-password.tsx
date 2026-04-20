@@ -45,3 +45,5 @@ function ForgotPasswordPage() {
     </form>
   );
 }
+
+export default ForgotPasswordPage;

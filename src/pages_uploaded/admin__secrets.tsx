@@ -312,3 +312,5 @@ function AdminSecretsPage() {
     </div>
   );
 }
+
+export default AdminSecretsPage;

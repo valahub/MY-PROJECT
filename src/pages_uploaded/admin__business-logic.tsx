@@ -294,3 +294,5 @@ function AdminBusinessLogicPage() {
     </div>
   );
 }
+
+export default AdminBusinessLogicPage;

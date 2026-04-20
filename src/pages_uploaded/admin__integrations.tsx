@@ -344,3 +344,5 @@ function AdminIntegrationsPage() {
     </div>
   );
 }
+
+export default AdminIntegrationsPage;

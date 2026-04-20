@@ -54,3 +54,5 @@ function MerchantLayout() {
     />
   );
 }
+
+export default MerchantLayout;

@@ -145,3 +145,5 @@ function AdminRolesPage() {
     </div>
   );
 }
+
+export default AdminRolesPage;

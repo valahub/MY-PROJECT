@@ -131,3 +131,5 @@ function AuthorReviews() {
     </div>
   );
 }
+
+export default AuthorReviews;

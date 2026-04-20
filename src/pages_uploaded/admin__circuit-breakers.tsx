@@ -324,3 +324,5 @@ function AdminCircuitBreakersPage() {
     </div>
   );
 }
+
+export default stateToVariant;

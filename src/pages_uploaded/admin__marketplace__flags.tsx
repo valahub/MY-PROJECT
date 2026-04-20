@@ -214,3 +214,5 @@ function FlagsManager() {
     </div>
   );
 }
+
+export default FlagsManager;

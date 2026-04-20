@@ -624,3 +624,5 @@ function MarketplaceCheckout() {
     </div>
   );
 }
+
+export default MarketplaceCheckout;

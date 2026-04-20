@@ -144,3 +144,5 @@ function CustomerSubscriptions() {
     </div>
   );
 }
+
+export default CustomerSubscriptions;

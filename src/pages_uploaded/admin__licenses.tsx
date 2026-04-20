@@ -131,3 +131,5 @@ function AdminLicensesPage() {
     </div>
   );
 }
+
+export default AdminLicensesPage;

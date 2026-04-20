@@ -145,3 +145,5 @@ function MerchantWebhooks() {
     </div>
   );
 }
+
+export default MerchantWebhooks;

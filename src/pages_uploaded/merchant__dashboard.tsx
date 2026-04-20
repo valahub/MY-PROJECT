@@ -251,3 +251,5 @@ function MerchantDashboard() {
     </div>
   );
 }
+
+export default MerchantDashboard;

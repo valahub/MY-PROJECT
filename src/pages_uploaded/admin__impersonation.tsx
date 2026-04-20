@@ -274,3 +274,5 @@ function AdminImpersonationPage() {
     </div>
   );
 }
+
+export default AdminImpersonationPage;

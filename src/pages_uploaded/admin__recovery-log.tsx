@@ -391,3 +391,5 @@ function AdminRecoveryLogPage() {
     </div>
   );
 }
+
+export default outcomeVariant;

@@ -252,3 +252,5 @@ function AdminMemoryRecoveryPage() {
     </div>
   );
 }
+
+export default AdminMemoryRecoveryPage;
