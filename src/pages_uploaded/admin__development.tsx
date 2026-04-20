@@ -656,3 +656,189 @@ function Row({ k, children }: { k: string; children: React.ReactNode }) {
     </div>
   );
 }
+
+/* ───────────── Timeline (Gantt) ───────────── */
+
+type TimelineBar = {
+  id: string;
+  title: string;
+  epic: string;
+  start: number; // week index 0-11
+  span: number;
+  color: string;
+  assignee: string;
+};
+
+const TIMELINE_BARS: TimelineBar[] = [
+  { id: "ERP-201", title: "Checkout v2", epic: "Payments", start: 0, span: 4, color: "bg-primary/70", assignee: "RA" },
+  { id: "ERP-202", title: "Author payouts", epic: "Marketplace", start: 2, span: 5, color: "bg-secondary/70", assignee: "JS" },
+  { id: "ERP-203", title: "Approval workflow", epic: "Marketplace", start: 1, span: 3, color: "bg-secondary/70", assignee: "MK" },
+  { id: "ERP-204", title: "License keys", epic: "Payments", start: 4, span: 3, color: "bg-primary/70", assignee: "JS" },
+  { id: "ERP-205", title: "Webhook retries", epic: "Platform", start: 5, span: 2, color: "bg-accent/70", assignee: "DV" },
+  { id: "ERP-206", title: "SSO / SAML", epic: "Platform", start: 7, span: 4, color: "bg-accent/70", assignee: "MK" },
+  { id: "ERP-207", title: "Reporting dashboard", epic: "Analytics", start: 6, span: 5, color: "bg-success/70", assignee: "RA" },
+  { id: "ERP-208", title: "Mobile app v1", epic: "Mobile", start: 3, span: 8, color: "bg-primary/50", assignee: "DV" },
+];
+
+const WEEKS = Array.from({ length: 12 }, (_, i) => `W${i + 1}`);
+
+function TimelineSection({ onOpen }: { onOpen: (i: Issue) => void }) {
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Timeline</h2>
+          <p className="text-sm text-muted-foreground">Roadmap across Q2 · 12 weeks</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">Quarters</Button>
+          <Button variant="outline" size="sm">Months</Button>
+          <Button size="sm">Weeks</Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="p-0 overflow-x-auto">
+          <div className="min-w-[900px]">
+            {/* Header row */}
+            <div className="grid grid-cols-[200px_1fr] border-b border-border bg-muted/40">
+              <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border-r border-border">
+                Initiative
+              </div>
+              <div className="grid" style={{ gridTemplateColumns: `repeat(${WEEKS.length}, minmax(0,1fr))` }}>
+                {WEEKS.map((w) => (
+                  <div key={w} className="px-2 py-2 text-[11px] text-center text-muted-foreground border-l border-border first:border-l-0">
+                    {w}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bars */}
+            {TIMELINE_BARS.map((b) => (
+              <div key={b.id} className="grid grid-cols-[200px_1fr] border-b border-border last:border-0 hover:bg-muted/30">
+                <div className="px-4 py-3 border-r border-border">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-5 w-5"><AvatarFallback className="text-[9px]">{b.assignee}</AvatarFallback></Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{b.title}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{b.id} · {b.epic}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative grid py-3" style={{ gridTemplateColumns: `repeat(${WEEKS.length}, minmax(0,1fr))` }}>
+                  {WEEKS.map((_, i) => (
+                    <div key={i} className="border-l border-border/50 first:border-l-0 h-8" />
+                  ))}
+                  <button
+                    onClick={() =>
+                      onOpen({
+                        id: b.id,
+                        title: b.title,
+                        status: "inprogress",
+                        type: "Story",
+                        priority: "High",
+                        assignee: b.assignee,
+                        points: b.span * 2,
+                      })
+                    }
+                    className={cn(
+                      "absolute top-2 h-6 rounded-md shadow-sm text-[11px] font-medium text-primary-foreground px-2 flex items-center hover:opacity-90 transition-opacity",
+                      b.color,
+                    )}
+                    style={{
+                      left: `${(b.start / WEEKS.length) * 100}%`,
+                      width: `${(b.span / WEEKS.length) * 100}%`,
+                    }}
+                  >
+                    <span className="truncate">{b.title}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-primary/70" /> Payments</span>
+        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-secondary/70" /> Marketplace</span>
+        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-accent/70" /> Platform</span>
+        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-success/70" /> Analytics</span>
+      </div>
+    </>
+  );
+}
+
+/* ───────────── Epics ───────────── */
+
+const EPICS = [
+  { key: "EPIC-1", name: "Payments v2", color: "bg-primary", progress: 62, total: 18, done: 11, owner: "RA" },
+  { key: "EPIC-2", name: "Marketplace MVP", color: "bg-secondary", progress: 40, total: 24, done: 10, owner: "JS" },
+  { key: "EPIC-3", name: "Platform Hardening", color: "bg-accent", progress: 78, total: 14, done: 11, owner: "DV" },
+  { key: "EPIC-4", name: "Analytics & BI", color: "bg-success", progress: 22, total: 16, done: 4, owner: "MK" },
+];
+
+function EpicsSection({ onOpen }: { onOpen: (i: Issue) => void }) {
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Epics</h2>
+          <p className="text-sm text-muted-foreground">Group issues into larger bodies of work</p>
+        </div>
+        <Button><Plus className="h-4 w-4 mr-1" /> Create Epic</Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {EPICS.map((e) => (
+          <Card key={e.key}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={cn("h-3 w-3 rounded-sm", e.color)} />
+                  <CardTitle className="text-base">{e.name}</CardTitle>
+                </div>
+                <Badge variant="secondary" className="font-mono text-[10px]">{e.key}</Badge>
+              </div>
+              <CardDescription className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <Avatar className="h-4 w-4"><AvatarFallback className="text-[9px]">{e.owner}</AvatarFallback></Avatar>
+                  {e.owner}
+                </span>
+                <span>· {e.done}/{e.total} issues</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
+                  <span>Progress</span><span>{e.progress}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className={cn("h-full", e.color)} style={{ width: `${e.progress}%` }} />
+                </div>
+              </div>
+              <Separator />
+              <div className="space-y-1">
+                {SEED_ISSUES.slice(0, 3).map((i) => (
+                  <div
+                    key={i.id + e.key}
+                    onClick={() => onOpen(i)}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted/40 cursor-pointer text-sm"
+                  >
+                    <TypeBadge type={i.type} />
+                    <span className="font-mono text-[11px] text-muted-foreground w-16">{i.id}</span>
+                    <span className="flex-1 truncate">{i.title}</span>
+                    <Badge variant="outline" className="text-[10px] capitalize">
+                      {i.status === "inprogress" ? "in progress" : i.status}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </>
+  );
+}
