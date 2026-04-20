@@ -75,7 +75,6 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<{ cl
   { key: "logs", label: "Logs", icon: Activity },
 ];
 
-export default function AdminServerPage() {
 export default function AdminServerPage({ initialSection = "dashboard" }: { initialSection?: SectionKey } = {}) {
   const [section, setSection] = useState<SectionKey>(initialSection);
 
