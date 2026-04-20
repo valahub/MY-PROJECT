@@ -1,26 +1,14 @@
-import logo from "@/assets/erp-vala-logo.jpg";
+import logoImg from "@/assets/erp-vala-logo.jpg";
 
-interface Props {
-  size?: number;
-  showText?: boolean;
+export function Logo({ className = "h-8" }: { className?: string }) {
+  return <img src={logoImg} alt="ERP Vala" className={className} />;
 }
 
-export function Logo({ size = 36, showText = true }: Props) {
+export function LogoText() {
   return (
     <div className="flex items-center gap-2">
-      <img
-        src={logo}
-        alt="ERP Vala"
-        width={size}
-        height={size}
-        className="rounded-md object-cover"
-        style={{ width: size, height: size }}
-      />
-      {showText && (
-        <span className="font-semibold tracking-tight text-foreground">
-          ERP Vala
-        </span>
-      )}
+      <Logo className="h-8 w-8 rounded" />
+      <span className="text-lg font-bold text-foreground">ERP Vala</span>
     </div>
   );
 }
