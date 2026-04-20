@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth, type AppRole } from "@/contexts/AuthContext";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,19 +72,22 @@ export function DashboardShell({ role, navItems, title }: Props) {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 border-b border-border flex items-center justify-between px-4 md:px-6">
-          <h1 className="text-base font-semibold">{title}</h1>
-          <div className="md:hidden">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                await signOut();
-                navigate("/auth/login", { replace: true });
-              }}
-            >
-              <LogOut className="h-3.5 w-3.5" />
-            </Button>
+        <header className="h-14 border-b border-border flex items-center justify-between px-4 md:px-6 gap-2">
+          <h1 className="text-base font-semibold truncate">{title}</h1>
+          <div className="flex items-center gap-2">
+            <RoleSwitcher />
+            <div className="md:hidden">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await signOut();
+                  navigate("/auth/login", { replace: true });
+                }}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">
