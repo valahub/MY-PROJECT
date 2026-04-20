@@ -157,7 +157,7 @@ function MarketplaceDownloads() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link
-                      to="/marketplace/item/$slug"}
+                      to="/marketplace/item/$slug"
                       className="font-semibold hover:text-primary"
                     >
                       {p.title}

@@ -126,7 +126,7 @@ function CartPage() {
                   </div>
                   <div className="flex-1">
                     <Link
-                      to="/marketplace/item/$slug"}
+                      to="/marketplace/item/$slug"
                       className="font-semibold hover:text-primary"
                     >
                       {item.title}

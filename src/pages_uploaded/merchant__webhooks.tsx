@@ -96,7 +96,7 @@ function MerchantWebhooks() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Webhooks</h1>
-          <Link to="/merchant/webhooks/create"}>
+          <Link to="/merchant/webhooks/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               Add Endpoint
@@ -114,7 +114,7 @@ function MerchantWebhooks() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Webhooks</h1>
-        <Link to="/merchant/webhooks/create"}>
+        <Link to="/merchant/webhooks/create">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Add Endpoint

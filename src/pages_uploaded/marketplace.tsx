@@ -81,7 +81,7 @@ function MarketplaceLayout() {
               Browse
             </Link>
             <Link
-              to="/marketplace/category/$slug"}
+              to="/marketplace/category/$slug"
               className="px-3 py-1.5 text-sm hover:bg-white/10 rounded"
             >
               Categories
@@ -162,7 +162,7 @@ function MarketplaceLayout() {
               {CATEGORIES.map((c) => (
                 <Link
                   key={c.slug}
-                  to="/marketplace/category/$slug"}
+                  to="/marketplace/category/$slug"
                   className={cn(
                     "px-3 py-1 rounded whitespace-nowrap hover:bg-white/10 transition-colors",
                     location.pathname.includes(c.slug) && "bg-white/10 font-medium",
@@ -195,7 +195,7 @@ function MarketplaceLayout() {
             {CATEGORIES.map((c) => (
               <Link
                 key={c.slug}
-                to="/marketplace/category/$slug"}
+                to="/marketplace/category/$slug"
                 className="block py-1.5 text-sm"
               >
                 {c.title}{" "}
@@ -238,21 +238,21 @@ function MarketplaceLayout() {
             <div className="mt-4 text-sm text-white/70">
               Popular:{" "}
               <Link
-                to="/marketplace/category/$slug"}
+                to="/marketplace/category/$slug"
                 className="underline hover:text-white"
               >
                 WordPress
               </Link>
               {" · "}
               <Link
-                to="/marketplace/category/$slug"}
+                to="/marketplace/category/$slug"
                 className="underline hover:text-white"
               >
                 HTML Templates
               </Link>
               {" · "}
               <Link
-                to="/marketplace/category/$slug"}
+                to="/marketplace/category/$slug"
                 className="underline hover:text-white"
               >
                 eCommerce
@@ -286,7 +286,7 @@ function MarketplaceLayout() {
                 </Link>
               </li>
               <li>
-                <Link to="/marketplace/search"} className="hover:text-white">
+                <Link to="/marketplace/search" className="hover:text-white">
                   Search
                 </Link>
               </li>

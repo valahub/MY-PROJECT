@@ -207,7 +207,7 @@ function ItemDetail() {
         </Link>{" "}
         /{" "}
         <Link
-          to="/marketplace/category/$slug"}
+          to="/marketplace/category/$slug"
           className="hover:text-info capitalize"
         >
           {item.category.replace("-", " ")}
@@ -354,7 +354,7 @@ function ItemDetail() {
                 Buy Now
               </Button>
               <Link
-                to="/marketplace/preview/$slug"}
+                to="/marketplace/preview/$slug"
                 className="block mt-2"
               >
                 <Button
@@ -412,7 +412,7 @@ function ItemDetail() {
           <Card>
             <CardContent className="p-5">
               <Link
-                to="/marketplace/author/$username"}
+                to="/marketplace/author/$username"
                 className="flex items-center gap-3 group"
               >
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-accent text-white flex items-center justify-center font-bold">
