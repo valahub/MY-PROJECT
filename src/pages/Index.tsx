@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { useAuth, ROLE_HOME } from "@/contexts/AuthContext";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
 
 const Index = () => {
   const { user, primaryRole } = useAuth();
@@ -13,6 +14,7 @@ const Index = () => {
         <div className="container flex h-14 items-center justify-between">
           <Logo size={32} />
           <nav className="flex items-center gap-2">
+            <RoleSwitcher />
             {user ? (
               <Button asChild>
                 <Link to={home}>Open dashboard</Link>
