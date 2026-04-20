@@ -327,12 +327,51 @@ function FilesSection() {
     { name: "tmp", children: [] as string[] },
   ];
   const files = [
-    { name: "index.html", size: "4.2 KB", modified: "2026-04-19 14:22" },
-    { name: "app.js", size: "182 KB", modified: "2026-04-19 14:22" },
-    { name: "styles.css", size: "22 KB", modified: "2026-04-18 10:01" },
-    { name: ".env.production", size: "1.1 KB", modified: "2026-04-15 09:14" },
-    { name: "robots.txt", size: "210 B", modified: "2026-04-10 12:00" },
+    { name: "index.html", size: "4.2 KB", modified: "2026-04-19 14:22", lang: "html" },
+    { name: "app.js", size: "182 KB", modified: "2026-04-19 14:22", lang: "js" },
+    { name: "styles.css", size: "22 KB", modified: "2026-04-18 10:01", lang: "css" },
+    { name: ".env.production", size: "1.1 KB", modified: "2026-04-15 09:14", lang: "env" },
+    { name: "robots.txt", size: "210 B", modified: "2026-04-10 12:00", lang: "txt" },
   ];
+  const SAMPLES: Record<string, string> = {
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ERPVala</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>`,
+    js: `// app.js — entry bundle (minified in prod)
+import { mount } from "./runtime";
+
+mount("#root", {
+  apiBase: "/api",
+  features: { checkout: true, licenses: true },
+});`,
+    css: `:root {
+  --brand: #EB0045;
+  --ink:   #00205C;
+}
+
+body { font-family: Inter, system-ui; color: var(--ink); }
+.btn-primary { background: var(--brand); color: #fff; }`,
+    env: `NODE_ENV=production
+APP_URL=https://erpvala.com
+DATABASE_URL=postgres://prod:***@db:5432/erpvala_prod
+REDIS_URL=redis://cache:6379`,
+    txt: `User-agent: *
+Allow: /
+Sitemap: https://erpvala.com/sitemap.xml`,
+  };
+
+  const [selected, setSelected] = useState(files[0]);
+  const [mode, setMode] = useState<"list" | "edit">("list");
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -347,7 +386,7 @@ function FilesSection() {
       </div>
       <Card>
         <CardContent className="p-0">
-          <div className="grid grid-cols-12 min-h-[420px]">
+          <div className="grid grid-cols-12 min-h-[520px]">
             {/* Tree */}
             <div className="col-span-3 border-r border-border p-3 text-sm space-y-1">
               {tree.map((dir) => (
@@ -366,36 +405,77 @@ function FilesSection() {
                 </div>
               ))}
             </div>
-            {/* Right panel */}
-            <div className="col-span-9">
-              <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground font-mono">
-                /var/www/erpvala.com/public
+            {/* Middle: file list */}
+            <div className="col-span-4 border-r border-border">
+              <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground font-mono flex items-center justify-between">
+                <span>/var/www/erpvala.com/public</span>
+                <span>{files.length} items</span>
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Modified</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {files.map((f) => (
-                    <TableRow key={f.name}>
-                      <TableCell className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" /> {f.name}
-                      </TableCell>
-                      <TableCell className="text-sm">{f.size}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{f.modified}</TableCell>
-                      <TableCell className="text-right space-x-1">
-                        <Button size="sm" variant="ghost">Edit</Button>
-                        <Button size="sm" variant="ghost">Download</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div>
+                {files.map((f) => (
+                  <button
+                    key={f.name}
+                    onClick={() => { setSelected(f); setMode("list"); }}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-4 py-2 border-b border-border last:border-0 text-left text-sm hover:bg-muted/40",
+                      selected.name === f.name && "bg-accent/40",
+                    )}
+                  >
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="flex-1 truncate">{f.name}</span>
+                    <span className="text-xs text-muted-foreground">{f.size}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Right: editor/preview pane */}
+            <div className="col-span-5 flex flex-col">
+              <div className="px-4 py-2 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-mono">{selected.name}</span>
+                  <Badge variant="secondary" className="text-[10px] uppercase">{selected.lang}</Badge>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant={mode === "list" ? "default" : "ghost"}
+                    onClick={() => setMode("list")}
+                  >
+                    Preview
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={mode === "edit" ? "default" : "ghost"}
+                    onClick={() => setMode("edit")}
+                  >
+                    Edit
+                  </Button>
+                  <Button size="sm" variant="outline">Save</Button>
+                </div>
+              </div>
+              <div className="flex-1 bg-muted/30 font-mono text-xs overflow-auto">
+                {mode === "list" ? (
+                  <pre className="p-4 whitespace-pre leading-relaxed">{SAMPLES[selected.lang]}</pre>
+                ) : (
+                  <div className="flex">
+                    <div className="select-none px-3 py-4 text-right text-muted-foreground border-r border-border">
+                      {SAMPLES[selected.lang].split("\n").map((_, i) => (
+                        <div key={i}>{i + 1}</div>
+                      ))}
+                    </div>
+                    <textarea
+                      defaultValue={SAMPLES[selected.lang]}
+                      className="flex-1 bg-transparent outline-none p-4 resize-none leading-relaxed"
+                      rows={SAMPLES[selected.lang].split("\n").length + 2}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="px-4 py-1.5 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground bg-card">
+                <span>UTF-8 · LF · {selected.size}</span>
+                <span>Modified {selected.modified}</span>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -515,25 +595,98 @@ function MailSection() {
 }
 
 function ApplicationsSection() {
-  const apps = ["WordPress", "Ghost", "Node.js App", "Laravel", "Static Site"];
+  const apps = [
+    { name: "WordPress", v: "6.6", cat: "CMS" },
+    { name: "Ghost", v: "5.78", cat: "CMS" },
+    { name: "Node.js App", v: "20 LTS", cat: "Runtime" },
+    { name: "Laravel", v: "11.x", cat: "Framework" },
+    { name: "Static Site", v: "—", cat: "Static" },
+    { name: "NextCloud", v: "29.0", cat: "Productivity" },
+    { name: "Mautic", v: "5.1", cat: "Marketing" },
+    { name: "Matomo", v: "5.0", cat: "Analytics" },
+  ];
+
+  type Status = "queued" | "installing" | "completed";
+  const queue: { id: string; app: string; domain: string; status: Status; pct: number; eta: string }[] = [
+    { id: "JOB-2041", app: "WordPress", domain: "blog.erpvala.com", status: "queued", pct: 0, eta: "in 2m" },
+    { id: "JOB-2040", app: "NextCloud", domain: "files.erpvala.io", status: "queued", pct: 0, eta: "in 5m" },
+    { id: "JOB-2039", app: "Node.js App", domain: "api-staging.erpvala.dev", status: "installing", pct: 62, eta: "1m left" },
+    { id: "JOB-2038", app: "Laravel", domain: "crm.erpvala.com", status: "installing", pct: 24, eta: "3m left" },
+    { id: "JOB-2037", app: "Matomo", domain: "stats.erpvala.com", status: "completed", pct: 100, eta: "12m ago" },
+    { id: "JOB-2036", app: "Static Site", domain: "docs.erpvala.io", status: "completed", pct: 100, eta: "1h ago" },
+    { id: "JOB-2035", app: "Ghost", domain: "press.erpvala.com", status: "completed", pct: 100, eta: "yesterday" },
+  ];
+
+  const cols: { key: Status; label: string }[] = [
+    { key: "queued", label: "Queued" },
+    { key: "installing", label: "Installing" },
+    { key: "completed", label: "Completed" },
+  ];
+
   return (
     <>
       <div>
         <h2 className="text-2xl font-bold">Applications</h2>
         <p className="text-sm text-muted-foreground">One-click installable web applications</p>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {apps.map((a) => (
-          <Card key={a}>
-            <CardContent className="p-4 text-center space-y-2">
-              <div className="h-12 w-12 mx-auto rounded-md bg-muted flex items-center justify-center">
-                <AppWindow className="h-6 w-6 text-muted-foreground" />
+          <Card key={a.name}>
+            <CardContent className="p-3 text-center space-y-2">
+              <div className="h-10 w-10 mx-auto rounded-md bg-muted flex items-center justify-center">
+                <AppWindow className="h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="font-medium text-sm">{a}</div>
-              <Button size="sm" className="w-full">Install</Button>
+              <div>
+                <div className="font-medium text-sm truncate">{a.name}</div>
+                <div className="text-[10px] text-muted-foreground">v{a.v} · {a.cat}</div>
+              </div>
+              <Button size="sm" className="w-full h-7 text-xs">Install</Button>
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-lg font-semibold">Install Queue</h3>
+            <p className="text-xs text-muted-foreground">Track in-flight application installations</p>
+          </div>
+          <Button variant="outline" size="sm">Clear completed</Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {cols.map((c) => {
+            const items = queue.filter((j) => j.status === c.key);
+            return (
+              <div key={c.key} className="bg-muted/40 rounded-lg p-3 space-y-3 min-h-[260px]">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-semibold uppercase tracking-wider">{c.label}</span>
+                  <Badge variant="secondary" className="text-[10px]">{items.length}</Badge>
+                </div>
+                {items.map((j) => (
+                  <Card key={j.id} className="cursor-grab active:cursor-grabbing">
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <AppWindow className="h-4 w-4 text-secondary" />
+                          <span className="text-sm font-medium">{j.app}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-muted-foreground">{j.id}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-mono truncate">{j.domain}</p>
+                      {j.status !== "queued" && <Progress value={j.pct} className="h-1.5" />}
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>{j.status === "installing" ? `${j.pct}%` : j.status === "completed" ? "Done" : "Pending"}</span>
+                        <span>{j.eta}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );
