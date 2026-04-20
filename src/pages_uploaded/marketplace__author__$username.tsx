@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 
 import { AUTHORS, ITEMS } from "@/lib/marketplace-data";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 ({ component: AuthorProfile });
 
 function AuthorProfile() {
-  const { username } = Route.useParams();
+  const { username } = useParams() as Record<string, string>;
   const author = AUTHORS.find((a) => a.username === username) || AUTHORS[0];
   const items = ITEMS.filter((i) => i.author === author.username);
   const [isFollowing, setIsFollowing] = useState(false);

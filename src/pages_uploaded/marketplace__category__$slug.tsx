@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 
 import { ITEMS, CATEGORY_TREE } from "@/lib/marketplace-data";
 import { ItemCard } from "@/components/marketplace/ItemCard";
@@ -16,7 +17,7 @@ import { useState } from "react";
 ({ component: CategoryPage });
 
 function CategoryPage() {
-  const { slug } = Route.useParams();
+  const { slug } = useParams() as Record<string, string>;
   const [sort, setSort] = useState("popular");
   const [price, setPrice] = useState([0, 200]);
   const [ratings, setRatings] = useState<number[]>([]);

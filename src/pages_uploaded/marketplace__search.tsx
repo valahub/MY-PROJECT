@@ -24,7 +24,7 @@ import { useState } from "react";
 });
 
 function SearchResults() {
-  const { q: initial } = Route.useSearch();
+  const { q: initial } = (Object.fromEntries(new URLSearchParams(window.location.search)) as Record<string, string>);
   const [q, setQ] = useState(initial);
   const [tag, setTag] = useState<string | null>(null);
 

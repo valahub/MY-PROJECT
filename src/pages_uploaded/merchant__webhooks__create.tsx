@@ -44,7 +44,7 @@ const webhookEvents = [
 
 function CreateWebhookPage() {
   const navigate = useNavigate();
-  const { endpointId } = Route.useSearch();
+  const { endpointId } = (Object.fromEntries(new URLSearchParams(window.location.search)) as Record<string, string>);
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);

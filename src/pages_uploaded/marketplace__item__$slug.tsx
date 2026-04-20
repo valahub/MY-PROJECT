@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams} from "react-router-dom";
 import { ITEMS, coverFor } from "@/lib/marketplace-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ import {
 function ItemDetail() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { slug } = Route.useParams();
+  const { slug } = useParams() as Record<string, string>;
   const normalizedSlug = normalizeSeoSlug(slug);
   const matched = ITEMS.find((i) => i.slug === normalizedSlug);
   const item = matched || (ITEMS.length > 0 ? ITEMS[0] : null);
