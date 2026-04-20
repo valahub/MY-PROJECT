@@ -595,25 +595,98 @@ function MailSection() {
 }
 
 function ApplicationsSection() {
-  const apps = ["WordPress", "Ghost", "Node.js App", "Laravel", "Static Site"];
+  const apps = [
+    { name: "WordPress", v: "6.6", cat: "CMS" },
+    { name: "Ghost", v: "5.78", cat: "CMS" },
+    { name: "Node.js App", v: "20 LTS", cat: "Runtime" },
+    { name: "Laravel", v: "11.x", cat: "Framework" },
+    { name: "Static Site", v: "—", cat: "Static" },
+    { name: "NextCloud", v: "29.0", cat: "Productivity" },
+    { name: "Mautic", v: "5.1", cat: "Marketing" },
+    { name: "Matomo", v: "5.0", cat: "Analytics" },
+  ];
+
+  type Status = "queued" | "installing" | "completed";
+  const queue: { id: string; app: string; domain: string; status: Status; pct: number; eta: string }[] = [
+    { id: "JOB-2041", app: "WordPress", domain: "blog.erpvala.com", status: "queued", pct: 0, eta: "in 2m" },
+    { id: "JOB-2040", app: "NextCloud", domain: "files.erpvala.io", status: "queued", pct: 0, eta: "in 5m" },
+    { id: "JOB-2039", app: "Node.js App", domain: "api-staging.erpvala.dev", status: "installing", pct: 62, eta: "1m left" },
+    { id: "JOB-2038", app: "Laravel", domain: "crm.erpvala.com", status: "installing", pct: 24, eta: "3m left" },
+    { id: "JOB-2037", app: "Matomo", domain: "stats.erpvala.com", status: "completed", pct: 100, eta: "12m ago" },
+    { id: "JOB-2036", app: "Static Site", domain: "docs.erpvala.io", status: "completed", pct: 100, eta: "1h ago" },
+    { id: "JOB-2035", app: "Ghost", domain: "press.erpvala.com", status: "completed", pct: 100, eta: "yesterday" },
+  ];
+
+  const cols: { key: Status; label: string }[] = [
+    { key: "queued", label: "Queued" },
+    { key: "installing", label: "Installing" },
+    { key: "completed", label: "Completed" },
+  ];
+
   return (
     <>
       <div>
         <h2 className="text-2xl font-bold">Applications</h2>
         <p className="text-sm text-muted-foreground">One-click installable web applications</p>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {apps.map((a) => (
-          <Card key={a}>
-            <CardContent className="p-4 text-center space-y-2">
-              <div className="h-12 w-12 mx-auto rounded-md bg-muted flex items-center justify-center">
-                <AppWindow className="h-6 w-6 text-muted-foreground" />
+          <Card key={a.name}>
+            <CardContent className="p-3 text-center space-y-2">
+              <div className="h-10 w-10 mx-auto rounded-md bg-muted flex items-center justify-center">
+                <AppWindow className="h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="font-medium text-sm">{a}</div>
-              <Button size="sm" className="w-full">Install</Button>
+              <div>
+                <div className="font-medium text-sm truncate">{a.name}</div>
+                <div className="text-[10px] text-muted-foreground">v{a.v} · {a.cat}</div>
+              </div>
+              <Button size="sm" className="w-full h-7 text-xs">Install</Button>
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-lg font-semibold">Install Queue</h3>
+            <p className="text-xs text-muted-foreground">Track in-flight application installations</p>
+          </div>
+          <Button variant="outline" size="sm">Clear completed</Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {cols.map((c) => {
+            const items = queue.filter((j) => j.status === c.key);
+            return (
+              <div key={c.key} className="bg-muted/40 rounded-lg p-3 space-y-3 min-h-[260px]">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-semibold uppercase tracking-wider">{c.label}</span>
+                  <Badge variant="secondary" className="text-[10px]">{items.length}</Badge>
+                </div>
+                {items.map((j) => (
+                  <Card key={j.id} className="cursor-grab active:cursor-grabbing">
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <AppWindow className="h-4 w-4 text-secondary" />
+                          <span className="text-sm font-medium">{j.app}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-muted-foreground">{j.id}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-mono truncate">{j.domain}</p>
+                      {j.status !== "queued" && <Progress value={j.pct} className="h-1.5" />}
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>{j.status === "installing" ? `${j.pct}%` : j.status === "completed" ? "Done" : "Pending"}</span>
+                        <span>{j.eta}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );
