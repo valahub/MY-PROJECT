@@ -15,6 +15,45 @@ const DEMO_ACCOUNTS: Array<{ role: AppRole; label: string; email: string; passwo
   { role: "support", label: "Support", email: "support@test.com", password: "Test#12345" },
 ];
 
+// UI-only demo accounts for Server / Development modules.
+// These do NOT hit the backend — they set a local demo flag and redirect.
+const ROLE_DEMO_ACCOUNTS: Array<{
+  key: string;
+  label: string;
+  id: string;
+  password: string;
+  redirect: string;
+}> = [
+  {
+    key: "server_manager",
+    label: "Server Manager",
+    id: "server_manager_demo",
+    password: "123456",
+    redirect: "/admin/server/dashboard",
+  },
+  {
+    key: "server_viewer",
+    label: "Server Viewer",
+    id: "server_viewer_demo",
+    password: "123456",
+    redirect: "/admin/server/dashboard",
+  },
+  {
+    key: "dev_manager",
+    label: "Development Manager",
+    id: "dev_manager_demo",
+    password: "123456",
+    redirect: "/admin/development/management",
+  },
+  {
+    key: "developer",
+    label: "Developer",
+    id: "developer_demo",
+    password: "123456",
+    redirect: "/admin/development/dashboard",
+  },
+];
+
 const ROLE_PRIORITY: AppRole[] = ["admin", "support", "merchant", "author", "customer"];
 
 export default function Login() {
