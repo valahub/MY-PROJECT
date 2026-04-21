@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -75,8 +75,41 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<{ cl
   { key: "logs", label: "Logs", icon: Activity },
 ];
 
+const VALID_KEYS: SectionKey[] = SECTIONS.map((s) => s.key);
+
 export default function AdminServerPage({ initialSection = "dashboard" }: { initialSection?: SectionKey } = {}) {
-  const [section, setSection] = useState<SectionKey>(initialSection);
+  const [section, setSection] = useState<SectionKey>(() => {
+    if (typeof window !== "undefined") {
+      const h = window.location.hash.replace("#", "") as SectionKey;
+      if (h && VALID_KEYS.includes(h)) return h;
+    }
+    return initialSection;
+  });
+
+  useEffect(() => {
+    setSection((prev) => {
+      const h = window.location.hash.replace("#", "") as SectionKey;
+      if (h && VALID_KEYS.includes(h)) return h;
+      return initialSection ?? prev;
+    });
+  }, [initialSection]);
+
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash.replace("#", "") as SectionKey;
+      if (h && VALID_KEYS.includes(h)) setSection(h);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  const selectSection = (k: SectionKey) => {
+    setSection(k);
+    if (typeof window !== "undefined") {
+      history.replaceState(null, "", `${window.location.pathname}#${k}`);
+    }
+  };
+  void selectSection;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[600px] border border-border rounded-lg overflow-hidden bg-background">
