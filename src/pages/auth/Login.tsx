@@ -121,6 +121,31 @@ export default function Login() {
     setDemoLoading(null);
   }
 
+  function handleRoleDemoLogin(account: (typeof ROLE_DEMO_ACCOUNTS)[number]) {
+    // UI-only simulation — auto-fill, simulate auto login, then redirect.
+    setEmail(account.id);
+    setPassword(account.password);
+    setDemoLoading(account.key);
+    try {
+      localStorage.setItem(
+        "demo_role_session",
+        JSON.stringify({
+          key: account.key,
+          label: account.label,
+          id: account.id,
+          at: Date.now(),
+        }),
+      );
+    } catch {
+      // ignore storage errors
+    }
+    toast.success(`Signed in as ${account.label}`);
+    setTimeout(() => {
+      navigate(account.redirect, { replace: true });
+      setDemoLoading(null);
+    }, 300);
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-1">
