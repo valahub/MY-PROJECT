@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -9,15 +10,12 @@ interface StatCardProps {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-export function StatCard({
-  title,
-  value,
-  change,
-  changeType = "neutral",
-  icon: Icon,
-}: StatCardProps) {
+export const StatCard = forwardRef<HTMLDivElement, StatCardProps>(function StatCard(
+  { title, value, change, changeType = "neutral", icon: Icon },
+  ref,
+) {
   return (
-    <Card>
+    <Card ref={ref}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{title}</p>
@@ -39,4 +37,4 @@ export function StatCard({
       </CardContent>
     </Card>
   );
-}
+});
