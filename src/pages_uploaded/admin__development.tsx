@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -87,9 +87,39 @@ const SEED_ISSUES: Issue[] = [
   { id: "ERP-108", title: "Webhook retry exponential backoff", status: "inprogress", type: "Bug", priority: "Medium", assignee: "DV", points: 5 },
 ];
 
+const VALID_KEYS: SectionKey[] = SECTIONS.map((s) => s.key);
+
 export default function AdminDevelopmentPage({ initialSection = "boards" }: { initialSection?: SectionKey } = {}) {
-  const [section, setSection] = useState<SectionKey>(initialSection);
+  const [section, setSection] = useState<SectionKey>(() => {
+    if (typeof window !== "undefined") {
+      const h = window.location.hash.replace("#", "") as SectionKey;
+      if (h && VALID_KEYS.includes(h)) return h;
+    }
+    return initialSection;
+  });
   const [openIssue, setOpenIssue] = useState<Issue | null>(null);
+
+  useEffect(() => {
+    const h = (typeof window !== "undefined" ? window.location.hash.replace("#", "") : "") as SectionKey;
+    if (h && VALID_KEYS.includes(h)) setSection(h);
+    else if (initialSection) setSection(initialSection);
+  }, [initialSection]);
+
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash.replace("#", "") as SectionKey;
+      if (h && VALID_KEYS.includes(h)) setSection(h);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  const selectSection = (k: SectionKey) => {
+    setSection(k);
+    if (typeof window !== "undefined") {
+      history.replaceState(null, "", `${window.location.pathname}#${k}`);
+    }
+  };
 
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[600px] border border-border rounded-lg overflow-hidden bg-background">
@@ -106,7 +136,7 @@ export default function AdminDevelopmentPage({ initialSection = "boards" }: { in
             return (
               <button
                 key={s.key}
-                onClick={() => setSection(s.key)}
+                onClick={() => selectSection(s.key)}
                 className={cn(
                   "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md text-left transition-colors",
                   active
