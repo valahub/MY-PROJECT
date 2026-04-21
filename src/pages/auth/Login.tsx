@@ -176,6 +176,29 @@ export default function Login() {
         </p>
       </div>
 
+      <div className="rounded-md border bg-muted/40 p-3 space-y-2">
+        <p className="text-xs font-medium text-foreground">
+          Server &amp; Development — one-click role demo
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {ROLE_DEMO_ACCOUNTS.map((account) => (
+            <Button
+              key={account.key}
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => handleRoleDemoLogin(account)}
+              disabled={demoLoading !== null || loading}
+            >
+              {demoLoading === account.key ? "Signing in..." : account.label}
+            </Button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          UI-only demo — auto-fills credentials and opens the matching dashboard.
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
