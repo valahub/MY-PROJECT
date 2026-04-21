@@ -109,7 +109,6 @@ export default function AdminServerPage({ initialSection = "dashboard" }: { init
       history.replaceState(null, "", `${window.location.pathname}#${k}`);
     }
   };
-  void selectSection;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[600px] border border-border rounded-lg overflow-hidden bg-background">
@@ -126,7 +125,7 @@ export default function AdminServerPage({ initialSection = "dashboard" }: { init
             return (
               <button
                 key={s.key}
-                onClick={() => setSection(s.key)}
+                onClick={() => selectSection(s.key)}
                 className={cn(
                   "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors text-left",
                   active
