@@ -15,6 +15,45 @@ const DEMO_ACCOUNTS: Array<{ role: AppRole; label: string; email: string; passwo
   { role: "support", label: "Support", email: "support@test.com", password: "Test#12345" },
 ];
 
+// UI-only demo accounts for Server / Development modules.
+// These do NOT hit the backend — they set a local demo flag and redirect.
+const ROLE_DEMO_ACCOUNTS: Array<{
+  key: string;
+  label: string;
+  id: string;
+  password: string;
+  redirect: string;
+}> = [
+  {
+    key: "server_manager",
+    label: "Server Manager",
+    id: "server_manager_demo",
+    password: "123456",
+    redirect: "/admin/server/dashboard",
+  },
+  {
+    key: "server_viewer",
+    label: "Server Viewer",
+    id: "server_viewer_demo",
+    password: "123456",
+    redirect: "/admin/server/dashboard",
+  },
+  {
+    key: "dev_manager",
+    label: "Development Manager",
+    id: "dev_manager_demo",
+    password: "123456",
+    redirect: "/admin/development/management",
+  },
+  {
+    key: "developer",
+    label: "Developer",
+    id: "developer_demo",
+    password: "123456",
+    redirect: "/admin/development/dashboard",
+  },
+];
+
 const ROLE_PRIORITY: AppRole[] = ["admin", "support", "merchant", "author", "customer"];
 
 export default function Login() {
@@ -82,6 +121,31 @@ export default function Login() {
     setDemoLoading(null);
   }
 
+  function handleRoleDemoLogin(account: (typeof ROLE_DEMO_ACCOUNTS)[number]) {
+    // UI-only simulation — auto-fill, simulate auto login, then redirect.
+    setEmail(account.id);
+    setPassword(account.password);
+    setDemoLoading(account.key);
+    try {
+      localStorage.setItem(
+        "demo_role_session",
+        JSON.stringify({
+          key: account.key,
+          label: account.label,
+          id: account.id,
+          at: Date.now(),
+        }),
+      );
+    } catch {
+      // ignore storage errors
+    }
+    toast.success(`Signed in as ${account.label}`);
+    setTimeout(() => {
+      navigate(account.redirect, { replace: true });
+      setDemoLoading(null);
+    }, 300);
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-1">
@@ -109,6 +173,29 @@ export default function Login() {
         </div>
         <p className="text-[10px] text-muted-foreground">
           First click auto-seeds the account if it doesn't exist yet.
+        </p>
+      </div>
+
+      <div className="rounded-md border bg-muted/40 p-3 space-y-2">
+        <p className="text-xs font-medium text-foreground">
+          Server &amp; Development — one-click role demo
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {ROLE_DEMO_ACCOUNTS.map((account) => (
+            <Button
+              key={account.key}
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => handleRoleDemoLogin(account)}
+              disabled={demoLoading !== null || loading}
+            >
+              {demoLoading === account.key ? "Signing in..." : account.label}
+            </Button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          UI-only demo — auto-fills credentials and opens the matching dashboard.
         </p>
       </div>
 
