@@ -58,18 +58,21 @@ interface DataTableProps<T> {
   getItemLabel?: (item: T) => string;
 }
 
-export function DataTable<T>({
-  columns,
-  data,
-  title,
-  searchable = true,
-  searchKey,
-  pageSize = 10,
-  onRowClick,
-  onEdit,
-  onDelete,
-  getItemLabel,
-}: DataTableProps<T>) {
+function DataTableInner<T>(
+  {
+    columns,
+    data,
+    title,
+    searchable = true,
+    searchKey,
+    pageSize = 10,
+    onRowClick,
+    onEdit,
+    onDelete,
+    getItemLabel,
+  }: DataTableProps<T>,
+  ref: Ref<HTMLDivElement>,
+) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
@@ -284,7 +287,7 @@ export function DataTable<T>({
 
   if (title) {
     return (
-      <Card>
+      <Card ref={ref}>
         <CardHeader>
           <CardTitle>{title}</CardTitle>
         </CardHeader>
@@ -293,5 +296,10 @@ export function DataTable<T>({
     );
   }
 
-  return <div>{content}</div>;
+  return <div ref={ref}>{content}</div>;
 }
+
+export const DataTable = forwardRef(DataTableInner) as <T>(
+  props: DataTableProps<T> & { ref?: Ref<HTMLDivElement> },
+) => ReturnType<typeof DataTableInner>;
+
