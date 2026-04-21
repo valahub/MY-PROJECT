@@ -9,6 +9,7 @@ const corsHeaders = {
 
 const TEST_USERS = [
   { email: "admin@test.com",    password: "Test#12345", role: "admin",    full_name: "Test Admin" },
+  { email: "merchant@test.com", password: "Test#12345", role: "merchant", full_name: "Test Merchant" },
   { email: "author@test.com",   password: "Test#12345", role: "author",   full_name: "Test Author" },
   { email: "customer@test.com", password: "Test#12345", role: "customer", full_name: "Test Customer" },
   { email: "support@test.com",  password: "Test#12345", role: "support",  full_name: "Test Support" },
