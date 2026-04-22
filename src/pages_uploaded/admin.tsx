@@ -116,6 +116,7 @@ const navItems = [
   { title: "Webhooks", href: "/admin/webhooks", icon: Webhook },
   { title: "API Logs", href: "/admin/api-logs", icon: Code },
   { title: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
+  { title: "Auth Observability", href: "/admin/auth-observability", icon: Eye },
   { title: "Security", href: "/admin/security", icon: Shield },
   { title: "Notifications", href: "/admin/notifications", icon: Bell },
   { title: "Backup", href: "/admin/backup", icon: Database },
