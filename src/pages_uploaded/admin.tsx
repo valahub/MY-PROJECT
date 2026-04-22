@@ -198,8 +198,14 @@ void Shuffle;
 void Wallet;
 
 function AdminLayout() {
+  const { roles } = useAuth();
+  const items = useMemo(() => {
+    // Cast: shape is structurally compatible with SyncableNavItem.
+    const synced = syncSidebar(navItems as SyncableNavItem[], roles);
+    return synced as typeof navItems;
+  }, [roles]);
   return (
-    <DashboardLayout navItems={navItems} panelName="Admin Panel" userEmail="admin@erpvala.com" />
+    <DashboardLayout navItems={items} panelName="Admin Panel" userEmail="admin@erpvala.com" />
   );
 }
 
