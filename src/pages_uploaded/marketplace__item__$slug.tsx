@@ -199,7 +199,7 @@ function ItemDetail() {
         </Link>{" "}
         /{" "}
         <Link
-          to="/marketplace/category/$slug"
+          to={`/marketplace/category/${item.category}`}
           className="hover:text-info capitalize"
         >
           {item.category.replace("-", " ")}
