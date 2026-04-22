@@ -21,7 +21,7 @@ function MarketplaceHome() {
             <h2 className="text-xl font-bold">Featured Items</h2>
           </div>
           <Link
-            to="/marketplace/category/$slug"
+            to="/marketplace/authors"
             className="text-sm text-info hover:underline"
           >
             View all
@@ -44,7 +44,7 @@ function MarketplaceHome() {
           {CATEGORY_TREE.map((cat) => (
             <Link
               key={cat.slug}
-              to="/marketplace/category/$slug"
+              to={`/marketplace/category/${cat.slug}`}
               className="rounded-lg border bg-card p-4 hover:border-primary hover:shadow-md transition-all"
             >
               <div className="font-semibold">{cat.title}</div>
