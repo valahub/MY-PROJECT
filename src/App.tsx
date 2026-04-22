@@ -89,6 +89,8 @@ import AdminTrustscoresPage from "./pages_uploaded/admin__trust-scores";
 import AdminPage from "./pages_uploaded/admin";
 import AdminVersioningPage from "./pages_uploaded/admin__versioning";
 import AdminWebhooksPage from "./pages_uploaded/admin__webhooks";
+import AdminAuthObservabilityPage from "./pages_uploaded/admin__auth-observability";
+import { AdminRouteGuard } from "./components/AdminRouteGuard";
 import AuthLayoutReal from "./pages/auth/AuthLayout";
 import LoginReal from "./pages/auth/Login";
 import RegisterReal from "./pages/auth/Register";
