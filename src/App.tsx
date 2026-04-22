@@ -269,7 +269,7 @@ const App = () => (
               <Route path="versioning" element={<AdminVersioningPage />} />
               <Route path="webhooks" element={<AdminWebhooksPage />} />
           </Route>
-          <Route path="/auth" element={<AuthLayoutReal />}>
+          </Route>
               <Route path="login" element={<LoginReal />} />
               <Route path="register" element={<RegisterReal />} />
               <Route path="forgot-password" element={<ForgotPasswordReal />} />
