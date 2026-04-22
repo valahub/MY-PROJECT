@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth, ROLE_HOME, type AppRole } from "@/contexts/AuthContext";
+import { loginLoopDetector } from "@/lib/auth/login-loop-detector";
 
 const DEMO_ACCOUNTS: Array<{ role: AppRole; label: string; email: string; password: string }> = [
   { role: "admin", label: "Admin", email: "admin@test.com", password: "Test#12345" },

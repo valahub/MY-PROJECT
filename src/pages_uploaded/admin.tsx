@@ -1,6 +1,9 @@
 
+import { useMemo } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { authService, enforceAuth } from "@/lib/security";
+import { useAuth } from "@/contexts/AuthContext";
+import { syncSidebar, type SyncableNavItem } from "@/lib/auth/sidebar-sync";
 import {
   Activity,
   BarChart2,
