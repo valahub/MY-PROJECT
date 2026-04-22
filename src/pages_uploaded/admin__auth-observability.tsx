@@ -1,0 +1,191 @@
+// Auth observability — internal admin screen that streams the audit trail
+// (auth events, role changes, permission denials, recover events).
+// Filterable by event kind / role / route. UI follows existing design tokens
+// and primitives only (no new styling).
+
+import { useEffect, useMemo, useState } from "react";
+import { authHealer, type AuthEvent } from "@/lib/auth/auth-healer";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+const KIND_OPTIONS = [
+  "all",
+  "signed_in",
+  "signed_out",
+  "session_loaded",
+  "session_missing",
+  "session_corrupt",
+  "session_cleared",
+  "token_refreshed",
+  "token_refresh_failed",
+  "roles_loaded",
+  "roles_failed",
+  "roles_retry",
+  "stuck_loading",
+  "recover_invoked",
+  "recover_success",
+  "recover_failed",
+  "permission_denied",
+  "redirect_fallback",
+] as const;
+
+function formatTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleTimeString();
+  } catch {
+    return iso;
+  }
+}
+
+function severityFor(kind: AuthEvent["kind"]): "default" | "secondary" | "destructive" | "outline" {
+  if (kind === "permission_denied" || kind === "session_corrupt" || kind === "recover_failed" || kind === "token_refresh_failed") {
+    return "destructive";
+  }
+  if (kind === "stuck_loading" || kind === "roles_failed" || kind === "roles_retry") {
+    return "secondary";
+  }
+  if (kind === "recover_success" || kind === "signed_in" || kind === "session_loaded" || kind === "roles_loaded" || kind === "token_refreshed") {
+    return "default";
+  }
+  return "outline";
+}
+
+export default function AdminAuthObservabilityPage() {
+  const [tick, setTick] = useState(0);
+  const [kindFilter, setKindFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState<string>("");
+  const [routeFilter, setRouteFilter] = useState<string>("");
+
+  // Stream: refresh every 1.5s.
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1500);
+    return () => clearInterval(id);
+  }, []);
+
+  const events = useMemo(() => {
+    void tick;
+    return authHealer.list(300);
+  }, [tick]);
+
+  const filtered = useMemo(() => {
+    return events.filter((e) => {
+      if (kindFilter !== "all" && e.kind !== kindFilter) return false;
+      if (roleFilter) {
+        const meta = (e.meta ?? {}) as Record<string, unknown>;
+        const haystack = JSON.stringify(meta).toLowerCase();
+        if (!haystack.includes(roleFilter.toLowerCase())) return false;
+      }
+      if (routeFilter) {
+        const meta = (e.meta ?? {}) as Record<string, unknown>;
+        const candidates = [
+          meta.path,
+          meta.url,
+          e.message,
+        ]
+          .filter(Boolean)
+          .map((v) => String(v).toLowerCase())
+          .join(" ");
+        if (!candidates.includes(routeFilter.toLowerCase())) return false;
+      }
+      return true;
+    });
+  }, [events, kindFilter, roleFilter, routeFilter]);
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-4">
+          <CardTitle className="text-base">Auth observability</CardTitle>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{filtered.length} of {events.length} events</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setTick((t) => t + 1)}
+            >
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Event kind</label>
+              <Select value={kindFilter} onValueChange={setKindFilter}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {KIND_OPTIONS.map((k) => (
+                    <SelectItem key={k} value={k}>
+                      {k}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Role contains</label>
+              <Input
+                placeholder="admin / merchant / customer / …"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Route contains</label>
+              <Input
+                placeholder="/admin/server"
+                value={routeFilter}
+                onChange={(e) => setRouteFilter(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-md border">
+            <div className="grid grid-cols-12 border-b bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground">
+              <div className="col-span-2">Time</div>
+              <div className="col-span-3">Kind</div>
+              <div className="col-span-3">Message</div>
+              <div className="col-span-4">Meta</div>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto">
+              {filtered.length === 0 ? (
+                <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+                  No events match the current filters.
+                </div>
+              ) : (
+                filtered.map((e) => (
+                  <div
+                    key={e.id}
+                    className="grid grid-cols-12 items-start gap-2 border-b px-3 py-2 text-xs last:border-b-0"
+                  >
+                    <div className="col-span-2 font-mono text-muted-foreground">
+                      {formatTime(e.at)}
+                    </div>
+                    <div className="col-span-3">
+                      <Badge variant={severityFor(e.kind)}>{e.kind}</Badge>
+                    </div>
+                    <div className="col-span-3 text-foreground">{e.message ?? "—"}</div>
+                    <div className="col-span-4 break-all font-mono text-[10px] text-muted-foreground">
+                      {e.meta ? JSON.stringify(e.meta) : "—"}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

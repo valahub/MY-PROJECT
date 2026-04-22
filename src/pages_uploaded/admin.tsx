@@ -1,6 +1,9 @@
 
+import { useMemo } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { authService, enforceAuth } from "@/lib/security";
+import { useAuth } from "@/contexts/AuthContext";
+import { syncSidebar, type SyncableNavItem } from "@/lib/auth/sidebar-sync";
 import {
   Activity,
   BarChart2,
@@ -113,6 +116,7 @@ const navItems = [
   { title: "Webhooks", href: "/admin/webhooks", icon: Webhook },
   { title: "API Logs", href: "/admin/api-logs", icon: Code },
   { title: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
+  { title: "Auth Observability", href: "/admin/auth-observability", icon: Eye },
   { title: "Security", href: "/admin/security", icon: Shield },
   { title: "Notifications", href: "/admin/notifications", icon: Bell },
   { title: "Backup", href: "/admin/backup", icon: Database },
@@ -195,8 +199,14 @@ void Shuffle;
 void Wallet;
 
 function AdminLayout() {
+  const { roles } = useAuth();
+  const items = useMemo(() => {
+    // Cast: shape is structurally compatible with SyncableNavItem.
+    const synced = syncSidebar(navItems as SyncableNavItem[], roles);
+    return synced as typeof navItems;
+  }, [roles]);
   return (
-    <DashboardLayout navItems={navItems} panelName="Admin Panel" userEmail="admin@erpvala.com" />
+    <DashboardLayout navItems={items} panelName="Admin Panel" userEmail="admin@erpvala.com" />
   );
 }
 

@@ -89,6 +89,8 @@ import AdminTrustscoresPage from "./pages_uploaded/admin__trust-scores";
 import AdminPage from "./pages_uploaded/admin";
 import AdminVersioningPage from "./pages_uploaded/admin__versioning";
 import AdminWebhooksPage from "./pages_uploaded/admin__webhooks";
+import AdminAuthObservabilityPage from "./pages_uploaded/admin__auth-observability";
+import { AdminRouteGuard } from "./components/AdminRouteGuard";
 import AuthLayoutReal from "./pages/auth/AuthLayout";
 import LoginReal from "./pages/auth/Login";
 import RegisterReal from "./pages/auth/Register";
@@ -180,8 +182,10 @@ const App = () => (
           <Routes>
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/" element={<RootPage />} />
+          <Route element={<AdminRouteGuard />}>
           <Route path="/admin" element={<AdminPage />}>
               <Route path="ai-assist" element={<AdminAiassistPage />} />
+              <Route path="auth-observability" element={<AdminAuthObservabilityPage />} />
               <Route path="api-logs" element={<AdminApilogsPage />} />
               <Route path="api-self-test" element={<AdminApiselftestPage />} />
               <Route path="audit-logs" element={<AdminAuditlogsPage />} />
@@ -264,6 +268,7 @@ const App = () => (
               <Route path="trust-scores" element={<AdminTrustscoresPage />} />
               <Route path="versioning" element={<AdminVersioningPage />} />
               <Route path="webhooks" element={<AdminWebhooksPage />} />
+          </Route>
           </Route>
           <Route path="/auth" element={<AuthLayoutReal />}>
               <Route path="login" element={<LoginReal />} />

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth, ROLE_HOME, type AppRole } from "@/contexts/AuthContext";
+import { loginLoopDetector } from "@/lib/auth/login-loop-detector";
 
 const DEMO_ACCOUNTS: Array<{ role: AppRole; label: string; email: string; password: string }> = [
   { role: "admin", label: "Admin", email: "admin@test.com", password: "Test#12345" },
@@ -79,11 +80,28 @@ export default function Login() {
   }
 
   async function performLogin(e: string, p: string): Promise<boolean> {
-    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
-    if (error) {
-      toast.error(error.message);
+    // Loop detector: bail early if locked out.
+    const pre = loginLoopDetector.check(e);
+    if (pre.locked) {
+      toast.error(`Too many failed attempts. Try again in ${Math.ceil(pre.retryAfterMs / 1000)}s.`);
       return false;
     }
+
+    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
+    if (error) {
+      const result = loginLoopDetector.recordFailure(e, error.message);
+      if (result.shouldRecover) {
+        // One-shot: clear corrupt local state then let the user retry once.
+        await loginLoopDetector.performRecovery();
+        toast.message("Cleared a stuck session — please try once more.");
+      } else if (result.locked) {
+        toast.error(`Locked for ${Math.ceil(result.retryAfterMs / 1000)}s after repeated failures.`);
+      } else {
+        toast.error(error.message);
+      }
+      return false;
+    }
+    loginLoopDetector.reset(e);
     const { data: sessionData } = await supabase.auth.getSession();
     const uid = sessionData.session?.user.id;
     const target = await resolveRedirect(uid);
