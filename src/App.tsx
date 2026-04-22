@@ -182,8 +182,10 @@ const App = () => (
           <Routes>
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/" element={<RootPage />} />
+          <Route element={<AdminRouteGuard />}>
           <Route path="/admin" element={<AdminPage />}>
               <Route path="ai-assist" element={<AdminAiassistPage />} />
+              <Route path="auth-observability" element={<AdminAuthObservabilityPage />} />
               <Route path="api-logs" element={<AdminApilogsPage />} />
               <Route path="api-self-test" element={<AdminApiselftestPage />} />
               <Route path="audit-logs" element={<AdminAuditlogsPage />} />
