@@ -75,7 +75,7 @@ function Compare() {
                         {i.title.slice(0, 1)}
                       </div>
                       <Link
-                        to="/marketplace/item/$slug"
+                        to={`/marketplace/item/${i.id}`}
                         className="font-semibold text-sm hover:text-primary line-clamp-2 block text-left"
                       >
                         {i.title}

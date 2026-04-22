@@ -14,7 +14,7 @@ function AuthorsPage() {
       </p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {AUTHORS.map((a) => (
-          <Link key={a.id} to="/marketplace/author/$username">
+          <Link key={a.id} to={`/marketplace/author/${a.username}`}>
             <Card className="hover:shadow-lg hover:border-primary transition-all">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">

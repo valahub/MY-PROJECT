@@ -346,7 +346,7 @@ function ItemDetail() {
                 Buy Now
               </Button>
               <Link
-                to="/marketplace/preview/$slug"
+                to={`/marketplace/preview/${item.slug}`}
                 className="block mt-2"
               >
                 <Button
@@ -404,7 +404,7 @@ function ItemDetail() {
           <Card>
             <CardContent className="p-5">
               <Link
-                to="/marketplace/author/$username"
+                to={`/marketplace/author/${item.author}`}
                 className="flex items-center gap-3 group"
               >
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-accent text-white flex items-center justify-center font-bold">

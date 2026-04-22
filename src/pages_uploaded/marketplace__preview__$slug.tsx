@@ -54,7 +54,7 @@ function LivePreview() {
     <div className="min-h-screen bg-sidebar text-white flex flex-col">
       <header className="bg-sidebar border-b border-white/10 px-4 py-2 flex items-center gap-3">
         <Link
-          to="/marketplace/item/$slug"
+          to={`/marketplace/item/${item.slug}`}
           className="text-sm flex items-center gap-1 hover:text-primary"
         >
           <ArrowLeft className="h-4 w-4" /> Back
