@@ -200,6 +200,42 @@ export default function AdminAuthObservabilityPage() {
       </div>
 
       <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base">Sidebar auto-sync verification</CardTitle>
+          <Button size="sm" variant="outline" onClick={runVerification}>Run verification</Button>
+        </CardHeader>
+        <CardContent>
+          {verifications.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              No verification runs yet. Click "Run verification" to compare the rendered nav against the role-permission map for every role.
+            </div>
+          ) : (
+            <div className="rounded-md border divide-y">
+              {verifications.map((v, idx) => (
+                <div key={`${v.role}-${v.at}-${idx}`} className="px-3 py-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={v.mismatch === 0 ? "default" : "destructive"}>{v.role}</Badge>
+                      <span className={v.mismatch === 0 ? "text-muted-foreground" : "text-foreground font-medium"}>
+                        {v.mismatch} mismatch{v.mismatch === 1 ? "" : "es"}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground">{formatTime(v.at)}</span>
+                  </div>
+                  {v.shouldHide.length > 0 && (
+                    <div className="font-mono text-[10px] text-destructive">leaked: {v.shouldHide.join(", ")}</div>
+                  )}
+                  {v.shouldShow.length > 0 && (
+                    <div className="font-mono text-[10px] text-muted-foreground">missing: {v.shouldShow.join(", ")}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Sidebar auto-sync — items hidden</CardTitle>
         </CardHeader>
