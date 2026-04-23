@@ -100,54 +100,121 @@ export default function AdminAuthObservabilityPage() {
     });
   }, [events, kindFilter, roleFilter, routeFilter]);
 
+  // Latest sidebar-hidden items derived from `redirect_fallback` events emitted by syncSidebar.
+  const hiddenItems = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { href: string; at: string; roles: string }[] = [];
+    for (const e of events) {
+      if (e.kind !== "redirect_fallback") continue;
+      const meta = (e.meta ?? {}) as { hidden?: unknown; roles?: unknown };
+      const hidden = Array.isArray(meta.hidden) ? (meta.hidden as string[]) : [];
+      const rolesStr = Array.isArray(meta.roles) ? (meta.roles as string[]).join(",") : "";
+      for (const href of hidden) {
+        if (seen.has(href)) continue;
+        seen.add(href);
+        out.push({ href, at: e.at, roles: rolesStr });
+        if (out.length >= 30) break;
+      }
+      if (out.length >= 30) break;
+    }
+    return out;
+  }, [events]);
+
+  // Quick stats for the dashboard navigation observer.
+  const stats = useMemo(() => {
+    let denied = 0;
+    let allowed = 0;
+    let hiddenCount = 0;
+    for (const e of events) {
+      if (e.kind === "permission_denied") denied++;
+      if (e.kind === "session_loaded" || e.kind === "signed_in") allowed++;
+      if (e.kind === "redirect_fallback") {
+        const meta = (e.meta ?? {}) as { hidden?: unknown };
+        if (Array.isArray(meta.hidden)) hiddenCount += meta.hidden.length;
+      }
+    }
+    return { denied, allowed, hiddenCount };
+  }, [events]);
+
+  const dashboardRoutes = [
+    "/admin", "/admin/dashboard", "/admin/auth-observability",
+    "/merchant/dashboard", "/customer/dashboard", "/support/dashboard",
+    "/marketplace/author/dashboard",
+  ];
+
   return (
     <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Permission denials</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-semibold">{stats.denied}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Allowed sessions</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-semibold">{stats.allowed}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Sidebar items hidden</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-semibold">{stats.hiddenCount}</CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Sidebar auto-sync — items hidden</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {hiddenItems.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No items have been hidden yet.</div>
+          ) : (
+            <div className="rounded-md border divide-y">
+              {hiddenItems.map((h) => (
+                <div key={h.href} className="flex items-center justify-between px-3 py-2 text-xs">
+                  <code className="font-mono">{h.href}</code>
+                  <span className="text-muted-foreground">roles: {h.roles || "—"} · {formatTime(h.at)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
-          <CardTitle className="text-base">Auth observability</CardTitle>
+          <CardTitle className="text-base">Auth observability stream</CardTitle>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{filtered.length} of {events.length} events</span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setTick((t) => t + 1)}
-            >
-              Refresh
-            </Button>
+            <Button size="sm" variant="outline" onClick={() => setTick((t) => t + 1)}>Refresh</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Event kind</label>
               <Select value={kindFilter} onValueChange={setKindFilter}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {KIND_OPTIONS.map((k) => (
-                    <SelectItem key={k} value={k}>
-                      {k}
-                    </SelectItem>
-                  ))}
+                  {KIND_OPTIONS.map((k) => (<SelectItem key={k} value={k}>{k}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Role contains</label>
-              <Input
-                placeholder="admin / merchant / customer / …"
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-              />
+              <Input placeholder="admin / merchant / customer / …" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} />
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Route contains</label>
-              <Input
-                placeholder="/admin/server"
-                value={routeFilter}
-                onChange={(e) => setRouteFilter(e.target.value)}
-              />
+              <Input placeholder="/admin/server" value={routeFilter} onChange={(e) => setRouteFilter(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Quick dashboard filter</label>
+              <Select value={routeFilter && dashboardRoutes.includes(routeFilter) ? routeFilter : "__none"} onValueChange={(v) => setRouteFilter(v === "__none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="any" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">any</SelectItem>
+                  {dashboardRoutes.map((r) => (<SelectItem key={r} value={r}>{r}</SelectItem>))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -160,21 +227,12 @@ export default function AdminAuthObservabilityPage() {
             </div>
             <div className="max-h-[60vh] overflow-y-auto">
               {filtered.length === 0 ? (
-                <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  No events match the current filters.
-                </div>
+                <div className="px-3 py-6 text-center text-sm text-muted-foreground">No events match the current filters.</div>
               ) : (
                 filtered.map((e) => (
-                  <div
-                    key={e.id}
-                    className="grid grid-cols-12 items-start gap-2 border-b px-3 py-2 text-xs last:border-b-0"
-                  >
-                    <div className="col-span-2 font-mono text-muted-foreground">
-                      {formatTime(e.at)}
-                    </div>
-                    <div className="col-span-3">
-                      <Badge variant={severityFor(e.kind)}>{e.kind}</Badge>
-                    </div>
+                  <div key={e.id} className="grid grid-cols-12 items-start gap-2 border-b px-3 py-2 text-xs last:border-b-0">
+                    <div className="col-span-2 font-mono text-muted-foreground">{formatTime(e.at)}</div>
+                    <div className="col-span-3"><Badge variant={severityFor(e.kind)}>{e.kind}</Badge></div>
                     <div className="col-span-3 text-foreground">{e.message ?? "—"}</div>
                     <div className="col-span-4 break-all font-mono text-[10px] text-muted-foreground">
                       {e.meta ? JSON.stringify(e.meta) : "—"}
@@ -189,3 +247,4 @@ export default function AdminAuthObservabilityPage() {
     </div>
   );
 }
+
