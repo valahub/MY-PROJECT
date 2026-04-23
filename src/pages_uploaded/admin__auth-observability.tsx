@@ -16,6 +16,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { verifyAllRoles } from "@/lib/auth/sidebar-verification";
+import { syncSidebar, type SyncableNavItem } from "@/lib/auth/sidebar-sync";
+import type { AppRole } from "@/contexts/AuthContext";
+import { LayoutDashboard } from "lucide-react";
 
 const KIND_OPTIONS = [
   "all",
@@ -136,11 +140,47 @@ export default function AdminAuthObservabilityPage() {
     return { denied, allowed, hiddenCount };
   }, [events]);
 
+  // Latest sidebar verification reports (one per role per run).
+  const verifications = useMemo(() => {
+    const out: { role: string; mismatch: number; at: string; shouldHide: string[]; shouldShow: string[] }[] = [];
+    for (const e of events) {
+      if (e.kind !== "redirect_fallback") continue;
+      if (e.message !== "sidebar_verification") continue;
+      const meta = (e.meta ?? {}) as Record<string, unknown>;
+      out.push({
+        role: String(meta.role ?? "?"),
+        mismatch: Number(meta.mismatchCount ?? 0),
+        at: e.at,
+        shouldHide: Array.isArray(meta.shouldHide) ? (meta.shouldHide as string[]) : [],
+        shouldShow: Array.isArray(meta.shouldShow) ? (meta.shouldShow as string[]) : [],
+      });
+      if (out.length >= 25) break;
+    }
+    return out;
+  }, [events]);
+
   const dashboardRoutes = [
     "/admin", "/admin/dashboard", "/admin/auth-observability",
     "/merchant/dashboard", "/customer/dashboard", "/support/dashboard",
     "/marketplace/author/dashboard",
   ];
+
+  // Run a verification pass against the canonical dashboard catalog.
+  const runVerification = () => {
+    const Icon = LayoutDashboard;
+    const catalog: SyncableNavItem[] = [
+      { title: "Admin", href: "/admin", icon: Icon },
+      { title: "Auth obs", href: "/admin/auth-observability", icon: Icon },
+      { title: "Server", href: "/admin/server", icon: Icon },
+      { title: "Merchant", href: "/merchant/dashboard", icon: Icon },
+      { title: "Customer", href: "/customer/dashboard", icon: Icon },
+      { title: "Support", href: "/support/dashboard", icon: Icon },
+      { title: "Author", href: "/marketplace/author/dashboard", icon: Icon },
+    ];
+    verifyAllRoles(catalog, (role: AppRole) => syncSidebar(catalog, [role]));
+    setTick((t) => t + 1);
+  };
+
 
   return (
     <div className="space-y-4">
