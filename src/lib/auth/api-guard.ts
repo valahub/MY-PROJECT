@@ -27,6 +27,21 @@ export class ApiAuthorizationError extends Error {
     this.name = "ApiAuthorizationError";
     this.status = status;
     this.code = code;
+    // Best-effort client-side redirect to the dedicated 403 page.
+    if (typeof window !== "undefined" && status === 403) {
+      const here = window.location.pathname + window.location.search;
+      if (!here.startsWith("/unauthorized")) {
+        // Defer so callers can still observe the throw before navigation.
+        setTimeout(() => {
+          try {
+            window.history.pushState({ from: here, status: 403 }, "", "/unauthorized");
+            window.dispatchEvent(new PopStateEvent("popstate"));
+          } catch {
+            window.location.assign("/unauthorized");
+          }
+        }, 0);
+      }
+    }
   }
 }
 

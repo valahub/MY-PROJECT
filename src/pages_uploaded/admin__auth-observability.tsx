@@ -16,6 +16,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { verifyAllRoles } from "@/lib/auth/sidebar-verification";
+import { syncSidebar, type SyncableNavItem } from "@/lib/auth/sidebar-sync";
+import type { AppRole } from "@/contexts/AuthContext";
+import { LayoutDashboard } from "lucide-react";
 
 const KIND_OPTIONS = [
   "all",
@@ -136,11 +140,47 @@ export default function AdminAuthObservabilityPage() {
     return { denied, allowed, hiddenCount };
   }, [events]);
 
+  // Latest sidebar verification reports (one per role per run).
+  const verifications = useMemo(() => {
+    const out: { role: string; mismatch: number; at: string; shouldHide: string[]; shouldShow: string[] }[] = [];
+    for (const e of events) {
+      if (e.kind !== "redirect_fallback") continue;
+      if (e.message !== "sidebar_verification") continue;
+      const meta = (e.meta ?? {}) as Record<string, unknown>;
+      out.push({
+        role: String(meta.role ?? "?"),
+        mismatch: Number(meta.mismatchCount ?? 0),
+        at: e.at,
+        shouldHide: Array.isArray(meta.shouldHide) ? (meta.shouldHide as string[]) : [],
+        shouldShow: Array.isArray(meta.shouldShow) ? (meta.shouldShow as string[]) : [],
+      });
+      if (out.length >= 25) break;
+    }
+    return out;
+  }, [events]);
+
   const dashboardRoutes = [
     "/admin", "/admin/dashboard", "/admin/auth-observability",
     "/merchant/dashboard", "/customer/dashboard", "/support/dashboard",
     "/marketplace/author/dashboard",
   ];
+
+  // Run a verification pass against the canonical dashboard catalog.
+  const runVerification = () => {
+    const Icon = LayoutDashboard;
+    const catalog: SyncableNavItem[] = [
+      { title: "Admin", href: "/admin", icon: Icon },
+      { title: "Auth obs", href: "/admin/auth-observability", icon: Icon },
+      { title: "Server", href: "/admin/server", icon: Icon },
+      { title: "Merchant", href: "/merchant/dashboard", icon: Icon },
+      { title: "Customer", href: "/customer/dashboard", icon: Icon },
+      { title: "Support", href: "/support/dashboard", icon: Icon },
+      { title: "Author", href: "/marketplace/author/dashboard", icon: Icon },
+    ];
+    verifyAllRoles(catalog, (role: AppRole) => syncSidebar(catalog, [role]));
+    setTick((t) => t + 1);
+  };
+
 
   return (
     <div className="space-y-4">
@@ -158,6 +198,42 @@ export default function AdminAuthObservabilityPage() {
           <CardContent className="text-2xl font-semibold">{stats.hiddenCount}</CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base">Sidebar auto-sync verification</CardTitle>
+          <Button size="sm" variant="outline" onClick={runVerification}>Run verification</Button>
+        </CardHeader>
+        <CardContent>
+          {verifications.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              No verification runs yet. Click "Run verification" to compare the rendered nav against the role-permission map for every role.
+            </div>
+          ) : (
+            <div className="rounded-md border divide-y">
+              {verifications.map((v, idx) => (
+                <div key={`${v.role}-${v.at}-${idx}`} className="px-3 py-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={v.mismatch === 0 ? "default" : "destructive"}>{v.role}</Badge>
+                      <span className={v.mismatch === 0 ? "text-muted-foreground" : "text-foreground font-medium"}>
+                        {v.mismatch} mismatch{v.mismatch === 1 ? "" : "es"}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground">{formatTime(v.at)}</span>
+                  </div>
+                  {v.shouldHide.length > 0 && (
+                    <div className="font-mono text-[10px] text-destructive">leaked: {v.shouldHide.join(", ")}</div>
+                  )}
+                  {v.shouldShow.length > 0 && (
+                    <div className="font-mono text-[10px] text-muted-foreground">missing: {v.shouldShow.join(", ")}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
