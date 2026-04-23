@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import NotFound from "./pages/NotFound";
+import Unauthorized from "./pages/Unauthorized";
 import AdminAiassistPage from "./pages_uploaded/admin__ai-assist";
 import AdminApilogsPage from "./pages_uploaded/admin__api-logs";
 import AdminApiselftestPage from "./pages_uploaded/admin__api-self-test";
@@ -181,6 +182,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/" element={<RootPage />} />
           <Route element={<AdminRouteGuard />}>
           <Route path="/admin" element={<AdminPage />}>
