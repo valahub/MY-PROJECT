@@ -92,6 +92,7 @@ import AdminVersioningPage from "./pages_uploaded/admin__versioning";
 import AdminWebhooksPage from "./pages_uploaded/admin__webhooks";
 import AdminAuthObservabilityPage from "./pages_uploaded/admin__auth-observability";
 import { AdminRouteGuard } from "./components/AdminRouteGuard";
+import AdminUnknownRouteFallback from "./components/AdminUnknownRouteFallback";
 import AuthLayoutReal from "./pages/auth/AuthLayout";
 import LoginReal from "./pages/auth/Login";
 import RegisterReal from "./pages/auth/Register";
@@ -270,6 +271,7 @@ const App = () => (
               <Route path="trust-scores" element={<AdminTrustscoresPage />} />
               <Route path="versioning" element={<AdminVersioningPage />} />
               <Route path="webhooks" element={<AdminWebhooksPage />} />
+              <Route path="*" element={<AdminUnknownRouteFallback />} />
           </Route>
           </Route>
           <Route path="/auth" element={<AuthLayoutReal />}>
