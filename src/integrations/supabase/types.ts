@@ -97,6 +97,16 @@ export type Database = {
         | "builder_user"
         | "builder_manager"
         | "builder_admin"
+        | "partner"
+        | "reseller"
+        | "affiliate"
+        | "partner_admin"
+        | "chat_user"
+        | "chat_manager"
+        | "chat_admin"
+        | "productivity_user"
+        | "productivity_manager"
+        | "productivity_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -238,6 +248,16 @@ export const Constants = {
         "builder_user",
         "builder_manager",
         "builder_admin",
+        "partner",
+        "reseller",
+        "affiliate",
+        "partner_admin",
+        "chat_user",
+        "chat_manager",
+        "chat_admin",
+        "productivity_user",
+        "productivity_manager",
+        "productivity_admin",
       ],
     },
   },
