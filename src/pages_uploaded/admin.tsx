@@ -61,6 +61,8 @@ import {
   Plug,
   GitMerge,
   TrendingDown,
+  Megaphone,
+  Sparkles,
 } from "lucide-react";
 
 // Route guard placeholder (TanStack-style; not used by react-router-dom).
@@ -177,6 +179,37 @@ const navItems = [
     children: [
       { title: "Developer Management", href: "/admin/development/management" },
       { title: "Developer Dashboard", href: "/admin/development/dashboard" },
+    ],
+  },
+  {
+    title: "Influencer",
+    href: "/influencer",
+    icon: Megaphone,
+    children: [
+      { title: "Influencer Home", href: "/influencer/dashboard" },
+      { title: "Campaigns", href: "/influencer/campaigns" },
+      { title: "Content / Posts", href: "/influencer/content" },
+      { title: "Analytics", href: "/influencer/analytics" },
+      { title: "Earnings / Payouts", href: "/influencer/earnings" },
+      { title: "Influencer Manager", href: "/influencer/manager" },
+      { title: "Influencer Admin", href: "/influencer/admin" },
+    ],
+  },
+  {
+    title: "Vala Builder",
+    href: "/builder",
+    icon: Sparkles,
+    children: [
+      { title: "Builder Dashboard", href: "/builder/dashboard" },
+      { title: "Create Project", href: "/builder/create" },
+      { title: "Prompt Builder", href: "/builder/prompt" },
+      { title: "Live Preview", href: "/builder/preview" },
+      { title: "Components", href: "/builder/components" },
+      { title: "Pages / Routes", href: "/builder/pages" },
+      { title: "Layout Manager", href: "/builder/layout" },
+      { title: "AI Assistant", href: "/builder/assistant" },
+      { title: "Export / Deploy", href: "/builder/export" },
+      { title: "Builder Admin", href: "/builder/admin" },
     ],
   },
 ];
