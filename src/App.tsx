@@ -194,6 +194,21 @@ import {
   BuilderExport,
   BuilderAdmin,
 } from "./pages/builder/BuilderPages";
+import PartnerLayout from "./pages/partner/PartnerLayout";
+import {
+  PartnerDashboard,
+  PartnerReseller,
+  PartnerAffiliate,
+  PartnerAdmin,
+} from "./pages/partner/PartnerPages";
+import ChatLayout from "./pages/chat/ChatLayout";
+import { ChatDashboard, ChatManager, ChatAdmin } from "./pages/chat/ChatPages";
+import ProductivityLayout from "./pages/productivity/ProductivityLayout";
+import {
+  ProductivityDashboard,
+  ProductivityManager,
+  ProductivityAdmin,
+} from "./pages/productivity/ProductivityPages";
 
 const queryClient = new QueryClient();
 
