@@ -37,6 +37,43 @@ export const ROUTE_RULES: RouteRule[] = [
 
   // ── Support section ─────────────────────────────────────────────────────────
   { prefix: "/support", roles: ["support", "admin"], verbs: ["view", "edit", "manage"] },
+
+  // ── Influencer module ───────────────────────────────────────────────────────
+  // Admin sub-area requires elevated influencer roles
+  {
+    prefix: "/influencer/admin",
+    roles: ["influencer_admin", "admin"],
+    verbs: ["view", "manage"],
+  },
+  {
+    prefix: "/influencer/manager",
+    roles: ["campaign_manager", "influencer_admin", "admin"],
+    verbs: ["view", "edit", "manage"],
+  },
+  {
+    prefix: "/influencer",
+    roles: [
+      "influencer",
+      "creator",
+      "brand",
+      "campaign_manager",
+      "influencer_admin",
+      "admin",
+    ],
+    verbs: ["view", "create", "edit"],
+  },
+
+  // ── Vala Builder module ─────────────────────────────────────────────────────
+  {
+    prefix: "/builder/admin",
+    roles: ["builder_admin", "admin"],
+    verbs: ["view", "manage"],
+  },
+  {
+    prefix: "/builder",
+    roles: ["builder_user", "builder_manager", "builder_admin", "admin"],
+    verbs: ["view", "create", "edit"],
+  },
 ];
 
 const PUBLIC_PREFIXES = [
