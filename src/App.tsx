@@ -171,6 +171,29 @@ import SupportSearchPage from "./pages_uploaded/support__search";
 import SupportSettingsPage from "./pages_uploaded/support__settings";
 import SupportTicketsPage from "./pages_uploaded/support__tickets";
 import SupportPage from "./pages_uploaded/support";
+import InfluencerLayout from "./pages/influencer/InfluencerLayout";
+import {
+  InfluencerDashboard,
+  InfluencerCampaigns,
+  InfluencerContent,
+  InfluencerAnalytics,
+  InfluencerEarnings,
+  InfluencerManager,
+  InfluencerAdmin,
+} from "./pages/influencer/InfluencerPages";
+import BuilderLayout from "./pages/builder/BuilderLayout";
+import {
+  BuilderDashboard,
+  BuilderCreate,
+  BuilderPrompt,
+  BuilderPreview,
+  BuilderComponents,
+  BuilderPages,
+  BuilderLayoutManager,
+  BuilderAssistant,
+  BuilderExport,
+  BuilderAdmin,
+} from "./pages/builder/BuilderPages";
 
 const queryClient = new QueryClient();
 
@@ -354,6 +377,29 @@ const App = () => (
               <Route path="search" element={<SupportSearchPage />} />
               <Route path="settings" element={<SupportSettingsPage />} />
               <Route path="tickets" element={<SupportTicketsPage />} />
+          </Route>
+          <Route path="/influencer" element={<InfluencerLayout />}>
+            <Route index element={<InfluencerDashboard />} />
+            <Route path="dashboard" element={<InfluencerDashboard />} />
+            <Route path="campaigns" element={<InfluencerCampaigns />} />
+            <Route path="content" element={<InfluencerContent />} />
+            <Route path="analytics" element={<InfluencerAnalytics />} />
+            <Route path="earnings" element={<InfluencerEarnings />} />
+            <Route path="manager" element={<InfluencerManager />} />
+            <Route path="admin" element={<InfluencerAdmin />} />
+          </Route>
+          <Route path="/builder" element={<BuilderLayout />}>
+            <Route index element={<BuilderDashboard />} />
+            <Route path="dashboard" element={<BuilderDashboard />} />
+            <Route path="create" element={<BuilderCreate />} />
+            <Route path="prompt" element={<BuilderPrompt />} />
+            <Route path="preview" element={<BuilderPreview />} />
+            <Route path="components" element={<BuilderComponents />} />
+            <Route path="pages" element={<BuilderPages />} />
+            <Route path="layout" element={<BuilderLayoutManager />} />
+            <Route path="assistant" element={<BuilderAssistant />} />
+            <Route path="export" element={<BuilderExport />} />
+            <Route path="admin" element={<BuilderAdmin />} />
           </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

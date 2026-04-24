@@ -3,7 +3,22 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { authHealer } from "@/lib/auth/auth-healer";
 
-export type AppRole = "admin" | "merchant" | "author" | "customer" | "support";
+export type AppRole =
+  | "admin"
+  | "merchant"
+  | "author"
+  | "customer"
+  | "support"
+  // Influencer module roles
+  | "influencer"
+  | "creator"
+  | "brand"
+  | "campaign_manager"
+  | "influencer_admin"
+  // Vala Builder module roles
+  | "builder_user"
+  | "builder_manager"
+  | "builder_admin";
 
 interface AuthContextValue {
   session: Session | null;
@@ -19,7 +34,21 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const ROLE_PRIORITY: AppRole[] = ["admin", "support", "merchant", "author", "customer"];
+const ROLE_PRIORITY: AppRole[] = [
+  "admin",
+  "support",
+  "merchant",
+  "author",
+  "influencer_admin",
+  "campaign_manager",
+  "brand",
+  "creator",
+  "influencer",
+  "builder_admin",
+  "builder_manager",
+  "builder_user",
+  "customer",
+];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -189,4 +218,12 @@ export const ROLE_HOME: Record<AppRole, string> = {
   merchant: "/merchant",
   author: "/author",
   customer: "/customer",
+  influencer: "/influencer",
+  creator: "/influencer",
+  brand: "/influencer",
+  campaign_manager: "/influencer",
+  influencer_admin: "/influencer",
+  builder_user: "/builder",
+  builder_manager: "/builder",
+  builder_admin: "/builder",
 };
