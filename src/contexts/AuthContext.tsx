@@ -18,7 +18,20 @@ export type AppRole =
   // Vala Builder module roles
   | "builder_user"
   | "builder_manager"
-  | "builder_admin";
+  | "builder_admin"
+  // Partner module roles
+  | "partner"
+  | "reseller"
+  | "affiliate"
+  | "partner_admin"
+  // Chat module roles
+  | "chat_user"
+  | "chat_manager"
+  | "chat_admin"
+  // Productivity module roles
+  | "productivity_user"
+  | "productivity_manager"
+  | "productivity_admin";
 
 interface AuthContextValue {
   session: Session | null;
