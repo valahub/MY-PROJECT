@@ -63,6 +63,9 @@ import {
   TrendingDown,
   Megaphone,
   Sparkles,
+  Handshake,
+  MessageSquare,
+  Briefcase,
 } from "lucide-react";
 
 // Route guard placeholder (TanStack-style; not used by react-router-dom).
@@ -210,6 +213,37 @@ const navItems = [
       { title: "AI Assistant", href: "/builder/assistant" },
       { title: "Export / Deploy", href: "/builder/export" },
       { title: "Builder Admin", href: "/builder/admin" },
+    ],
+  },
+  {
+    title: "Partner",
+    href: "/partner",
+    icon: Handshake,
+    children: [
+      { title: "Partner", href: "/partner/dashboard" },
+      { title: "Reseller", href: "/partner/reseller" },
+      { title: "Affiliate", href: "/partner/affiliate" },
+      { title: "Admin", href: "/partner/admin" },
+    ],
+  },
+  {
+    title: "Chat",
+    href: "/chat",
+    icon: MessageSquare,
+    children: [
+      { title: "User", href: "/chat/dashboard" },
+      { title: "Manager", href: "/chat/manager" },
+      { title: "Admin", href: "/chat/admin" },
+    ],
+  },
+  {
+    title: "Productivity",
+    href: "/productivity",
+    icon: Briefcase,
+    children: [
+      { title: "User", href: "/productivity/dashboard" },
+      { title: "Manager", href: "/productivity/manager" },
+      { title: "Admin", href: "/productivity/admin" },
     ],
   },
 ];

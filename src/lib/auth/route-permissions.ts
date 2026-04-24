@@ -74,6 +74,47 @@ export const ROUTE_RULES: RouteRule[] = [
     roles: ["builder_user", "builder_manager", "builder_admin", "admin"],
     verbs: ["view", "create", "edit"],
   },
+
+  // ── Partner module ──────────────────────────────────────────────────────────
+  {
+    prefix: "/partner/admin",
+    roles: ["partner_admin", "admin"],
+    verbs: ["view", "manage"],
+  },
+  {
+    prefix: "/partner",
+    roles: ["partner", "reseller", "affiliate", "partner_admin", "admin"],
+    verbs: ["view", "edit"],
+  },
+
+  // ── Chat module ─────────────────────────────────────────────────────────────
+  {
+    prefix: "/chat/admin",
+    roles: ["chat_admin", "admin"],
+    verbs: ["view", "manage"],
+  },
+  {
+    prefix: "/chat",
+    roles: ["chat_user", "chat_manager", "chat_admin", "admin"],
+    verbs: ["view", "create", "edit"],
+  },
+
+  // ── Productivity module ─────────────────────────────────────────────────────
+  {
+    prefix: "/productivity/admin",
+    roles: ["productivity_admin", "admin"],
+    verbs: ["view", "manage"],
+  },
+  {
+    prefix: "/productivity",
+    roles: [
+      "productivity_user",
+      "productivity_manager",
+      "productivity_admin",
+      "admin",
+    ],
+    verbs: ["view", "create", "edit"],
+  },
 ];
 
 const PUBLIC_PREFIXES = [

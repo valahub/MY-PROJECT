@@ -1,0 +1,10 @@
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'partner';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'reseller';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'affiliate';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'partner_admin';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'chat_user';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'chat_manager';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'chat_admin';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'productivity_user';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'productivity_manager';
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'productivity_admin';

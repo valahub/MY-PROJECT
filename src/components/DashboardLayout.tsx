@@ -31,6 +31,20 @@ export function DashboardLayout({
   const isActive = (href: string) =>
     location.pathname === href || location.pathname.startsWith(href + "/");
 
+  // Accordion: only one group open at a time. Auto-open the group containing
+  // the active route so context isn't lost on navigation.
+  const activeGroupHref =
+    navItems.find(
+      (item) =>
+        item.children &&
+        (isActive(item.href) || item.children.some((c) => isActive(c.href))),
+    )?.href ?? null;
+  const [openGroup, setOpenGroup] = useState<string | null>(activeGroupHref);
+
+  useEffect(() => {
+    if (activeGroupHref) setOpenGroup(activeGroupHref);
+  }, [activeGroupHref]);
+
   useEffect(() => {
     void authService.bootstrap().then(() => {
       const current = authService.getCurrentUser();
@@ -85,7 +99,16 @@ export function DashboardLayout({
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto p-2">
           {navItems.map((item) => (
-            <SidebarItem key={item.href} item={item} isActive={isActive} collapsed={!sidebarOpen} />
+            <SidebarItem
+              key={item.href}
+              item={item}
+              isActive={isActive}
+              collapsed={!sidebarOpen}
+              isOpen={openGroup === item.href}
+              onToggle={() =>
+                setOpenGroup((current) => (current === item.href ? null : item.href))
+              }
+            />
           ))}
         </nav>
 
@@ -146,20 +169,25 @@ function SidebarItem({
   item,
   isActive,
   collapsed,
+  isOpen,
+  onToggle,
 }: {
   item: NavItem;
   isActive: (h: string) => boolean;
   collapsed: boolean;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const Icon = item.icon;
   const active = isActive(item.href);
 
   if (item.children) {
+    const open = Boolean(isOpen);
     return (
       <div>
         <button
-          onClick={() => setOpen(!open)}
+          onClick={() => onToggle?.()}
+          aria-expanded={open}
           className={cn(
             "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
             active
@@ -170,25 +198,34 @@ function SidebarItem({
           <Icon className="h-4 w-4 shrink-0" />
           {!collapsed && <span className="flex-1 text-left">{item.title}</span>}
           {!collapsed && (
-            <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
+            <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", open && "rotate-180")} />
           )}
         </button>
-        {open && !collapsed && (
-          <div className="ml-6 mt-1 space-y-1">
-            {item.children.map((child) => (
-              <Link
-                key={child.href}
-                to={child.href}
-                className={cn(
-                  "block rounded-md px-3 py-1.5 text-xs transition-colors",
-                  isActive(child.href)
-                    ? "bg-sidebar-accent text-white"
-                    : "text-sidebar-foreground hover:text-white",
-                )}
-              >
-                {child.title}
-              </Link>
-            ))}
+        {!collapsed && (
+          <div
+            className={cn(
+              "grid transition-[grid-template-rows] duration-200 ease-out",
+              open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+            )}
+          >
+            <div className="overflow-hidden">
+              <div className="ml-6 mt-1 space-y-1">
+                {item.children.map((child) => (
+                  <Link
+                    key={child.href}
+                    to={child.href}
+                    className={cn(
+                      "block rounded-md px-3 py-1.5 text-xs transition-colors",
+                      isActive(child.href)
+                        ? "bg-sidebar-accent text-white"
+                        : "text-sidebar-foreground hover:text-white",
+                    )}
+                  >
+                    {child.title}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
