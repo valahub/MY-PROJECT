@@ -63,6 +63,9 @@ import {
   TrendingDown,
   Megaphone,
   Sparkles,
+  Handshake,
+  MessageSquare,
+  Briefcase,
 } from "lucide-react";
 
 // Route guard placeholder (TanStack-style; not used by react-router-dom).

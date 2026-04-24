@@ -416,6 +416,25 @@ const App = () => (
             <Route path="export" element={<BuilderExport />} />
             <Route path="admin" element={<BuilderAdmin />} />
           </Route>
+          <Route path="/partner" element={<PartnerLayout />}>
+            <Route index element={<PartnerDashboard />} />
+            <Route path="dashboard" element={<PartnerDashboard />} />
+            <Route path="reseller" element={<PartnerReseller />} />
+            <Route path="affiliate" element={<PartnerAffiliate />} />
+            <Route path="admin" element={<PartnerAdmin />} />
+          </Route>
+          <Route path="/chat" element={<ChatLayout />}>
+            <Route index element={<ChatDashboard />} />
+            <Route path="dashboard" element={<ChatDashboard />} />
+            <Route path="manager" element={<ChatManager />} />
+            <Route path="admin" element={<ChatAdmin />} />
+          </Route>
+          <Route path="/productivity" element={<ProductivityLayout />}>
+            <Route index element={<ProductivityDashboard />} />
+            <Route path="dashboard" element={<ProductivityDashboard />} />
+            <Route path="manager" element={<ProductivityManager />} />
+            <Route path="admin" element={<ProductivityAdmin />} />
+          </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
