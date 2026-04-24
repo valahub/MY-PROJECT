@@ -171,17 +171,29 @@ const navItems = [
     href: "/admin/server",
     icon: Cpu,
     children: [
-      { title: "Server Dashboard", href: "/admin/server/dashboard" },
-      { title: "Server Management", href: "/admin/server/management" },
+      { title: "User", href: "/admin/server/dashboard" },
+      { title: "Manager", href: "/admin/server/management" },
+      { title: "Admin", href: "/admin/server" },
     ],
   },
   {
-    title: "Development",
+    title: "Developer",
     href: "/admin/development",
     icon: GitBranch,
     children: [
-      { title: "Developer Management", href: "/admin/development/management" },
-      { title: "Developer Dashboard", href: "/admin/development/dashboard" },
+      { title: "Dashboard", href: "/admin/development/dashboard" },
+      { title: "Manager", href: "/admin/development/management" },
+      { title: "Admin", href: "/admin/development" },
+    ],
+  },
+  {
+    title: "Support",
+    href: "/support",
+    icon: HeartPulse,
+    children: [
+      { title: "Agent", href: "/support/dashboard" },
+      { title: "Manager", href: "/support/tickets" },
+      { title: "Admin", href: "/support/settings" },
     ],
   },
   {
