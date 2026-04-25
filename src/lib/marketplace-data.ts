@@ -465,48 +465,438 @@ export const AUTHORS = [
   },
 ];
 
-export const CATEGORY_TREE = [
+// ── Deep category hierarchy: top → sub → nano → micro ─────────────────────
+// `subs: string[]` kept for backward compatibility with existing consumers.
+// New `tree` field provides the full 4-level hierarchy.
+export interface NanoCategory {
+  slug: string;
+  title: string;
+  micro?: string[];
+}
+export interface SubCategory {
+  slug: string;
+  title: string;
+  count?: number;
+  nano?: NanoCategory[];
+}
+export interface TopCategory {
+  slug: string;
+  title: string;
+  count: number;
+  subs: string[]; // legacy flat list
+  tree?: SubCategory[]; // new deep hierarchy
+  tagPool?: string[];
+  compatibility?: string[];
+}
+
+export const CATEGORY_TREE: TopCategory[] = [
   {
     slug: "wordpress",
     title: "WordPress",
     count: 45230,
     subs: ["Themes", "Plugins", "Business", "Blog", "Portfolio", "eCommerce"],
+    tagPool: ["elementor", "gutenberg", "woocommerce", "divi", "wpbakery", "saas", "blog"],
+    compatibility: ["WP 6.5", "WP 6.4", "PHP 8.2", "PHP 8.1", "WooCommerce 9.x"],
+    tree: [
+      {
+        slug: "themes",
+        title: "Themes",
+        count: 18420,
+        nano: [
+          { slug: "business", title: "Business", micro: ["SaaS", "Agency", "Startup", "Consulting", "Finance"] },
+          { slug: "blog-magazine", title: "Blog / Magazine", micro: ["Personal", "News", "Lifestyle", "Tech"] },
+          { slug: "portfolio", title: "Portfolio", micro: ["Photography", "Designer", "Creative", "Architecture"] },
+          { slug: "ecommerce", title: "eCommerce", micro: ["Fashion", "Electronics", "Furniture", "Marketplace"] },
+          { slug: "education", title: "Education", micro: ["LMS", "School", "Course", "University"] },
+        ],
+      },
+      {
+        slug: "plugins",
+        title: "Plugins",
+        count: 14820,
+        nano: [
+          { slug: "forms", title: "Forms", micro: ["Contact", "Survey", "Quiz", "Booking"] },
+          { slug: "seo", title: "SEO", micro: ["Schema", "Sitemap", "Redirects", "Analytics"] },
+          { slug: "performance", title: "Performance", micro: ["Cache", "Image Optimize", "CDN", "Lazy Load"] },
+          { slug: "security", title: "Security", micro: ["Firewall", "2FA", "Backup", "Anti-spam"] },
+          { slug: "marketing", title: "Marketing", micro: ["Email", "Popups", "CRM", "Affiliate"] },
+        ],
+      },
+      {
+        slug: "ecommerce",
+        title: "WooCommerce",
+        count: 6420,
+        nano: [
+          { slug: "payments", title: "Payments", micro: ["Stripe", "PayPal", "Razorpay", "COD"] },
+          { slug: "shipping", title: "Shipping", micro: ["Table Rate", "FedEx", "Local Pickup", "Print Labels"] },
+          { slug: "subscriptions", title: "Subscriptions", micro: ["Recurring", "Memberships", "Gifting"] },
+        ],
+      },
+    ],
   },
   {
     slug: "html-templates",
     title: "HTML Templates",
     count: 12840,
     subs: ["Admin", "Landing", "Retail", "Corporate", "Portfolio"],
+    tagPool: ["tailwind", "bootstrap", "html5", "scss", "alpine.js", "dark-mode"],
+    compatibility: ["HTML5", "Bootstrap 5", "Tailwind 3.x", "Tailwind 4.x"],
+    tree: [
+      {
+        slug: "admin",
+        title: "Admin & Dashboard",
+        count: 3120,
+        nano: [
+          { slug: "saas-admin", title: "SaaS Admin", micro: ["Analytics", "CRM", "Project Mgmt", "HR"] },
+          { slug: "ecommerce-admin", title: "eCommerce Admin", micro: ["Inventory", "Orders", "POS"] },
+          { slug: "developer-tools", title: "Developer Tools", micro: ["API Console", "DB Manager", "Logs"] },
+        ],
+      },
+      {
+        slug: "landing",
+        title: "Landing Pages",
+        count: 4280,
+        nano: [
+          { slug: "saas-landing", title: "SaaS / App", micro: ["Single", "Multi", "Mobile App", "Browser Ext"] },
+          { slug: "agency-landing", title: "Agency", micro: ["Creative", "Marketing", "Studio"] },
+          { slug: "event-landing", title: "Event", micro: ["Conference", "Webinar", "Wedding"] },
+        ],
+      },
+      {
+        slug: "corporate",
+        title: "Corporate",
+        count: 2840,
+        nano: [
+          { slug: "finance-corp", title: "Finance", micro: ["Bank", "Insurance", "Investment"] },
+          { slug: "consulting-corp", title: "Consulting", micro: ["Legal", "Business", "Strategy"] },
+        ],
+      },
+    ],
   },
   {
     slug: "ecommerce",
     title: "eCommerce",
     count: 8120,
     subs: ["Shopify", "WooCommerce", "Magento", "Marketplace"],
+    tagPool: ["shopify", "magento", "opencart", "prestashop", "headless"],
+    compatibility: ["Shopify 2.0", "Magento 2.4", "WooCommerce 9.x", "PrestaShop 8.x"],
+    tree: [
+      {
+        slug: "shopify",
+        title: "Shopify",
+        count: 2980,
+        nano: [
+          { slug: "shopify-themes", title: "Themes", micro: ["Fashion", "Electronics", "Beauty", "Home"] },
+          { slug: "shopify-apps", title: "Apps", micro: ["Upsell", "Reviews", "Loyalty", "Subscriptions"] },
+        ],
+      },
+      {
+        slug: "magento",
+        title: "Magento",
+        count: 1240,
+        nano: [
+          { slug: "magento-themes", title: "Themes", micro: ["Multi-vendor", "B2B", "Fashion"] },
+          { slug: "magento-extensions", title: "Extensions", micro: ["Checkout", "SEO", "Marketing"] },
+        ],
+      },
+      {
+        slug: "marketplace",
+        title: "Multi-Vendor",
+        count: 980,
+        nano: [
+          { slug: "mv-platforms", title: "Platforms", micro: ["Digital Goods", "Services", "Physical"] },
+        ],
+      },
+    ],
   },
   {
     slug: "php-scripts",
     title: "PHP Scripts",
     count: 9450,
     subs: ["CRM", "CMS", "Productivity", "Starter", "Forms"],
+    tagPool: ["laravel", "symfony", "codeigniter", "php8", "mysql", "postgres", "redis"],
+    compatibility: ["PHP 8.3", "PHP 8.2", "PHP 8.1", "MySQL 8.0", "MariaDB 10.6"],
+    tree: [
+      {
+        slug: "crm",
+        title: "CRM",
+        count: 1820,
+        nano: [
+          { slug: "sales-crm", title: "Sales CRM", micro: ["Pipeline", "Lead Mgmt", "Quotes"] },
+          { slug: "support-crm", title: "Support CRM", micro: ["Tickets", "Knowledge Base", "Chat"] },
+        ],
+      },
+      {
+        slug: "saas-starter",
+        title: "SaaS Starter",
+        count: 1240,
+        nano: [
+          { slug: "laravel-saas", title: "Laravel SaaS", micro: ["Multi-tenant", "Stripe", "Teams"] },
+          { slug: "symfony-saas", title: "Symfony SaaS", micro: ["Multi-tenant", "API"] },
+        ],
+      },
+      {
+        slug: "productivity",
+        title: "Productivity",
+        count: 980,
+        nano: [
+          { slug: "project-mgmt", title: "Project Mgmt", micro: ["Kanban", "Gantt", "Time Tracking"] },
+          { slug: "hr", title: "HR / Payroll", micro: ["Attendance", "Leave", "Payslips"] },
+        ],
+      },
+    ],
   },
   {
     slug: "javascript",
     title: "JavaScript",
     count: 6230,
     subs: ["UI", "POS", "Charts", "Forms", "Tools"],
+    tagPool: ["react", "vue", "angular", "svelte", "next.js", "nuxt", "typescript"],
+    compatibility: ["Node 20.x", "Node 18.x", "React 18", "Vue 3", "Angular 17"],
+    tree: [
+      {
+        slug: "ui",
+        title: "UI Components",
+        count: 1840,
+        nano: [
+          { slug: "react-ui", title: "React", micro: ["Tailwind", "shadcn", "Material", "Chakra"] },
+          { slug: "vue-ui", title: "Vue", micro: ["Vuetify", "Quasar", "PrimeVue"] },
+          { slug: "svelte-ui", title: "Svelte", micro: ["SvelteKit", "Skeleton"] },
+        ],
+      },
+      {
+        slug: "charts",
+        title: "Charts & Viz",
+        count: 740,
+        nano: [
+          { slug: "chart-libs", title: "Chart Libraries", micro: ["D3", "Chart.js", "Recharts", "ApexCharts"] },
+        ],
+      },
+      {
+        slug: "tools",
+        title: "Dev Tools",
+        count: 920,
+        nano: [
+          { slug: "build-tools", title: "Build", micro: ["Vite Plugins", "Webpack Loaders", "ESLint"] },
+        ],
+      },
+    ],
   },
   {
     slug: "mobile",
     title: "Mobile",
     count: 4120,
     subs: ["Food", "Social", "Health", "Fitness", "Travel"],
+    tagPool: ["flutter", "react-native", "swift", "kotlin", "ionic", "firebase"],
+    compatibility: ["iOS 17+", "iOS 16+", "Android 14", "Android 13", "Flutter 3.x"],
+    tree: [
+      {
+        slug: "ios",
+        title: "iOS (Swift / SwiftUI)",
+        count: 1240,
+        nano: [
+          { slug: "ios-social", title: "Social", micro: ["Chat", "Dating", "Community"] },
+          { slug: "ios-health", title: "Health", micro: ["Fitness", "Meditation", "Tracker"] },
+          { slug: "ios-utility", title: "Utility", micro: ["Notes", "Calendar", "Finance"] },
+        ],
+      },
+      {
+        slug: "android",
+        title: "Android (Kotlin / Java)",
+        count: 980,
+        nano: [
+          { slug: "android-ecommerce", title: "eCommerce", micro: ["Shop", "Food Delivery", "Grocery"] },
+          { slug: "android-social", title: "Social", micro: ["Chat", "Video", "Forum"] },
+        ],
+      },
+      {
+        slug: "flutter",
+        title: "Flutter",
+        count: 1420,
+        nano: [
+          { slug: "flutter-templates", title: "Templates", micro: ["Multi-purpose", "eCommerce", "Booking"] },
+        ],
+      },
+      {
+        slug: "react-native",
+        title: "React Native",
+        count: 480,
+        nano: [
+          { slug: "rn-templates", title: "Templates", micro: ["Social", "Food", "Travel"] },
+        ],
+      },
+    ],
   },
   {
     slug: "themes",
     title: "CMS Themes",
     count: 7890,
     subs: ["Drupal", "Joomla", "Ghost", "Concrete5"],
+    tagPool: ["drupal", "joomla", "ghost", "concrete5", "responsive"],
+    compatibility: ["Drupal 10", "Joomla 5", "Ghost 5", "Concrete 9"],
   },
-  { slug: "plugins", title: "Plugins", count: 5430, subs: ["jQuery", "Vue", "React", "Angular"] },
+  {
+    slug: "plugins",
+    title: "Plugins",
+    count: 5430,
+    subs: ["jQuery", "Vue", "React", "Angular"],
+    tagPool: ["jquery", "vue3", "react18", "angular17"],
+    compatibility: ["jQuery 3.x", "Vue 3", "React 18", "Angular 17"],
+  },
+  {
+    slug: "graphics",
+    title: "Graphics & UI Kits",
+    count: 6840,
+    subs: ["Icons", "Illustrations", "UI Kits", "Mockups", "Logos"],
+    tagPool: ["figma", "sketch", "xd", "illustrator", "photoshop", "svg"],
+    compatibility: ["Figma", "Sketch 99+", "Adobe XD", "Adobe CC 2024"],
+    tree: [
+      {
+        slug: "icons",
+        title: "Icon Sets",
+        count: 1820,
+        nano: [
+          { slug: "line-icons", title: "Line Icons", micro: ["Outline", "Stroke", "Duotone"] },
+          { slug: "filled-icons", title: "Filled Icons", micro: ["Solid", "Glyph"] },
+        ],
+      },
+      {
+        slug: "ui-kits",
+        title: "UI Kits",
+        count: 2140,
+        nano: [
+          { slug: "design-systems", title: "Design Systems", micro: ["Tailwind", "Material", "iOS", "Android"] },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "audio",
+    title: "Audio",
+    count: 12480,
+    subs: ["Music", "Sound Effects", "Loops", "Logos & Idents"],
+    tagPool: ["royalty-free", "background", "cinematic", "corporate", "epic"],
+  },
+  {
+    slug: "video",
+    title: "Video",
+    count: 8920,
+    subs: ["Stock Footage", "Motion Graphics", "After Effects", "Premiere Pro"],
+    tagPool: ["4k", "loop", "intro", "lower-thirds", "transitions"],
+    compatibility: ["After Effects CC 2024", "Premiere Pro CC 2024", "DaVinci Resolve 19"],
+  },
+  {
+    slug: "3d",
+    title: "3D Files",
+    count: 3240,
+    subs: ["Models", "Materials", "Scenes", "Print Models"],
+    tagPool: ["blender", "cinema4d", "maya", "unity", "unreal", "fbx", "obj", "gltf"],
+    compatibility: ["Blender 4.x", "Cinema 4D R26", "Unity 2023", "Unreal 5.4"],
+  },
 ];
+
+// ── Tag pool aggregated from all categories (used by search/autosuggest) ──
+export const ALL_TAGS: string[] = Array.from(
+  new Set(CATEGORY_TREE.flatMap((c) => c.tagPool ?? [])),
+).sort();
+
+// ── Trending search terms (used by autosuggest) ──────────────────────────
+export const TRENDING_SEARCHES: string[] = [
+  "dashboard tailwind",
+  "react saas starter",
+  "wordpress elementor",
+  "flutter ecommerce",
+  "shopify theme",
+  "ai chat app",
+  "next.js boilerplate",
+  "figma ui kit",
+  "after effects intro",
+  "laravel crm",
+];
+
+// ── Price buckets for filter sidebar ─────────────────────────────────────
+export const PRICE_BUCKETS = [
+  { label: "Free", min: 0, max: 0 },
+  { label: "$1 – $20", min: 1, max: 20 },
+  { label: "$21 – $50", min: 21, max: 50 },
+  { label: "$51 – $100", min: 51, max: 100 },
+  { label: "$100+", min: 101, max: 99999 },
+];
+
+// ── Rating buckets for filter sidebar ────────────────────────────────────
+export const RATING_BUCKETS = [5, 4, 3, 2, 1];
+
+// ── Sort options used across listing pages ───────────────────────────────
+export const SORT_OPTIONS = [
+  { value: "trending", label: "Trending" },
+  { value: "best-sellers", label: "Best Sellers" },
+  { value: "newest", label: "Newest" },
+  { value: "price-low", label: "Price: Low → High" },
+  { value: "price-high", label: "Price: High → Low" },
+  { value: "rating", label: "Highest Rated" },
+  { value: "updated", label: "Recently Updated" },
+];
+
+// ── Extended item catalog (appended live items for richer listings) ──────
+const EXTRA_ITEMS: MarketItem[] = [
+  {
+    id: "i13", slug: "shopify-fashion-theme", title: "Vogueify — Shopify Fashion Theme",
+    category: "ecommerce", subcategory: "Shopify", author: "ThemeNest", authorAvatar: "TN",
+    price: 79, rating: 4.8, reviews: 612, sales: 5430, thumbnail: "",
+    tags: ["shopify", "fashion", "responsive"], lastUpdate: "2024-12-11", created: "2023-04-02",
+    version: "3.1.0", description: "Premium Shopify 2.0 theme for fashion stores with lookbook & quick view.", status: "live",
+  },
+  {
+    id: "i14", slug: "figma-saas-ui-kit", title: "Northwind — Figma SaaS UI Kit (1200+ components)",
+    category: "graphics", subcategory: "UI Kits", author: "VizMaster", authorAvatar: "VM",
+    price: 49, rating: 4.9, reviews: 980, sales: 7820, thumbnail: "",
+    tags: ["figma", "saas", "design-system"], lastUpdate: "2024-12-09", created: "2023-08-15",
+    version: "5.0.0", description: "Auto-layout components, dark/light, 24 ready-made flows.", status: "live",
+  },
+  {
+    id: "i15", slug: "ae-cinematic-intro", title: "Cinematic Title Intro — After Effects",
+    category: "video", subcategory: "After Effects", author: "AppForge", authorAvatar: "AF",
+    price: 24, rating: 4.6, reviews: 312, sales: 2180, thumbnail: "",
+    tags: ["after-effects", "intro", "cinematic", "4k"], lastUpdate: "2024-11-22", created: "2024-02-08",
+    version: "1.4.0", description: "10s cinematic title intro, AE 2024+, 4K resolution, no plugins.", status: "live",
+  },
+  {
+    id: "i16", slug: "swift-meditation-app", title: "Calmly — SwiftUI Meditation App",
+    category: "mobile", subcategory: "Health", author: "iOSGuru", authorAvatar: "IG",
+    price: 65, rating: 4.7, reviews: 198, sales: 1420, thumbnail: "",
+    tags: ["swift", "swiftui", "ios", "health"], lastUpdate: "2024-12-04", created: "2023-11-19",
+    version: "2.2.0", description: "Full meditation app with audio sessions, streaks, HealthKit sync.", status: "live",
+  },
+  {
+    id: "i17", slug: "blender-product-pack", title: "Studio Pack — 40 Blender Product Scenes",
+    category: "3d", subcategory: "Scenes", author: "PixelStack", authorAvatar: "PS",
+    price: 35, rating: 4.5, reviews: 142, sales: 980, thumbnail: "",
+    tags: ["blender", "product", "studio", "cycles"], lastUpdate: "2024-11-30", created: "2024-03-12",
+    version: "1.2.0", description: "Pre-lit studio scenes for product renders, Cycles + Eevee ready.", status: "live",
+  },
+  {
+    id: "i18", slug: "nextjs-blog-starter", title: "InkPress — Next.js MDX Blog Starter",
+    category: "javascript", subcategory: "UI", author: "DevOrbit", authorAvatar: "DO",
+    price: 19, rating: 4.7, reviews: 421, sales: 3210, thumbnail: "",
+    tags: ["next.js", "mdx", "blog", "tailwind", "typescript"], lastUpdate: "2024-12-13", created: "2024-01-20",
+    version: "2.3.0", description: "SEO-first MDX blog starter with RSS, sitemap, OG image generation.", status: "live",
+  },
+  {
+    id: "i19", slug: "audio-corporate-pack", title: "Corporate Inspire — 12-Track Music Pack",
+    category: "audio", subcategory: "Music", author: "VizMaster", authorAvatar: "VM",
+    price: 22, rating: 4.6, reviews: 215, sales: 1840, thumbnail: "",
+    tags: ["royalty-free", "corporate", "background"], lastUpdate: "2024-10-18", created: "2023-12-05",
+    version: "1.0.0", description: "12 royalty-free corporate tracks, all stems & loops included.", status: "live",
+  },
+  {
+    id: "i20", slug: "drupal-portfolio-theme", title: "Folium — Drupal Portfolio Theme",
+    category: "themes", subcategory: "Drupal", author: "CodeMatrix", authorAvatar: "CM",
+    price: 38, rating: 4.4, reviews: 88, sales: 540, thumbnail: "",
+    tags: ["drupal", "portfolio", "responsive"], lastUpdate: "2024-11-14", created: "2024-04-08",
+    version: "1.5.0", description: "Modern Drupal 10 portfolio theme with case-study templates.", status: "live",
+  },
+];
+
+// Append to ITEMS array (kept as let-style mutation via spread for backward compat).
+ITEMS.push(...EXTRA_ITEMS);
+
