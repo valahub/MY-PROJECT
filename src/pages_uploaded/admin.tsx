@@ -123,8 +123,6 @@ const navItems = [
   { title: "Fraud ML Scoring", href: "/admin/fraud-ml", icon: Brain },
   { title: "SLA Monitoring", href: "/admin/sla", icon: Activity },
   { title: "BI Sync", href: "/admin/bi-sync", icon: BarChart2 },
-  { title: "Payment Gateways", href: "/admin/gateways", icon: Network },
-  { title: "Payments God Mode", href: "/admin/payments-god-mode", icon: Wallet },
   { title: "Rate Limits", href: "/admin/rate-limits", icon: Gauge },
   { title: "Roles", href: "/admin/roles", icon: UserCog },
   { title: "Webhooks", href: "/admin/webhooks", icon: Webhook },
