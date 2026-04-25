@@ -141,6 +141,16 @@ import MarketplacePreviewSlugPage from "./pages_uploaded/marketplace__preview__$
 import MarketplaceSearchPage from "./pages_uploaded/marketplace__search";
 import MarketplacePage2 from "./pages_uploaded/marketplace";
 import MarketplaceWishlistPage from "./pages_uploaded/marketplace__wishlist";
+import CategoryPage from "./pages/marketplace/CategoryPage";
+import SearchPage from "./pages/marketplace/SearchPage";
+import CategoriesPage from "./pages/marketplace/CategoriesPage";
+import HomePage from "./pages/marketplace/HomePage";
+import BlogPage from "./pages/marketplace/BlogPage";
+import BlogDetailPage from "./pages/marketplace/BlogDetailPage";
+import ResellerSoftwarePage from "./pages/reseller/ResellerSoftwarePage";
+import ResellerPluginsPage from "./pages/reseller/ResellerPluginsPage";
+import FranchiseSoftwareBusinessPage from "./pages/franchise/FranchiseSoftwareBusinessPage";
+import AuthorRoutes from "./pages/author/AuthorRoutes";
 import MerchantAnalyticsPage from "./pages_uploaded/merchant__analytics";
 import MerchantApiPage from "./pages_uploaded/merchant__api";
 import MerchantCheckoutlinksPage from "./pages_uploaded/merchant__checkout-links";
@@ -157,6 +167,8 @@ import MerchantPricingCreatePage from "./pages_uploaded/merchant__pricing__creat
 import MerchantPricingPage from "./pages_uploaded/merchant__pricing";
 import MerchantProductsCreatePage from "./pages_uploaded/merchant__products__create";
 import MerchantProductsPage from "./pages_uploaded/merchant__products";
+import ProductDetailPage from "./pages_uploaded/product__$id";
+import ProductAnalyticsPage from "./pages_uploaded/admin__products__$id__analytics";
 import MerchantSettingsPage from "./pages_uploaded/merchant__settings";
 import MerchantSubscriptionsPage from "./pages_uploaded/merchant__subscriptions";
 import MerchantTransactionsPage from "./pages_uploaded/merchant__transactions";
@@ -284,6 +296,7 @@ const App = () => (
               <Route path="payments-god-mode" element={<AdminPaymentsgodmodePage />} />
               <Route path="policy-engine" element={<AdminPolicyenginePage />} />
               <Route path="products" element={<AdminProductsPage />} />
+              <Route path="products/:id/analytics" element={<ProductAnalyticsPage />} />
               <Route path="proration" element={<AdminProrationPage />} />
               <Route path="rate-limits" element={<AdminRatelimitsPage />} />
               <Route path="recovery-log" element={<AdminRecoverylogPage />} />
@@ -331,22 +344,15 @@ const App = () => (
               <Route path="security" element={<CustomerSecurityPage />} />
               <Route path="subscriptions" element={<CustomerSubscriptionsPage />} />
           </Route>
-          <Route path="/marketplace" element={<MarketplacePage2 />}>
-              <Route path="author/:username" element={<MarketplaceAuthorUsernamePage />} />
-              <Route path="author/analytics" element={<MarketplaceAuthorAnalyticsPage />} />
-              <Route path="author/badges" element={<MarketplaceAuthorBadgesPage />} />
-              <Route path="author/comments" element={<MarketplaceAuthorCommentsPage />} />
-              <Route path="author/dashboard" element={<MarketplaceAuthorDashboardPage />} />
-              <Route path="author/earnings" element={<MarketplaceAuthorEarningsPage />} />
-              <Route path="author/followers" element={<MarketplaceAuthorFollowersPage />} />
-              <Route path="author/portfolio" element={<MarketplaceAuthorPortfolioPage />} />
-              <Route path="author/refunds" element={<MarketplaceAuthorRefundsPage />} />
-              <Route path="author/reviews" element={<MarketplaceAuthorReviewsPage />} />
-              <Route path="author/settings" element={<MarketplaceAuthorSettingsPage />} />
-              <Route path="author/statements" element={<MarketplaceAuthorStatementsPage />} />
-              <Route path="author" element={<MarketplaceAuthorPage />} />
-              <Route path="author/upload" element={<MarketplaceAuthorUploadPage />} />
-              <Route path="author/withdraw" element={<MarketplaceAuthorWithdrawPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/product/:id" element={<ProductDetailPage />} />
+          <Route path="/marketplace" element={<HomePage />}>
+              <Route path="category/:slug" element={<CategoryPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
+              <Route path="search" element={<SearchPage />} />
+              <Route path="blog" element={<BlogPage />} />
+              <Route path="blog/:slug" element={<BlogDetailPage />} />
+              <Route path="author/*" element={<AuthorRoutes />} />
               <Route path="authors" element={<MarketplaceAuthorsPage />} />
               <Route path="become-author" element={<MarketplaceBecomeauthorPage />} />
               <Route path="blog" element={<MarketplaceBlogPage />} />
@@ -355,12 +361,17 @@ const App = () => (
               <Route path="checkout" element={<MarketplaceCheckoutPage />} />
               <Route path="compare" element={<MarketplaceComparePage />} />
               <Route path="forums" element={<MarketplaceForumsPage />} />
+              <Route path="forums/:slug" element={<MarketplaceForumsPage />} />
+              <Route path="forums/:slug/:topicId" element={<MarketplaceForumsPage />} />
               <Route index element={<MarketplacePage />} />
               <Route path="item/:slug" element={<MarketplaceItemSlugPage />} />
               <Route path="preview/:slug" element={<MarketplacePreviewSlugPage />} />
               <Route path="search" element={<MarketplaceSearchPage />} />
               <Route path="wishlist" element={<MarketplaceWishlistPage />} />
           </Route>
+          <Route path="/reseller/software" element={<ResellerSoftwarePage />} />
+          <Route path="/reseller/plugins" element={<ResellerPluginsPage />} />
+          <Route path="/franchise/software-business" element={<FranchiseSoftwareBusinessPage />} />
           <Route path="/merchant" element={<MerchantPage />}>
               <Route path="analytics" element={<MerchantAnalyticsPage />} />
               <Route path="api" element={<MerchantApiPage />} />
@@ -378,6 +389,7 @@ const App = () => (
               <Route path="pricing" element={<MerchantPricingPage />} />
               <Route path="products/create" element={<MerchantProductsCreatePage />} />
               <Route path="products" element={<MerchantProductsPage />} />
+              <Route path="products/:id/edit" element={<MerchantProductsCreatePage />} />
               <Route path="settings" element={<MerchantSettingsPage />} />
               <Route path="subscriptions" element={<MerchantSubscriptionsPage />} />
               <Route path="transactions" element={<MerchantTransactionsPage />} />

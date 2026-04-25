@@ -1,4 +1,5 @@
 import type { MarketItem } from "@/lib/marketplace-data";
+import { CATEGORY_TREE } from "@/lib/marketplace-data";
 
 const SEO_METRICS_KEY = "erpvala.marketplace.seo.metrics.v1";
 const BRAND = "ERP Vala";
@@ -167,17 +168,71 @@ export function buildMarketplaceProductJsonLd(item: MarketItem, canonicalPath: s
 }
 
 export function buildMarketplaceFaqJsonLd(item: MarketItem) {
-  const faq = buildMarketplaceFaq(item);
+  const faqs = buildMarketplaceFaq(item);
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faq.map((entry) => ({
+    mainEntity: faqs.map((entry) => ({
       "@type": "Question",
       name: entry.question,
       acceptedAnswer: {
         "@type": "Answer",
         text: entry.answer,
       },
+    })),
+  };
+}
+
+export function buildAggregateRatingJsonLd(item: MarketItem) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "AggregateRating",
+    ratingValue: item.rating,
+    reviewCount: item.reviews,
+    bestRating: 5,
+    worstRating: 1,
+    itemReviewed: {
+      "@type": "Product",
+      name: item.title,
+    },
+  };
+}
+
+export function buildReviewJsonLd(
+  item: MarketItem,
+  reviews: Array<{
+    author: string;
+    rating: number;
+    comment: string;
+    date: string;
+  }>
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: item.title,
+    description: item.description,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: item.rating,
+      reviewCount: item.reviews,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    review: reviews.map((review) => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: review.author,
+      },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: review.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: review.comment,
+      datePublished: review.date,
     })),
   };
 }
@@ -265,4 +320,189 @@ export function trackMarketplaceSeoMetric(
 
   metrics[productId] = current;
   safeWriteMetrics(metrics);
+}
+
+// ============================================
+// CATEGORY SEO
+// ============================================
+
+export function buildCategoryMeta(categorySlug: string) {
+  const category = CATEGORY_TREE.find((cat) => cat.slug === categorySlug);
+  if (!category) {
+    return {
+      title: `Browse Marketplace - ${BRAND}`,
+      description: `Explore 600,000+ digital assets including code, themes, plugins, and more on ${BRAND}.`,
+      keywords: "marketplace, digital assets, code, themes, plugins",
+      canonicalPath: "/marketplace",
+    };
+  }
+
+  const title = `Buy ${category.title} - ${category.count.toLocaleString()} Items | ${BRAND}`;
+  const description = `Discover ${category.count.toLocaleString()} ${category.title} including ${category.subs.slice(0, 3).join(", ")}. Download instantly from ${BRAND}.`;
+  const keywords = [category.title, ...category.subs].join(", ");
+  const canonicalPath = `/marketplace/category?category=${categorySlug}`;
+
+  return {
+    title: optimizeTitlePixelWidth(clamp(title, 60)),
+    description: clamp(description, 160),
+    keywords,
+    canonicalPath,
+  };
+}
+
+export function buildCategoryJsonLd(categorySlug: string, canonicalPath: string) {
+  const category = CATEGORY_TREE.find((cat) => cat.slug === categorySlug);
+  if (!category) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: category.title,
+    description: `Browse ${category.count.toLocaleString()} ${category.title} on ${BRAND}`,
+    url: canonicalPath,
+    numberOfItems: category.count,
+  };
+}
+
+// ============================================
+// TAG SEO
+// ============================================
+
+export function buildTagMeta(tag: string, itemCount: number) {
+  const title = `Best ${tag} Scripts & Plugins - ${itemCount} Items | ${BRAND}`;
+  const description = `Find top-rated ${tag} scripts, plugins, and templates. ${itemCount} items available with instant download from ${BRAND}.`;
+  const keywords = `${tag}, ${tag} scripts, ${tag} plugins, best ${tag}`;
+  const canonicalPath = `/marketplace/tag/${normalizeSeoSlug(tag)}`;
+
+  return {
+    title: optimizeTitlePixelWidth(clamp(title, 60)),
+    description: clamp(description, 160),
+    keywords,
+    canonicalPath,
+  };
+}
+
+export function buildTagJsonLd(tag: string, itemCount: number, canonicalPath: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${tag} Products`,
+    description: `Browse ${itemCount} ${tag} products on ${BRAND}`,
+    url: canonicalPath,
+    numberOfItems: itemCount,
+  };
+}
+
+// ============================================
+// BLOG SEO
+// ============================================
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  category: string;
+  tags: string[];
+  publishedAt: string;
+  updatedAt: string;
+  featured: boolean;
+  relatedProducts: string[];
+  faqs?: Array<{ question: string; answer: string }>;
+  image?: string;
+}
+
+export function buildBlogMeta(post: BlogPost) {
+  const title = `${post.title} | ${BRAND} Blog`;
+  const description = clamp(post.excerpt, 160);
+  const keywords = [post.category, ...post.tags].join(", ");
+  const canonicalPath = `/marketplace/blog/${post.slug}`;
+
+  return {
+    title: optimizeTitlePixelWidth(clamp(title, 60)),
+    description,
+    keywords,
+    canonicalPath,
+  };
+}
+
+export function buildBlogJsonLd(post: BlogPost, canonicalPath: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    author: {
+      "@type": "Person",
+      name: post.author,
+    },
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    url: canonicalPath,
+    keywords: post.tags.join(", "),
+  };
+}
+
+export function buildBlogFaqJsonLd(faqs: Array<{ question: string; answer: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((entry) => ({
+      "@type": "Question",
+      name: entry.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: entry.answer,
+      },
+    })),
+  };
+}
+
+export function buildBlogListJsonLd(canonicalPath: string, blogCount: number) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: `${BRAND} Blog`,
+    description: "Latest marketplace news, tutorials, and product reviews",
+    url: canonicalPath,
+    blogPost: {
+      "@type": "ItemList",
+      numberOfItems: blogCount,
+    },
+  };
+}
+
+// ============================================
+// HOMEPAGE SEO
+// ============================================
+
+export function buildHomepageMeta() {
+  const title = `Marketplace - 600,000+ Digital Assets | ${BRAND}`;
+  const description = `Buy and sell premium code, themes, plugins, and graphics. WordPress, React, Vue, Laravel, and more. Instant download from ${BRAND}.`;
+  const keywords = "marketplace, digital assets, code, themes, plugins, wordpress, react, vue, laravel";
+  const canonicalPath = "/marketplace";
+
+  return {
+    title: optimizeTitlePixelWidth(clamp(title, 60)),
+    description: clamp(description, 160),
+    keywords,
+    canonicalPath,
+  };
+}
+
+export function buildHomepageJsonLd(canonicalPath: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: `${BRAND} Marketplace`,
+    url: canonicalPath,
+    description: "Premium digital assets marketplace",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${canonicalPath}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
 }

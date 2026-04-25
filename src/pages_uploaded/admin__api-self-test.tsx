@@ -4,166 +4,107 @@ import { DataTable } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Activity, CheckCircle, AlertTriangle, Clock, Wrench, Loader2, Settings, FileText, History } from "lucide-react";
-import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Activity, CheckCircle, AlertTriangle, Clock, Wrench, Loader2, Settings, FileText, History, Plus, Play, StopCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { apiSelfTestService, type ApiTest, type TestResult, type FailureRecord, type DependencyHealth, type ApiSelfTestKPI } from "@/lib/api/admin-services";
 
 ({
   component: AdminApiSelfTestPage,
   head: () => ({ meta: [{ title: "API Self-Test — Admin — ERP Vala" }] }),
 });
 
-const testResults = [
-  {
-    id: "AT-001",
-    endpoint: "POST /v1/subscriptions",
-    method: "POST",
-    lastTestedAt: "2024-01-18 15:00:02",
-    responseTime: "142 ms",
-    httpStatus: 201,
-    assertion: "body.id present",
-    autoFixTriggered: false,
-    status: "passed",
-  },
-  {
-    id: "AT-002",
-    endpoint: "GET /v1/invoices/:id",
-    method: "GET",
-    lastTestedAt: "2024-01-18 15:00:02",
-    responseTime: "58 ms",
-    httpStatus: 200,
-    assertion: "body.amount > 0",
-    autoFixTriggered: false,
-    status: "passed",
-  },
-  {
-    id: "AT-003",
-    endpoint: "POST /v1/payments/charge",
-    method: "POST",
-    lastTestedAt: "2024-01-18 14:58:01",
-    responseTime: "2,412 ms",
-    httpStatus: 504,
-    assertion: "status = 200",
-    autoFixTriggered: true,
-    status: "failed",
-  },
-  {
-    id: "AT-004",
-    endpoint: "GET /v1/products",
-    method: "GET",
-    lastTestedAt: "2024-01-18 15:00:02",
-    responseTime: "32 ms",
-    httpStatus: 200,
-    assertion: "body.items.length > 0",
-    autoFixTriggered: false,
-    status: "passed",
-  },
-  {
-    id: "AT-005",
-    endpoint: "POST /v1/webhooks/dispatch",
-    method: "POST",
-    lastTestedAt: "2024-01-18 15:00:01",
-    responseTime: "88 ms",
-    httpStatus: 202,
-    assertion: "body.queued = true",
-    autoFixTriggered: false,
-    status: "passed",
-  },
-  {
-    id: "AT-006",
-    endpoint: "GET /v1/licenses/:key/validate",
-    method: "GET",
-    lastTestedAt: "2024-01-18 15:00:02",
-    responseTime: "44 ms",
-    httpStatus: 200,
-    assertion: "body.valid = true",
-    autoFixTriggered: false,
-    status: "passed",
-  },
-  {
-    id: "AT-007",
-    endpoint: "DELETE /v1/subscriptions/:id",
-    method: "DELETE",
-    lastTestedAt: "2024-01-18 14:55:00",
-    responseTime: "301 ms",
-    httpStatus: 429,
-    assertion: "status = 200",
-    autoFixTriggered: true,
-    status: "failed",
-  },
-];
-
-const autoFixLog = [
-  {
-    id: "FX-001",
-    endpoint: "POST /v1/payments/charge",
-    action: "Restarted payment-gateway worker pod",
-    triggeredAt: "2024-01-18 14:58:10",
-    resolvedAt: "2024-01-18 14:58:42",
-    status: "resolved",
-  },
-  {
-    id: "FX-002",
-    endpoint: "DELETE /v1/subscriptions/:id",
-    action: "Flushed rate-limit counter for test key",
-    triggeredAt: "2024-01-18 14:55:08",
-    resolvedAt: "2024-01-18 14:55:20",
-    status: "resolved",
-  },
-];
-
 function AdminApiSelfTestPage() {
-  const [isConfiguring, setIsConfiguring] = useState(false);
-  const [isRunningTests, setIsRunningTests] = useState(false);
-  const [isViewingHistory, setIsViewingHistory] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [selectedTest, setSelectedTest] = useState<ApiTest | null>(null);
+  const [selectedResult, setSelectedResult] = useState<TestResult | null>(null);
+  const [tests, setTests] = useState<ApiTest[]>([]);
+  const [results, setResults] = useState<TestResult[]>([]);
+  const [failures, setFailures] = useState<FailureRecord[]>([]);
+  const [dependencies, setDependencies] = useState<DependencyHealth[]>([]);
+  const [kpi, setKpi] = useState<ApiSelfTestKPI | null>(null);
 
-  const handleConfigureSuite = async () => {
-    setIsConfiguring(true);
+  const loadData = async () => {
+    setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Test suite configured successfully");
+      setTests(apiSelfTestService.listTests());
+      setResults(apiSelfTestService.listResults());
+      setFailures(apiSelfTestService.listFailures());
+      setDependencies(apiSelfTestService.listDependencies());
+      setKpi(apiSelfTestService.getKPI());
     } catch (error) {
-      toast.error("Failed to configure test suite");
+      toast.error("Failed to load API self-test data");
     } finally {
-      setIsConfiguring(false);
+      setLoading(false);
     }
   };
 
-  const handleRunFullTest = async () => {
-    setIsRunningTests(true);
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleAddTest = async () => {
+    const endpoint = prompt("Enter endpoint (e.g., /api/auth/login):");
+    if (!endpoint) return;
+
+    const method = prompt("Enter method (GET, POST, PUT, DELETE, PATCH):") as "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    if (!method) return;
+
+    const region = prompt("Enter region (e.g., us-east-1):") || "us-east-1";
+    const testInterval = parseInt(prompt("Enter test interval in seconds (e.g., 60):") || "60");
+    const expectedStatusCode = parseInt(prompt("Enter expected status code (e.g., 200):") || "200");
+    const maxResponseTime = parseInt(prompt("Enter max response time in ms (e.g., 500):") || "500");
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      toast.success("Full test suite completed");
+      setIsAdding(true);
+      await apiSelfTestService.createTest({
+        endpoint,
+        method,
+        region,
+        testInterval,
+        expectedStatusCode,
+        maxResponseTime,
+      }, "admin");
+      toast.success("API test created successfully");
+      loadData();
     } catch (error) {
-      toast.error("Failed to run test suite");
+      toast.error("Failed to create API test");
     } finally {
-      setIsRunningTests(false);
+      setIsAdding(false);
     }
   };
 
-  const handleViewHistory = async () => {
-    setIsViewingHistory(true);
+  const handleRunTest = async (testId: string) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Test history loaded");
+      await apiSelfTestService.executeTest(testId);
+      toast.success("Test executed successfully");
+      loadData();
     } catch (error) {
-      toast.error("Failed to load test history");
-    } finally {
-      setIsViewingHistory(false);
+      toast.error("Failed to execute test");
     }
   };
 
-  const handleExportReport = async () => {
-    setIsExporting(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.success("Test report exported successfully");
-    } catch (error) {
-      toast.error("Failed to export test report");
-    } finally {
-      setIsExporting(false);
-    }
+  const handleStartScheduledTests = () => {
+    apiSelfTestService.startScheduledTests();
+    setIsRunning(true);
+    toast.success("Scheduled tests started");
+  };
+
+  const handleStopScheduledTests = () => {
+    apiSelfTestService.stopScheduledTests();
+    setIsRunning(false);
+    toast.success("Scheduled tests stopped");
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString();
+  };
+
+  const formatTime = (ms: number) => {
+    return `${ms}ms`;
   };
 
   return (
@@ -171,54 +112,37 @@ function AdminApiSelfTestPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">API Self-Test</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleConfigureSuite} disabled={isConfiguring}>
-            {isConfiguring ? (
+          {!isRunning ? (
+            <Button variant="outline" onClick={handleStartScheduledTests}>
+              <Play className="mr-2 h-4 w-4" />
+              Start Scheduled Tests
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={handleStopScheduledTests}>
+              <StopCircle className="mr-2 h-4 w-4" />
+              Stop Scheduled Tests
+            </Button>
+          )}
+          <Button onClick={handleAddTest} disabled={isAdding}>
+            {isAdding ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Settings className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
             )}
-            {isConfiguring ? "Configuring..." : "Configure Test Suite"}
-          </Button>
-          <Button onClick={handleRunFullTest} disabled={isRunningTests}>
-            {isRunningTests ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Activity className="mr-2 h-4 w-4" />
-            )}
-            {isRunningTests ? "Running..." : "Run Full Test Suite"}
+            {isAdding ? "Adding..." : "Add Test"}
           </Button>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Endpoints Monitored"
-          value="48"
-          icon={Activity}
-          change="Tested every 60 s"
-          changeType="neutral"
-        />
-        <StatCard
-          title="Pass Rate"
-          value="95.8%"
-          icon={CheckCircle}
-          change="46/48 passing"
-          changeType="positive"
-        />
-        <StatCard
-          title="Failing Now"
-          value="2"
-          icon={AlertTriangle}
-          change="Auto-fix triggered"
-          changeType="negative"
-        />
-        <StatCard
-          title="Auto-Fixes (30d)"
-          value="7"
-          icon={Wrench}
-          change="All resolved < 60 s"
-          changeType="positive"
-        />
+        <StatCard title="Total Tests" value={kpi?.totalTests?.toString() || "0"} icon={Activity} />
+        <StatCard title="Active Tests" value={kpi?.activeTests?.toString() || "0"} icon={CheckCircle} />
+        <StatCard title="Passed Tests" value={kpi?.passedTests?.toString() || "0"} icon={CheckCircle} />
+        <StatCard title="Failed Tests" value={kpi?.failedTests?.toString() || "0"} icon={AlertTriangle} />
+        <StatCard title="Avg Response Time" value={`${kpi?.avgResponseTime?.toFixed(0) || 0}ms`} icon={Clock} />
+        <StatCard title="P95 Latency" value={`${kpi?.p95Latency?.toFixed(0) || 0}ms`} icon={Clock} />
+        <StatCard title="Active Failures" value={kpi?.activeFailures?.toString() || "0"} icon={AlertTriangle} />
+        <StatCard title="Healthy Dependencies" value={kpi?.healthyDependencies?.toString() || "0"} icon={CheckCircle} />
       </div>
 
       <Card>
@@ -230,24 +154,22 @@ function AdminApiSelfTestPage() {
             <div className="rounded-lg border p-4">
               <p className="font-medium">Continuous Testing</p>
               <p className="text-xs text-muted-foreground">
-                Every registered endpoint is called with a synthetic test payload every 60 seconds
-                from multiple regions. Response time, status code, and response body assertions are
-                checked.
+                Every registered endpoint is called with a synthetic test payload at configured intervals.
+                Response time, status code, and response body assertions are checked.
               </p>
             </div>
             <div className="rounded-lg border p-4">
               <p className="font-medium">Failure Detection</p>
               <p className="text-xs text-muted-foreground">
-                Two consecutive failures trigger an alert. Three consecutive failures trigger an
-                auto-fix action. All failures are correlated with deployment and config changes.
+                Three consecutive failures trigger an auto-fix action. All failures are correlated with
+                deployment and config changes.
               </p>
             </div>
             <div className="rounded-lg border p-4">
               <p className="font-medium">Auto-Fix Actions</p>
               <p className="text-xs text-muted-foreground">
                 Preconfigured remediation playbooks run automatically: pod restart, cache flush,
-                circuit-breaker reset, or rollback trigger. A human is notified for every action
-                taken.
+                circuit-breaker reset, or rollback trigger.
               </p>
             </div>
           </div>
@@ -255,96 +177,206 @@ function AdminApiSelfTestPage() {
       </Card>
 
       <DataTable
-        title="Endpoint Test Results"
+        title="API Tests"
         columns={[
           { header: "ID", accessorKey: "id" },
           {
             header: "Endpoint",
             accessorKey: "endpoint",
-            cell: ({ row }) => (
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-                {row.original.endpoint}
-              </code>
-            ),
-          },
-          { header: "Last Tested", accessorKey: "lastTestedAt" },
-          {
-            header: "Response Time",
-            accessorKey: "responseTime",
-            cell: ({ row }) => (
-              <span className="font-mono text-xs">{row.original.responseTime}</span>
+            cell: ({ row }: { row: { original: ApiTest } }) => (
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{row.original.endpoint}</code>
             ),
           },
           {
-            header: "HTTP",
-            accessorKey: "httpStatus",
-            cell: ({ row }) => {
-              const code = row.original.httpStatus;
-              const color =
-                code >= 500 ? "text-destructive" : code >= 400 ? "text-accent" : "text-success";
-              return <span className={`font-mono font-bold text-xs ${color}`}>{code}</span>;
-            },
+            header: "Method",
+            accessorKey: "method",
+            cell: ({ row }: { row: { original: ApiTest } }) => (
+              <span className="font-mono text-xs">{row.original.method}</span>
+            ),
           },
-          { header: "Assertion", accessorKey: "assertion" },
+          { header: "Region", accessorKey: "region" },
           {
-            header: "Auto-Fix",
-            accessorKey: "autoFixTriggered",
-            cell: ({ row }) => (
-              <span
-                className={
-                  row.original.autoFixTriggered
-                    ? "text-accent font-medium"
-                    : "text-muted-foreground"
-                }
-              >
-                {row.original.autoFixTriggered ? "Triggered" : "—"}
+            header: "Status",
+            accessorKey: "status",
+            cell: ({ row }: { row: { original: ApiTest } }) => (
+              <span className={
+                row.original.status === "passed" ? "text-green-600" :
+                row.original.status === "failed" ? "text-red-600" :
+                row.original.status === "running" ? "text-yellow-600" :
+                "text-muted-foreground"
+              }>
+                {row.original.status.toUpperCase()}
               </span>
             ),
           },
           {
-            header: "Status",
-            accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
+            header: "Interval",
+            accessorKey: "testInterval",
+            cell: ({ row }: { row: { original: ApiTest } }) => `${row.original.testInterval}s`,
+          },
+          {
+            header: "Active",
+            accessorKey: "isActive",
+            cell: ({ row }: { row: { original: ApiTest } }) => (
+              row.original.isActive ? <CheckCircle className="h-4 w-4 text-green-600" /> : <span className="text-muted-foreground">—</span>
+            ),
+          },
+          {
+            header: "",
+            accessorKey: "id",
+            cell: ({ row }: { row: { original: ApiTest } }) => (
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => handleRunTest(row.original.id)}>
+                  <Play className="h-3 w-3" />
+                </Button>
+              </div>
+            ),
           },
         ]}
-        data={testResults}
+        data={tests}
       />
 
       <DataTable
-        title="Auto-Fix Log"
+        title="Test Results"
         columns={[
           { header: "ID", accessorKey: "id" },
-          { header: "Endpoint", accessorKey: "endpoint" },
-          { header: "Action Taken", accessorKey: "action" },
-          { header: "Triggered", accessorKey: "triggeredAt" },
-          { header: "Resolved", accessorKey: "resolvedAt" },
+          {
+            header: "Endpoint",
+            accessorKey: "endpoint",
+            cell: ({ row }: { row: { original: TestResult } }) => (
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{row.original.endpoint}</code>
+            ),
+          },
+          { header: "Region", accessorKey: "region" },
           {
             header: "Status",
             accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
+            cell: ({ row }: { row: { original: TestResult } }) => (
+              <span className={
+                row.original.status === "passed" ? "text-green-600" :
+                row.original.status === "failed" ? "text-red-600" :
+                "text-muted-foreground"
+              }>
+                {row.original.status.toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Status Code",
+            accessorKey: "statusCode",
+            cell: ({ row }: { row: { original: TestResult } }) => (
+              <span className="font-mono">{row.original.statusCode}</span>
+            ),
+          },
+          {
+            header: "Response Time",
+            accessorKey: "responseTime",
+            cell: ({ row }: { row: { original: TestResult } }) => formatTime(row.original.responseTime),
+          },
+          {
+            header: "Validated",
+            accessorKey: "validationPassed",
+            cell: ({ row }: { row: { original: TestResult } }) => (
+              row.original.validationPassed ? <CheckCircle className="h-4 w-4 text-green-600" /> : <AlertTriangle className="h-4 w-4 text-red-600" />
+            ),
+          },
+          {
+            header: "Executed At",
+            accessorKey: "executedAt",
+            cell: ({ row }: { row: { original: TestResult } }) => formatDate(row.original.executedAt),
           },
         ]}
-        data={autoFixLog}
+        data={results}
       />
 
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={handleViewHistory} disabled={isViewingHistory}>
-          {isViewingHistory ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <History className="mr-2 h-4 w-4" />
-          )}
-          {isViewingHistory ? "Loading..." : "Test History"}
-        </Button>
-        <Button variant="outline" onClick={handleExportReport} disabled={isExporting}>
-          {isExporting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <FileText className="mr-2 h-4 w-4" />
-          )}
-          {isExporting ? "Exporting..." : "Export Test Report"}
-        </Button>
-      </div>
+      <DataTable
+        title="Failure Records"
+        columns={[
+          { header: "ID", accessorKey: "id" },
+          {
+            header: "Endpoint",
+            accessorKey: "endpoint",
+            cell: ({ row }: { row: { original: FailureRecord } }) => (
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{row.original.endpoint}</code>
+            ),
+          },
+          { header: "Region", accessorKey: "region" },
+          {
+            header: "Failure Type",
+            accessorKey: "failureType",
+            cell: ({ row }: { row: { original: FailureRecord } }) => (
+              <span className="font-medium">{row.original.failureType.replace("_", " ").toUpperCase()}</span>
+            ),
+          },
+          {
+            header: "Failure Count",
+            accessorKey: "failureCount",
+            cell: ({ row }: { row: { original: FailureRecord } }) => (
+              <span className="font-medium">{row.original.failureCount}</span>
+            ),
+          },
+          {
+            header: "Fix Action",
+            accessorKey: "fixAction",
+            cell: ({ row }: { row: { original: FailureRecord } }) => (
+              row.original.fixAction ? <span className="text-blue-600">{row.original.fixAction.replace("_", " ").toUpperCase()}</span> : <span className="text-muted-foreground">—</span>
+            ),
+          },
+          {
+            header: "Fix Result",
+            accessorKey: "fixResult",
+            cell: ({ row }: { row: { original: FailureRecord } }) => (
+              row.original.fixResult === "success" ? <CheckCircle className="h-4 w-4 text-green-600" /> :
+              row.original.fixResult === "failed" ? <AlertTriangle className="h-4 w-4 text-red-600" /> :
+              <span className="text-muted-foreground">—</span>
+            ),
+          },
+          {
+            header: "Last Failure",
+            accessorKey: "lastFailureAt",
+            cell: ({ row }: { row: { original: FailureRecord } }) => formatDate(row.original.lastFailureAt),
+          },
+        ]}
+        data={failures}
+      />
+
+      <DataTable
+        title="Dependency Health"
+        columns={[
+          { header: "ID", accessorKey: "id" },
+          { header: "Name", accessorKey: "name" },
+          { header: "Type", accessorKey: "type" },
+          {
+            header: "Status",
+            accessorKey: "status",
+            cell: ({ row }: { row: { original: DependencyHealth } }) => (
+              <span className={
+                row.original.status === "healthy" ? "text-green-600" :
+                row.original.status === "degraded" ? "text-yellow-600" :
+                "text-red-600"
+              }>
+                {row.original.status.toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Latency",
+            accessorKey: "latency",
+            cell: ({ row }: { row: { original: DependencyHealth } }) => formatTime(row.original.latency),
+          },
+          {
+            header: "Uptime",
+            accessorKey: "uptime",
+            cell: ({ row }: { row: { original: DependencyHealth } }) => `${row.original.uptime.toFixed(1)}%`,
+          },
+          {
+            header: "Last Check",
+            accessorKey: "lastCheckAt",
+            cell: ({ row }: { row: { original: DependencyHealth } }) => formatDate(row.original.lastCheckAt),
+          },
+        ]}
+        data={dependencies}
+      />
     </div>
   );
 }

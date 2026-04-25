@@ -1,297 +1,169 @@
 
-import { DataTable } from "@/components/DataTable";
-import { StatusBadge } from "@/components/StatusBadge";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, FileCheck, Clock, Globe, BookOpen, ShieldCheck, Loader2, FileText, Download as DownloadIcon } from "lucide-react";
-import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, RefreshCw, Download, Trash2, Clock, FileCheck, BookOpen, Shield, Check, X, History, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { marketplaceService, type DataRequest, type PolicyVersion, type LegalHold, type ComplianceAudit } from "@/lib/api/admin-services";
 
-({
-  component: AdminCompliancePage,
-  head: () => ({ meta: [{ title: "Legal & Compliance — Admin — ERP Vala" }] }),
-});
+({ component: AdminCompliance, head: () => ({ meta: [{ title: "Legal & Compliance — Admin — ERP Vala" }] }) });
 
-const gdprRequests = [
-  {
-    id: "REQ-001",
-    customer: "john@example.com",
-    type: "export",
-    requestedAt: "2024-01-18 10:00",
-    slaDue: "2024-02-17",
-    completedAt: "2024-01-18 10:12",
-    slaDaysLeft: "—",
-    status: "completed",
-  },
-  {
-    id: "REQ-002",
-    customer: "jane@startup.io",
-    type: "delete",
-    requestedAt: "2024-01-17 14:30",
-    slaDue: "2024-02-16",
-    completedAt: "—",
-    slaDaysLeft: "29",
-    status: "pending",
-  },
-  {
-    id: "REQ-003",
-    customer: "bob@corp.com",
-    type: "export",
-    requestedAt: "2024-01-17 09:15",
-    slaDue: "2024-02-16",
-    completedAt: "2024-01-17 09:22",
-    slaDaysLeft: "—",
-    status: "completed",
-  },
-  {
-    id: "REQ-004",
-    customer: "alice@web.com",
-    type: "delete",
-    requestedAt: "2024-01-16 16:00",
-    slaDue: "2024-02-15",
-    completedAt: "2024-01-16 16:45",
-    slaDaysLeft: "—",
-    status: "completed",
-  },
-  {
-    id: "REQ-005",
-    customer: "mike@dev.com",
-    type: "export",
-    requestedAt: "2024-01-15 11:20",
-    slaDue: "2024-02-14",
-    completedAt: "—",
-    slaDaysLeft: "27",
-    status: "pending",
-  },
-  {
-    id: "REQ-006",
-    customer: "sara@oldco.com",
-    type: "delete",
-    requestedAt: "2023-12-20 09:00",
-    slaDue: "2024-01-19",
-    completedAt: "—",
-    slaDaysLeft: "1",
-    status: "active",
-  },
-];
+function AdminCompliance() {
+  const [loading, setLoading] = useState(true);
+  const [dataRequests, setDataRequests] = useState<DataRequest[]>([]);
+  const [policyVersions, setPolicyVersions] = useState<PolicyVersion[]>([]);
+  const [legalHolds, setLegalHolds] = useState<LegalHold[]>([]);
+  const [auditLogs, setAuditLogs] = useState<ComplianceAudit[]>([]);
+  const [complianceScore, setComplianceScore] = useState(100);
+  const [selectedRequest, setSelectedRequest] = useState<DataRequest | null>(null);
+  const [selectedPolicy, setSelectedPolicy] = useState<PolicyVersion | null>(null);
+  const [isViewingAudit, setIsViewingAudit] = useState(false);
+  const [isCreatingRequest, setIsCreatingRequest] = useState(false);
+  const [requestInput, setRequestInput] = useState({
+    userId: "",
+    userEmail: "",
+    type: "export" as "access" | "delete" | "export",
+    region: "global" as "eu" | "us_ca" | "us_other" | "global",
+  });
 
-const policyVersions = [
-  {
-    id: "POL-001",
-    document: "Privacy Policy",
-    version: "v4.2",
-    publishedAt: "2024-01-01",
-    changes: "Updated data retention terms + AI processing disclosure",
-    status: "active",
-  },
-  {
-    id: "POL-002",
-    document: "Terms of Service",
-    version: "v8.1",
-    publishedAt: "2024-01-01",
-    changes: "Revised arbitration clause + EU user rights section",
-    status: "active",
-  },
-  {
-    id: "POL-003",
-    document: "Cookie Policy",
-    version: "v2.5",
-    publishedAt: "2023-09-15",
-    changes: "Added Google Analytics 4 + Clarity cookie disclosures",
-    status: "active",
-  },
-  {
-    id: "POL-004",
-    document: "Privacy Policy",
-    version: "v4.1",
-    publishedAt: "2023-07-01",
-    changes: "Initial CCPA addendum",
-    status: "archived",
-  },
-  {
-    id: "POL-005",
-    document: "Data Processing Agreement",
-    version: "v3.0",
-    publishedAt: "2024-01-01",
-    changes: "Updated SCCs for EU-US data transfers post Schrems II",
-    status: "active",
-  },
-];
-
-const taxCompliance = [
-  {
-    region: "European Union",
-    rule: "VAT OSS",
-    rate: "20% (avg)",
-    invoiceFormat: "EN 16931",
-    autoCalc: "Yes",
-    status: "active",
-  },
-  {
-    region: "United Kingdom",
-    rule: "UK VAT",
-    rate: "20%",
-    invoiceFormat: "HMRC standard",
-    autoCalc: "Yes",
-    status: "active",
-  },
-  {
-    region: "Canada",
-    rule: "GST/HST",
-    rate: "5–15%",
-    invoiceFormat: "CRA standard",
-    autoCalc: "Yes",
-    status: "active",
-  },
-  {
-    region: "Australia",
-    rule: "GST",
-    rate: "10%",
-    invoiceFormat: "ATO standard",
-    autoCalc: "Yes",
-    status: "active",
-  },
-  {
-    region: "India",
-    rule: "GST",
-    rate: "18%",
-    invoiceFormat: "GSTIN required",
-    autoCalc: "Yes",
-    status: "active",
-  },
-  {
-    region: "Brazil",
-    rule: "ICMS / ISS",
-    rate: "Varies",
-    invoiceFormat: "NF-e",
-    autoCalc: "Partial",
-    status: "pending",
-  },
-  {
-    region: "United States",
-    rule: "Sales Tax (nexus)",
-    rate: "0–10.5%",
-    invoiceFormat: "State-specific",
-    autoCalc: "Yes",
-    status: "active",
-  },
-];
-
-const auditReports = [
-  {
-    id: "RPT-001",
-    name: "GDPR Compliance Report — Jan 2024",
-    generatedAt: "2024-01-18",
-    period: "January 2024",
-    status: "ready",
-  },
-  {
-    id: "RPT-002",
-    name: "Tax Remittance Summary — Q4 2023",
-    generatedAt: "2024-01-05",
-    period: "Q4 2023",
-    status: "ready",
-  },
-  {
-    id: "RPT-003",
-    name: "Data Access Audit — Dec 2023",
-    generatedAt: "2024-01-05",
-    period: "December 2023",
-    status: "ready",
-  },
-  {
-    id: "RPT-004",
-    name: "CCPA Opt-Out Log — Q4 2023",
-    generatedAt: "2024-01-05",
-    period: "Q4 2023",
-    status: "ready",
-  },
-  {
-    id: "RPT-005",
-    name: "GDPR Compliance Report — Feb 2024",
-    generatedAt: "—",
-    period: "February 2024",
-    status: "pending",
-  },
-];
-
-function AdminCompliancePage() {
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [isExportingAudit, setIsExportingAudit] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-
-  const handleGenerateReport = async () => {
-    setIsGeneratingReport(true);
+  const loadData = async () => {
+    setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.success("Compliance report generated successfully");
+      setDataRequests(marketplaceService.getDataRequests());
+      marketplaceService.updateSLAStatuses();
+      setDataRequests(marketplaceService.getDataRequests());
+      setPolicyVersions(marketplaceService.getPolicyVersions());
+      setLegalHolds(marketplaceService.getLegalHolds());
+      setAuditLogs(marketplaceService.getComplianceAudits());
+      setComplianceScore(marketplaceService.getComplianceScore());
     } catch (error) {
-      toast.error("Failed to generate report");
+      toast.error("Failed to load compliance data");
     } finally {
-      setIsGeneratingReport(false);
+      setLoading(false);
     }
   };
 
-  const handleExportAuditTrail = async () => {
-    setIsExportingAudit(true);
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleProcessRequest = async (requestId: string) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.success("Audit trail exported successfully");
+      await marketplaceService.processDataRequest(requestId, "admin");
+      toast.success("Request processed successfully");
+      loadData();
     } catch (error) {
-      toast.error("Failed to export audit trail");
-    } finally {
-      setIsExportingAudit(false);
+      toast.error(error instanceof Error ? error.message : "Failed to process request");
     }
   };
 
-  const handleDownloadReport = async (id: string) => {
-    setDownloadingId(id);
+  const handleRejectRequest = async (requestId: string, reason: string) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Report downloaded successfully");
+      await marketplaceService.rejectDataRequest(requestId, reason, "admin");
+      toast.success("Request rejected");
+      setSelectedRequest(null);
+      loadData();
     } catch (error) {
-      toast.error("Failed to download report");
-    } finally {
-      setDownloadingId(null);
+      toast.error(error instanceof Error ? error.message : "Failed to reject request");
     }
   };
+
+  const handleCreateRequest = async () => {
+    try {
+      await marketplaceService.createDataRequest(
+        requestInput.userId,
+        requestInput.userEmail,
+        requestInput.type,
+        requestInput.region,
+        "admin"
+      );
+      toast.success("Data request created");
+      setIsCreatingRequest(false);
+      setRequestInput({
+        userId: "",
+        userEmail: "",
+        type: "export",
+        region: "global",
+      });
+      loadData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create request");
+    }
+  };
+
+  const handleRollbackPolicy = async (policyId: string) => {
+    try {
+      await marketplaceService.rollbackPolicyVersion(policyId, "admin");
+      toast.success("Policy rolled back");
+      loadData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to rollback policy");
+    }
+  };
+
+  const handleReleaseLegalHold = async (holdId: string) => {
+    try {
+      await marketplaceService.releaseLegalHold(holdId, "admin");
+      toast.success("Legal hold released");
+      loadData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to release legal hold");
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "pending":
+      case "processing":
+        return "bg-yellow-100 text-yellow-800";
+      case "overdue":
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "archived":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const exportRequests = dataRequests.filter((r) => r.type === "export").length;
+  const deleteRequests = dataRequests.filter((r) => r.type === "delete").length;
+  const pendingRequests = dataRequests.filter((r) => r.status === "pending" || r.status === "processing").length;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Legal & Compliance Automation</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleGenerateReport} disabled={isGeneratingReport}>
-            {isGeneratingReport ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <FileText className="mr-2 h-4 w-4" />
-            )}
-            {isGeneratingReport ? "Generating..." : "Generate Report"}
+          <Button variant="outline" onClick={() => setIsViewingAudit(true)}>
+            <History className="mr-2 h-4 w-4" />
+            Audit Log
           </Button>
-          <Button onClick={handleExportAuditTrail} disabled={isExportingAudit}>
-            {isExportingAudit ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <DownloadIcon className="mr-2 h-4 w-4" />
-            )}
-            {isExportingAudit ? "Exporting..." : "Export Audit Trail"}
+          <Button variant="outline" onClick={loadData} disabled={loading}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => setIsCreatingRequest(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Request
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Export Requests" value="45" icon={Download} />
-        <StatCard title="Delete Requests" value="12" icon={Trash2} />
-        <StatCard
-          title="Pending Requests"
-          value="3"
-          icon={Clock}
-          change="SLA: 30 days"
-          changeType="neutral"
-        />
-        <StatCard title="Compliance Score" value="100%" icon={FileCheck} changeType="positive" />
+      <div className="grid gap-4 sm:grid-cols-4">
+        <StatCard title="Export Requests" value={exportRequests.toString()} icon={Download} />
+        <StatCard title="Delete Requests" value={deleteRequests.toString()} icon={Trash2} />
+        <StatCard title="Pending Requests" value={pendingRequests.toString()} icon={Clock} />
+        <StatCard title="Compliance Score" value={`${complianceScore}%`} icon={FileCheck} />
       </div>
 
       <Card>
@@ -302,159 +174,286 @@ function AdminCompliancePage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-lg border p-4">
               <p className="font-medium">Right to Access</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                On-demand JSON + CSV export of all personal data.
-              </p>
-              <p className="mt-2 text-xs font-medium text-success">✓ Automated</p>
+              <p className="text-xs text-muted-foreground mt-1">On-demand JSON + CSV export of all personal data.</p>
+              <p className="mt-2 text-xs font-medium text-green-600">✓ Automated</p>
             </div>
             <div className="rounded-lg border p-4">
               <p className="font-medium">Right to Erasure</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                30-day SLA for deletion across all systems and backups.
-              </p>
-              <p className="mt-2 text-xs font-medium text-success">✓ SLA tracked</p>
+              <p className="text-xs text-muted-foreground mt-1">30-day SLA for deletion across all systems and backups.</p>
+              <p className="mt-2 text-xs font-medium text-green-600">✓ SLA tracked</p>
             </div>
             <div className="rounded-lg border p-4">
               <p className="font-medium">Data Portability</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Machine-readable export: subscriptions, invoices, licenses.
-              </p>
-              <p className="mt-2 text-xs font-medium text-success">✓ Automated</p>
+              <p className="text-xs text-muted-foreground mt-1">Machine-readable export: subscriptions, invoices, licenses.</p>
+              <p className="mt-2 text-xs font-medium text-green-600">✓ Automated</p>
             </div>
             <div className="rounded-lg border p-4">
               <p className="font-medium">Consent Management</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Explicit opt-in tracking for marketing & data processing.
-              </p>
-              <p className="mt-2 text-xs font-medium text-success">✓ Versioned</p>
+              <p className="text-xs text-muted-foreground mt-1">Explicit opt-in tracking for marketing & data processing.</p>
+              <p className="mt-2 text-xs font-medium text-green-600">✓ Versioned</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <DataTable
-        title="GDPR / CCPA Privacy Requests"
-        columns={[
-          { header: "ID", accessorKey: "id" },
-          { header: "Customer", accessorKey: "customer" },
-          {
-            header: "Type",
-            accessorKey: "type",
-            cell: ({ row }) => (
-              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{row.original.type}</code>
-            ),
-          },
-          { header: "Requested", accessorKey: "requestedAt" },
-          { header: "SLA Due", accessorKey: "slaDue" },
-          { header: "SLA Days Left", accessorKey: "slaDaysLeft" },
-          { header: "Completed", accessorKey: "completedAt" },
-          {
-            header: "Status",
-            accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
-          },
-        ]}
-        data={gdprRequests}
-      />
+      <Card>
+        <CardHeader>
+          <CardTitle>GDPR / CCPA Data Requests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : dataRequests.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No data requests</p>
+          ) : (
+            <div className="space-y-2">
+              {dataRequests.map((request) => (
+                <div key={request.id} className="flex items-center justify-between p-3 border rounded hover:bg-muted">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{request.requestId}</p>
+                      <span className="text-xs px-2 py-0.5 rounded bg-gray-100">{request.userEmail}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800">{request.type.toUpperCase()}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(request.status)}`}>
+                        {request.status.toUpperCase()}
+                      </span>
+                      {request.legalHold && <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-800">LEGAL HOLD</span>}
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                      <span>Requested: {formatDate(request.requestedAt)}</span>
+                      <span>SLA Due: {formatDate(request.slaDueAt)}</span>
+                      <span className={request.slaDaysLeft < 0 ? "text-red-600 font-medium" : ""}>
+                        Days Left: {request.slaDaysLeft}
+                      </span>
+                      {request.completedAt && <span>Completed: {formatDate(request.completedAt)}</span>}
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {request.status === "pending" && !request.legalHold && (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => handleProcessRequest(request.id)}>
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setSelectedRequest(request)}>
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      <DataTable
-        title="Policy Version History"
-        columns={[
-          {
-            header: "Document",
-            accessorKey: "document",
-            cell: ({ row }) => (
-              <span className="flex items-center gap-1.5 text-sm font-medium">
-                <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-                {row.original.document}
-              </span>
-            ),
-          },
-          { header: "Version", accessorKey: "version" },
-          { header: "Published", accessorKey: "publishedAt" },
-          { header: "Key Changes", accessorKey: "changes" },
-          {
-            header: "Status",
-            accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
-          },
-        ]}
-        data={policyVersions}
-      />
-
-      <DataTable
-        title="Tax & Invoice Compliance by Region"
-        columns={[
-          {
-            header: "Region",
-            accessorKey: "region",
-            cell: ({ row }) => (
-              <span className="flex items-center gap-1.5 text-sm">
-                <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                {row.original.region}
-              </span>
-            ),
-          },
-          { header: "Rule", accessorKey: "rule" },
-          { header: "Rate", accessorKey: "rate" },
-          { header: "Invoice Format", accessorKey: "invoiceFormat" },
-          { header: "Auto-Calc", accessorKey: "autoCalc" },
-          {
-            header: "Status",
-            accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
-          },
-        ]}
-        data={taxCompliance}
-      />
-
-      <DataTable
-        title="Audit-Ready Reports"
-        columns={[
-          {
-            header: "Report",
-            accessorKey: "name",
-            cell: ({ row }) => (
-              <span className="flex items-center gap-1.5 text-sm">
-                <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
-                {row.original.name}
-              </span>
-            ),
-          },
-          { header: "Period", accessorKey: "period" },
-          { header: "Generated", accessorKey: "generatedAt" },
-          {
-            header: "Status",
-            accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
-          },
-          {
-            header: "Action",
-            accessorKey: "id",
-            cell: ({ row }) =>
-              row.original.status === "ready" ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDownloadReport(row.original.id)}
-                  disabled={downloadingId === row.original.id}
-                >
-                  {downloadingId === row.original.id ? (
-                    <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Download className="mr-1 h-3.5 w-3.5" />
+      <Card>
+        <CardHeader>
+          <CardTitle>Policy Version History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {policyVersions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No policy versions</p>
+          ) : (
+            <div className="space-y-2">
+              {policyVersions.map((policy) => (
+                <div key={policy.id} className="flex items-center justify-between p-3 border rounded hover:bg-muted">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{policy.documentType.replace("_", " ").toUpperCase()}</p>
+                      <span className="text-xs px-2 py-0.5 rounded bg-gray-100">{policy.version}</span>
+                      {policy.region && <span className="text-xs px-2 py-0.5 rounded bg-gray-100">{policy.region.toUpperCase()}</span>}
+                      <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(policy.status)}`}>
+                        {policy.status.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                      <span>Published: {formatDate(policy.publishedAt)}</span>
+                      <span>By: {policy.publishedBy}</span>
+                    </div>
+                    <div className="mt-1 text-xs">
+                      <span className="font-medium">Changes:</span> {policy.keyChanges.join(", ")}
+                    </div>
+                  </div>
+                  {policy.status === "archived" && (
+                    <Button size="sm" variant="outline" onClick={() => handleRollbackPolicy(policy.id)}>
+                      <History className="h-3 w-3" />
+                    </Button>
                   )}
-                  {downloadingId === row.original.id ? "Downloading..." : "Download"}
-                </Button>
-              ) : (
-                <span className="text-xs text-muted-foreground">Generating…</span>
-              ),
-          },
-        ]}
-        data={auditReports}
-      />
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Legal Holds</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {legalHolds.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No legal holds</p>
+          ) : (
+            <div className="space-y-2">
+              {legalHolds.map((hold) => (
+                <div key={hold.id} className="flex items-center justify-between p-3 border rounded hover:bg-muted">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">User: {hold.userId}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded ${hold.isActive ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}>
+                        {hold.isActive ? "ACTIVE" : "RELEASED"}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      <span className="font-medium">Reason:</span> {hold.reason}
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                      <span>Applied: {formatDate(hold.appliedAt)}</span>
+                      <span>By: {hold.appliedBy}</span>
+                      {hold.releasedAt && <span>Released: {formatDate(hold.releasedAt)}</span>}
+                    </div>
+                  </div>
+                  {hold.isActive && (
+                    <Button size="sm" variant="outline" onClick={() => handleReleaseLegalHold(hold.id)}>
+                      Release
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Data Request</DialogTitle>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Request ID</label>
+                <p className="text-sm">{selectedRequest.requestId}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">User</label>
+                <p className="text-sm">{selectedRequest.userEmail}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Type</label>
+                <p className="text-sm">{selectedRequest.type.toUpperCase()}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Rejection Reason</label>
+                <input
+                  className="w-full mt-1 p-2 border rounded"
+                  placeholder="Enter reason for rejection"
+                  id="rejectionReason"
+                />
+              </div>
+              <Button
+                onClick={() => {
+                  const reason = (document.getElementById("rejectionReason") as HTMLInputElement)?.value;
+                  if (reason) handleRejectRequest(selectedRequest.id, reason);
+                }}
+                className="w-full"
+              >
+                Reject Request
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCreatingRequest} onOpenChange={() => setIsCreatingRequest(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Data Request</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">User ID</label>
+              <input
+                className="w-full mt-1 p-2 border rounded"
+                value={requestInput.userId}
+                onChange={(e) => setRequestInput({ ...requestInput, userId: e.target.value })}
+                placeholder="Enter user ID"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">User Email</label>
+              <input
+                className="w-full mt-1 p-2 border rounded"
+                value={requestInput.userEmail}
+                onChange={(e) => setRequestInput({ ...requestInput, userEmail: e.target.value })}
+                placeholder="Enter user email"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Request Type</label>
+              <select
+                className="w-full mt-1 p-2 border rounded"
+                value={requestInput.type}
+                onChange={(e) => setRequestInput({ ...requestInput, type: e.target.value as "access" | "delete" | "export" })}
+              >
+                <option value="access">Access</option>
+                <option value="export">Export</option>
+                <option value="delete">Delete</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Region</label>
+              <select
+                className="w-full mt-1 p-2 border rounded"
+                value={requestInput.region}
+                onChange={(e) => setRequestInput({ ...requestInput, region: e.target.value as "eu" | "us_ca" | "us_other" | "global" })}
+              >
+                <option value="eu">EU (GDPR)</option>
+                <option value="us_ca">California (CCPA)</option>
+                <option value="us_other">US Other</option>
+                <option value="global">Global</option>
+              </select>
+            </div>
+            <Button onClick={handleCreateRequest} className="w-full">
+              Create Request
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isViewingAudit} onOpenChange={() => setIsViewingAudit(false)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Compliance Audit Log</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {auditLogs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No audit logs</p>
+            ) : (
+              auditLogs.map((audit) => (
+                <div key={audit.id} className="p-3 border rounded">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium">{audit.action}</span>
+                    <span className="text-xs text-muted-foreground">{formatDate(audit.timestamp)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {audit.entityType.toUpperCase()}: {audit.entityId}
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-medium">Performed by:</span> {audit.performedBy}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-export default AdminCompliancePage;
+export default AdminCompliance;

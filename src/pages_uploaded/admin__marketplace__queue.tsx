@@ -17,6 +17,7 @@ import {
   type MarketplaceSubmission,
 } from "@/lib/ui-actions-api";
 import { useSelfHealingAction } from "@/hooks/use-self-healing-action";
+import { authorItemsApiService } from "@/lib/marketplace/author-items-api";
 
 ({ component: ReviewQueue });
 
@@ -66,6 +67,13 @@ function ReviewQueue() {
     const setLoading = status === "live" ? setIsApproving : status === "rejected" ? setIsRejecting : setIsSoftRejecting;
     setLoading(true);
     try {
+      // Use the new author-items-api for approval/rejection
+      if (status === "live") {
+        await authorItemsApiService.approveItem(selected.id, "admin");
+      } else if (status === "rejected") {
+        await authorItemsApiService.rejectItem(selected.id, note, "admin");
+      }
+      // Also update the existing ui-actions-api for backward compatibility
       await decideAction.trigger({ id: selected.id, status, note });
       toast.success(
         `Item ${status === "live" ? "approved" : status === "rejected" ? "rejected" : "sent back to author"}`,

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star, Download, Heart, Share2, ShieldCheck, RefreshCw, Calendar, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { ItemCard } from "@/components/marketplace/ItemCard";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   addMarketplaceCartItem,
@@ -25,6 +25,7 @@ import {
   normalizeSeoSlug,
   trackMarketplaceSeoMetric,
 } from "@/lib/marketplace-seo";
+import { authorItemsApiService } from "@/lib/marketplace/author-items-api";
 
 ({
   component: ItemDetail,
@@ -72,7 +73,28 @@ function ItemDetail() {
   const location = useLocation();
   const { slug } = useParams() as Record<string, string>;
   const normalizedSlug = normalizeSeoSlug(slug);
-  const matched = ITEMS.find((i) => i.slug === normalizedSlug);
+  
+  // Try to fetch from author-items-api first, fall back to ITEMS
+  const [itemFromApi, setItemFromApi] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const res = await authorItemsApiService.getItemBySlug(normalizedSlug);
+        if (res.success && res.data) {
+          setItemFromApi(res.data);
+        }
+      } catch (error) {
+        // Fall back to ITEMS data
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchItem();
+  }, [normalizedSlug]);
+  
+  const matched = itemFromApi || ITEMS.find((i) => i.slug === normalizedSlug);
   const item = matched || (ITEMS.length > 0 ? ITEMS[0] : null);
   const seo = useMemo(() => item ? buildMarketplaceProductMeta(item) : null, [item]);
   const jsonLd = useMemo(

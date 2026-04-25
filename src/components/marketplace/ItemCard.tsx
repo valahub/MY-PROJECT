@@ -31,7 +31,14 @@ export function ItemCard({ item }: { item: MarketItem }) {
           {item.title}
         </h3>
         <div className="mt-1 text-xs text-muted-foreground">
-          by <span className="text-info">{item.author}</span>
+          by{' '}
+          <Link
+            to={`/marketplace/author/${item.author}`}
+            className="text-info hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {item.author}
+          </Link>
         </div>
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-1 text-xs">

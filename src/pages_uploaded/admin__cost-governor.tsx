@@ -4,7 +4,8 @@ import { DataTable } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingDown, Cpu, Zap, AlertTriangle, Loader2, Settings, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DollarSign, TrendingDown, Cpu, Zap, AlertTriangle, Loader2, Settings, Search, Play, StopCircle, CheckCircle, X } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -15,101 +16,48 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { costGovernorService, type WasteItem, type WasteActionRequest, type CostGovernorKPI } from "@/lib/api/admin-services";
 
 ({
   component: AdminCostGovernorPage,
   head: () => ({ meta: [{ title: "Auto Cost Governor — Admin — ERP Vala" }] }),
 });
 
-const costTrend = [
-  { month: "Jul", budget: 12000, actual: 11800, optimized: 9400 },
-  { month: "Aug", budget: 12000, actual: 12100, optimized: 9700 },
-  { month: "Sep", budget: 13000, actual: 12900, optimized: 10200 },
-  { month: "Oct", budget: 13000, actual: 11500, optimized: 9100 },
-  { month: "Nov", budget: 14000, actual: 13800, optimized: 10900 },
-  { month: "Dec", budget: 14000, actual: 13200, optimized: 10400 },
-];
-
-const wasteItems = [
-  {
-    id: "WS-001",
-    resource: "Idle read replica (us-east-1)",
-    type: "database",
-    wasteCost: "$620/mo",
-    action: "Terminate replica",
-    savingsPct: "100%",
-    autoFix: "approved",
-    status: "resolved",
-  },
-  {
-    id: "WS-002",
-    resource: "Over-provisioned K8s node pool",
-    type: "compute",
-    wasteCost: "$1,240/mo",
-    action: "Downsize from 16× to 8× vCPU nodes",
-    savingsPct: "50%",
-    autoFix: "pending-approval",
-    status: "pending",
-  },
-  {
-    id: "WS-003",
-    resource: "Unused object storage bucket (> 6 mo)",
-    type: "storage",
-    wasteCost: "$180/mo",
-    action: "Archive to cold storage",
-    savingsPct: "85%",
-    autoFix: "approved",
-    status: "resolved",
-  },
-  {
-    id: "WS-004",
-    resource: "Orphaned static IP addresses (×4)",
-    type: "network",
-    wasteCost: "$48/mo",
-    action: "Release unused IPs",
-    savingsPct: "100%",
-    autoFix: "approved",
-    status: "resolved",
-  },
-  {
-    id: "WS-005",
-    resource: "Log retention > 365 days",
-    type: "storage",
-    wasteCost: "$340/mo",
-    action: "Enforce 90-day retention policy",
-    savingsPct: "75%",
-    autoFix: "pending-approval",
-    status: "pending",
-  },
-];
-
-const NAVY = "#00205C";
-const PRIMARY = "#EB0045";
-const SUCCESS = "#2ED9C3";
-
 function AdminCostGovernorPage() {
-  const [isConfiguring, setIsConfiguring] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isScanning, setIsScanning] = useState(false);
+  const [isAutoScanning, setIsAutoScanning] = useState(false);
+  const [selectedWasteItem, setSelectedWasteItem] = useState<WasteItem | null>(null);
+  const [selectedActionRequest, setSelectedActionRequest] = useState<WasteActionRequest | null>(null);
+  const [wasteItems, setWasteItems] = useState<WasteItem[]>([]);
+  const [actionRequests, setActionRequests] = useState<WasteActionRequest[]>([]);
+  const [kpi, setKpi] = useState<CostGovernorKPI | null>(null);
 
-  const handleConfigureAlerts = async () => {
-    setIsConfiguring(true);
+  const loadData = async () => {
+    setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Budget alerts configured successfully");
+      setWasteItems(costGovernorService.listWasteItems());
+      setActionRequests(costGovernorService.listActionRequests());
+      setKpi(costGovernorService.getKPI());
     } catch (error) {
-      toast.error("Failed to configure budget alerts");
+      toast.error("Failed to load cost governor data");
     } finally {
-      setIsConfiguring(false);
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleRunScan = async () => {
     setIsScanning(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await costGovernorService.scanForWaste();
       toast.success("Waste scan completed successfully");
+      loadData();
     } catch (error) {
       toast.error("Failed to run waste scan");
     } finally {
@@ -117,19 +65,108 @@ function AdminCostGovernorPage() {
     }
   };
 
+  const handleStartAutoScan = () => {
+    costGovernorService.startAutoScan();
+    setIsAutoScanning(true);
+    toast.success("Auto scan started");
+  };
+
+  const handleStopAutoScan = () => {
+    costGovernorService.stopAutoScan();
+    setIsAutoScanning(false);
+    toast.success("Auto scan stopped");
+  };
+
+  const handleCreateAction = async (wasteItemId: string, action: string) => {
+    try {
+      await costGovernorService.createActionRequest(wasteItemId, action as any, "admin");
+      toast.success("Action request created");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to create action request");
+    }
+  };
+
+  const handleApproveAction = async (requestId: string) => {
+    try {
+      await costGovernorService.approveActionRequest(requestId, "admin");
+      toast.success("Action approved");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to approve action");
+    }
+  };
+
+  const handleRejectAction = async (requestId: string) => {
+    const reason = prompt("Enter rejection reason:");
+    if (!reason) return;
+
+    try {
+      await costGovernorService.rejectActionRequest(requestId, "admin", reason);
+      toast.success("Action rejected");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to reject action");
+    }
+  };
+
+  const handleExecuteAction = async (requestId: string) => {
+    try {
+      await costGovernorService.executeAction(requestId);
+      toast.success("Action executed successfully");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to execute action");
+    }
+  };
+
+  const handleRollbackAction = async (requestId: string) => {
+    try {
+      await costGovernorService.rollbackAction(requestId);
+      toast.success("Action rolled back successfully");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to rollback action");
+    }
+  };
+
+  const handleAddIgnoreRule = async (resourceId: string) => {
+    const reason = prompt("Enter ignore reason:");
+    if (!reason) return;
+
+    try {
+      costGovernorService.addIgnoreRule(resourceId, reason, 2592000, "admin");
+      toast.success("Ignore rule added");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to add ignore rule");
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString();
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toFixed(2)}`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Auto Cost Governor</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleConfigureAlerts} disabled={isConfiguring}>
-            {isConfiguring ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Settings className="mr-2 h-4 w-4" />
-            )}
-            {isConfiguring ? "Configuring..." : "Configure Budget Alerts"}
-          </Button>
+          {!isAutoScanning ? (
+            <Button variant="outline" onClick={handleStartAutoScan}>
+              <Play className="mr-2 h-4 w-4" />
+              Start Auto Scan
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={handleStopAutoScan}>
+              <StopCircle className="mr-2 h-4 w-4" />
+              Stop Auto Scan
+            </Button>
+          )}
           <Button onClick={handleRunScan} disabled={isScanning}>
             {isScanning ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -142,55 +179,19 @@ function AdminCostGovernorPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Monthly Spend"
-          value="$13,200"
-          icon={DollarSign}
-          change="-$600 vs budget"
-          changeType="positive"
-        />
-        <StatCard
-          title="Waste Detected"
-          value="$2,428"
-          icon={AlertTriangle}
-          change="17% of total spend"
-          changeType="negative"
-        />
-        <StatCard
-          title="Savings Applied"
-          value="$1,188"
-          icon={TrendingDown}
-          change="This month (auto-fixed)"
-          changeType="positive"
-        />
-        <StatCard
-          title="Pending Actions"
-          value="2"
-          icon={Cpu}
-          change="Awaiting approval"
-          changeType="neutral"
-        />
+        <StatCard title="Total Waste Items" value={kpi?.totalWasteItems?.toString() || "0"} icon={AlertTriangle} />
+        <StatCard title="Total Monthly Waste" value={formatCurrency(kpi?.totalMonthlyWaste || 0)} icon={DollarSign} />
+        <StatCard title="Compute Waste" value={formatCurrency(kpi?.computeWaste || 0)} icon={Cpu} />
+        <StatCard title="Storage Waste" value={formatCurrency(kpi?.storageWaste || 0)} icon={Zap} />
+        <StatCard title="Database Waste" value={formatCurrency(kpi?.databaseWaste || 0)} icon={Cpu} />
+        <StatCard title="Orphan Waste" value={formatCurrency(kpi?.orphanWaste || 0)} icon={AlertTriangle} />
+        <StatCard title="Critical Severity" value={kpi?.criticalSeverity?.toString() || "0"} icon={AlertTriangle} />
+        <StatCard title="Auto-Fix Eligible" value={kpi?.autoFixEligible?.toString() || "0"} icon={CheckCircle} />
+        <StatCard title="Pending Actions" value={kpi?.pendingActions?.toString() || "0"} icon={Cpu} />
+        <StatCard title="Completed Actions" value={kpi?.completedActions?.toString() || "0"} icon={CheckCircle} />
+        <StatCard title="Total Savings" value={formatCurrency(kpi?.totalSavings || 0)} icon={TrendingDown} />
+        <StatCard title="Projected Savings" value={formatCurrency(kpi?.projectedSavings || 0)} icon={TrendingDown} />
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Budget vs Actual vs Optimized (6 months)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={costTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#D9D8D6" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `$${v / 1000}k`} />
-              <Tooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
-              <Legend />
-              <Bar dataKey="budget" name="Budget" fill={NAVY} radius={[4, 4, 0, 0]} opacity={0.4} />
-              <Bar dataKey="actual" name="Actual" fill={PRIMARY} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="optimized" name="Optimized" fill={SUCCESS} radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>
@@ -234,30 +235,313 @@ function AdminCostGovernorPage() {
         title="Waste Items"
         columns={[
           { header: "ID", accessorKey: "id" },
-          { header: "Resource", accessorKey: "resource" },
+          { header: "Resource ID", accessorKey: "resourceId" },
+          { header: "Resource Type", accessorKey: "resourceType" },
           {
-            header: "Type",
-            accessorKey: "type",
-            cell: ({ row }) => (
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{row.original.type}</code>
+            header: "Waste Type",
+            accessorKey: "wasteType",
+            cell: ({ row }: { row: { original: WasteItem } }) => (
+              <span className="font-medium">{row.original.wasteType.toUpperCase()}</span>
             ),
           },
-          { header: "Waste Cost", accessorKey: "wasteCost" },
-          { header: "Action", accessorKey: "action" },
-          { header: "Savings", accessorKey: "savingsPct" },
+          {
+            header: "Severity",
+            accessorKey: "severity",
+            cell: ({ row }: { row: { original: WasteItem } }) => (
+              <span className={
+                row.original.severity === "critical" ? "text-red-600" :
+                row.original.severity === "medium" ? "text-yellow-600" :
+                "text-green-600"
+              }>
+                {row.original.severity.toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Monthly Waste",
+            accessorKey: "monthlyWasteCost",
+            cell: ({ row }: { row: { original: WasteItem } }) => formatCurrency(row.original.monthlyWasteCost),
+          },
+          {
+            header: "Impact %",
+            accessorKey: "impactPercentage",
+            cell: ({ row }: { row: { original: WasteItem } }) => `${row.original.impactPercentage.toFixed(1)}%`,
+          },
+          {
+            header: "Suggested Action",
+            accessorKey: "suggestedAction",
+            cell: ({ row }: { row: { original: WasteItem } }) => (
+              <span className="font-medium">{row.original.suggestedAction.toUpperCase()}</span>
+            ),
+          },
           {
             header: "Auto-Fix",
-            accessorKey: "autoFix",
-            cell: ({ row }) => <StatusBadge status={row.original.autoFix} />,
+            accessorKey: "autoFixEligible",
+            cell: ({ row }: { row: { original: WasteItem } }) => (
+              row.original.autoFixEligible ? <CheckCircle className="h-4 w-4 text-green-600" /> : <span className="text-muted-foreground">—</span>
+            ),
           },
           {
             header: "Status",
             accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
+            cell: ({ row }: { row: { original: WasteItem } }) => (
+              <span className={
+                row.original.status === "active" ? "text-green-600" :
+                row.original.status === "fixed" ? "text-blue-600" :
+                "text-muted-foreground"
+              }>
+                {row.original.status.toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "",
+            accessorKey: "id",
+            cell: ({ row }: { row: { original: WasteItem } }) => (
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => handleCreateAction(row.original.id, row.original.suggestedAction)}>
+                  <Zap className="h-3 w-3" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleAddIgnoreRule(row.original.resourceId)}>
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ),
           },
         ]}
         data={wasteItems}
       />
+
+      <DataTable
+        title="Action Requests"
+        columns={[
+          { header: "ID", accessorKey: "id" },
+          { header: "Waste Item ID", accessorKey: "wasteItemId" },
+          {
+            header: "Action",
+            accessorKey: "action",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => (
+              <span className="font-medium">{row.original.action.toUpperCase()}</span>
+            ),
+          },
+          {
+            header: "Approval Status",
+            accessorKey: "approvalStatus",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => (
+              <span className={
+                row.original.approvalStatus === "approved" || row.original.approvalStatus === "auto_approved" ? "text-green-600" :
+                row.original.approvalStatus === "rejected" ? "text-red-600" :
+                "text-yellow-600"
+              }>
+                {row.original.approvalStatus.replace("_", " ").toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Action Status",
+            accessorKey: "actionStatus",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => (
+              <span className={
+                row.original.actionStatus === "completed" ? "text-green-600" :
+                row.original.actionStatus === "failed" ? "text-red-600" :
+                row.original.actionStatus === "rolled_back" ? "text-orange-600" :
+                "text-blue-600"
+              }>
+                {row.original.actionStatus.replace("_", " ").toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Savings Before",
+            accessorKey: "savingsBefore",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => formatCurrency(row.original.savingsBefore),
+          },
+          {
+            header: "Savings After",
+            accessorKey: "savingsAfter",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => formatCurrency(row.original.savingsAfter),
+          },
+          {
+            header: "Actual Savings",
+            accessorKey: "actualSavings",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => formatCurrency(row.original.actualSavings),
+          },
+          {
+            header: "Created At",
+            accessorKey: "createdAt",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => formatDate(row.original.createdAt),
+          },
+          {
+            header: "",
+            accessorKey: "id",
+            cell: ({ row }: { row: { original: WasteActionRequest } }) => (
+              <div className="flex gap-2">
+                {row.original.approvalStatus === "pending" && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => handleApproveAction(row.original.id)}>
+                      <CheckCircle className="h-3 w-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleRejectAction(row.original.id)}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </>
+                )}
+                {row.original.approvalStatus === "approved" && row.original.actionStatus === "pending" && (
+                  <Button size="sm" variant="outline" onClick={() => handleExecuteAction(row.original.id)}>
+                    <Play className="h-3 w-3" />
+                  </Button>
+                )}
+                {row.original.actionStatus === "completed" && (
+                  <Button size="sm" variant="outline" onClick={() => handleRollbackAction(row.original.id)}>
+                    <Zap className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        data={actionRequests}
+      />
+
+      <Dialog open={!!selectedWasteItem} onOpenChange={() => setSelectedWasteItem(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Waste Item Details</DialogTitle>
+          </DialogHeader>
+          {selectedWasteItem && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">ID</label>
+                  <p className="text-sm">{selectedWasteItem.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Resource ID</label>
+                  <p className="text-sm">{selectedWasteItem.resourceId}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Resource Type</label>
+                  <p className="text-sm">{selectedWasteItem.resourceType}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Waste Type</label>
+                  <p className="text-sm">{selectedWasteItem.wasteType.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Severity</label>
+                  <p className="text-sm">{selectedWasteItem.severity.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Monthly Waste Cost</label>
+                  <p className="text-sm">{formatCurrency(selectedWasteItem.monthlyWasteCost)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Impact Percentage</label>
+                  <p className="text-sm">{selectedWasteItem.impactPercentage.toFixed(1)}%</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Suggested Action</label>
+                  <p className="text-sm">{selectedWasteItem.suggestedAction.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Reason</label>
+                  <p className="text-sm">{selectedWasteItem.reason}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">CPU Utilization</label>
+                  <p className="text-sm">{selectedWasteItem.cpuUtilization}%</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Memory Utilization</label>
+                  <p className="text-sm">{selectedWasteItem.memoryUtilization}%</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Access Frequency</label>
+                  <p className="text-sm">{selectedWasteItem.accessFrequency} req/day</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Last Accessed</label>
+                  <p className="text-sm">{formatDate(selectedWasteItem.lastAccessedAt)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Detected At</label>
+                  <p className="text-sm">{formatDate(selectedWasteItem.detectedAt)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedActionRequest} onOpenChange={() => setSelectedActionRequest(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Action Request Details</DialogTitle>
+          </DialogHeader>
+          {selectedActionRequest && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">ID</label>
+                  <p className="text-sm">{selectedActionRequest.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Waste Item ID</label>
+                  <p className="text-sm">{selectedActionRequest.wasteItemId}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Action</label>
+                  <p className="text-sm">{selectedActionRequest.action.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Requested By</label>
+                  <p className="text-sm">{selectedActionRequest.requestedBy}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Approval Status</label>
+                  <p className="text-sm">{selectedActionRequest.approvalStatus.replace("_", " ").toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Approved By</label>
+                  <p className="text-sm">{selectedActionRequest.approvedBy || "—"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Action Status</label>
+                  <p className="text-sm">{selectedActionRequest.actionStatus.replace("_", " ").toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Savings Before</label>
+                  <p className="text-sm">{formatCurrency(selectedActionRequest.savingsBefore)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Savings After</label>
+                  <p className="text-sm">{formatCurrency(selectedActionRequest.savingsAfter)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Actual Savings</label>
+                  <p className="text-sm">{formatCurrency(selectedActionRequest.actualSavings)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Created At</label>
+                  <p className="text-sm">{formatDate(selectedActionRequest.createdAt)}</p>
+                </div>
+                {selectedActionRequest.executedAt && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Executed At</label>
+                    <p className="text-sm">{formatDate(selectedActionRequest.executedAt)}</p>
+                  </div>
+                )}
+                {selectedActionRequest.rollbackAt && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Rolled Back At</label>
+                    <p className="text-sm">{formatDate(selectedActionRequest.rollbackAt)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

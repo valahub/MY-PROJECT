@@ -1,0 +1,13 @@
+[Unit]
+Description=Ultra Heal Engine
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /root/server-core/app.js
+Restart=always
+User=root
+WorkingDirectory=/root/server-core
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

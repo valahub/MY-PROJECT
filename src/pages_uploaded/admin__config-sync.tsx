@@ -4,93 +4,56 @@ import { DataTable } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Settings2, RefreshCw, Clock, CheckCircle, AlertTriangle, Loader2, Eye, FileText } from "lucide-react";
-import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Settings2, RefreshCw, Clock, CheckCircle, AlertTriangle, Loader2, Eye, FileText, Plus, History, RotateCcw, Ban, Shield } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { configSyncService, type ConfigChange, type NodeInfo, type ConfigSyncKPI } from "@/lib/api/admin-services";
 
 ({
   component: AdminConfigSyncPage,
   head: () => ({ meta: [{ title: "Global Config Sync — Admin — ERP Vala" }] }),
 });
 
-const configChanges = [
-  {
-    id: "CFG-001",
-    key: "payments.retry_max_attempts",
-    oldValue: "3",
-    newValue: "5",
-    changedBy: "admin@erpvala.com",
-    propagatedTo: "12/12 nodes",
-    propagationTime: "210 ms",
-    changedAt: "2024-01-18 10:00",
-    status: "synced",
-  },
-  {
-    id: "CFG-002",
-    key: "fraud.block_score_threshold",
-    oldValue: "40",
-    newValue: "30",
-    changedBy: "security@erpvala.com",
-    propagatedTo: "12/12 nodes",
-    propagationTime: "185 ms",
-    changedAt: "2024-01-18 09:15",
-    status: "synced",
-  },
-  {
-    id: "CFG-003",
-    key: "feature.new_checkout_flow",
-    oldValue: "false",
-    newValue: "true",
-    changedBy: "admin@erpvala.com",
-    propagatedTo: "11/12 nodes",
-    propagationTime: "—",
-    changedAt: "2024-01-18 08:30",
-    status: "partial",
-  },
-  {
-    id: "CFG-004",
-    key: "email.smtp_host",
-    oldValue: "smtp.sendgrid.net",
-    newValue: "smtp2.sendgrid.net",
-    changedBy: "ops@erpvala.com",
-    propagatedTo: "12/12 nodes",
-    propagationTime: "198 ms",
-    changedAt: "2024-01-17 16:00",
-    status: "synced",
-  },
-  {
-    id: "CFG-005",
-    key: "rate_limit.api.default_rpm",
-    oldValue: "1000",
-    newValue: "2000",
-    changedBy: "admin@erpvala.com",
-    propagatedTo: "12/12 nodes",
-    propagationTime: "220 ms",
-    changedAt: "2024-01-16 11:45",
-    status: "synced",
-  },
-];
-
-const nodes = [
-  { node: "api-us-east-1a", version: "v112", lastPull: "2024-01-18 15:00:01", status: "synced" },
-  { node: "api-us-east-1b", version: "v112", lastPull: "2024-01-18 15:00:01", status: "synced" },
-  { node: "api-eu-west-1a", version: "v112", lastPull: "2024-01-18 15:00:00", status: "synced" },
-  { node: "api-eu-west-1b", version: "v112", lastPull: "2024-01-18 15:00:00", status: "synced" },
-  { node: "api-ap-sea-1a", version: "v111", lastPull: "2024-01-18 14:58:10", status: "stale" },
-  { node: "worker-us-1", version: "v112", lastPull: "2024-01-18 15:00:01", status: "synced" },
-];
-
 function AdminConfigSyncPage() {
+  const [loading, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isViewingStale, setIsViewingStale] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [selectedChange, setSelectedChange] = useState<ConfigChange | null>(null);
+  const [configChanges, setConfigChanges] = useState<ConfigChange[]>([]);
+  const [nodes, setNodes] = useState<NodeInfo[]>([]);
+  const [kpi, setKpi] = useState<ConfigSyncKPI | null>(null);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      setConfigChanges(configSyncService.listChanges());
+      setNodes(configSyncService.listNodes());
+      setKpi(configSyncService.getKPI());
+    } catch (error) {
+      toast.error("Failed to load config sync data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleForceSync = async () => {
     setIsSyncing(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Force sync all stale nodes
+      for (const node of nodes) {
+        if (node.syncStatus === "stale" || node.syncStatus === "failed") {
+          configSyncService.updateNodeHealth(node.id, "online", node.latency);
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("All nodes synced successfully");
+      loadData();
     } catch (error) {
       toast.error("Failed to sync nodes");
     } finally {
@@ -98,40 +61,91 @@ function AdminConfigSyncPage() {
     }
   };
 
-  const handleEditConfig = async () => {
-    setIsEditing(true);
+  const handleAddConfig = async () => {
+    const configKey = prompt("Enter config key (e.g., database.host):");
+    if (!configKey) return;
+
+    const configValueStr = prompt("Enter config value (JSON):");
+    if (!configValueStr) return;
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Config editor opened");
+      const configValue = JSON.parse(configValueStr);
+      setIsAdding(true);
+      await configSyncService.createChange({ configKey, configValue, appliedBy: "admin" }, "admin");
+      toast.success("Config change created successfully");
+      loadData();
     } catch (error) {
-      toast.error("Failed to open config editor");
+      toast.error("Failed to create config change: " + (error as Error).message);
     } finally {
-      setIsEditing(false);
+      setIsAdding(false);
     }
   };
 
-  const handleViewStale = async () => {
-    setIsViewingStale(true);
+  const handleApplyChange = async (id: string) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Stale nodes loaded");
+      await configSyncService.applyChange(id, "admin");
+      toast.success("Config change applied successfully");
+      loadData();
     } catch (error) {
-      toast.error("Failed to load stale nodes");
-    } finally {
-      setIsViewingStale(false);
+      toast.error("Failed to apply config change");
     }
   };
 
-  const handleExportHistory = async () => {
-    setIsExporting(true);
+  const handleRollback = async (id: string) => {
+    const reason = prompt("Enter rollback reason:");
+    if (!reason) return;
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.success("Config history exported successfully");
+      await configSyncService.triggerRollback(id, reason, "admin");
+      toast.success("Config rolled back successfully");
+      loadData();
     } catch (error) {
-      toast.error("Failed to export config history");
-    } finally {
-      setIsExporting(false);
+      toast.error("Failed to rollback config");
     }
+  };
+
+  const handleIsolateNode = async (nodeId: string) => {
+    const reason = prompt("Enter isolation reason:");
+    if (!reason) return;
+
+    try {
+      configSyncService.isolateNode(nodeId, reason);
+      toast.success("Node isolated successfully");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to isolate node");
+    }
+  };
+
+  const handleRejoinNode = async (nodeId: string) => {
+    try {
+      configSyncService.rejoinNode(nodeId);
+      toast.success("Node rejoined successfully");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to rejoin node");
+    }
+  };
+
+  const handleTimeTravel = async () => {
+    const version = prompt("Enter target version (e.g., 1.0.0):");
+    if (!version) return;
+
+    try {
+      await configSyncService.timeTravel(version, "admin");
+      toast.success("Time travel successful");
+      loadData();
+    } catch (error) {
+      toast.error("Failed to time travel");
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString();
+  };
+
+  const formatLatency = (ms: number) => {
+    return `${ms}ms`;
   };
 
   return (
@@ -147,46 +161,30 @@ function AdminConfigSyncPage() {
             )}
             {isSyncing ? "Syncing..." : "Force Sync All Nodes"}
           </Button>
-          <Button onClick={handleEditConfig} disabled={isEditing}>
-            {isEditing ? (
+          <Button variant="outline" onClick={handleTimeTravel}>
+            <History className="mr-2 h-4 w-4" />
+            Time Travel
+          </Button>
+          <Button onClick={handleAddConfig} disabled={isAdding}>
+            {isAdding ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Settings2 className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
             )}
-            {isEditing ? "Opening..." : "Edit Config"}
+            {isAdding ? "Adding..." : "Add Config Change"}
           </Button>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Config Version"
-          value="v112"
-          icon={Settings2}
-          change="Latest deployed"
-          changeType="positive"
-        />
-        <StatCard
-          title="Nodes in Sync"
-          value="11/12"
-          icon={CheckCircle}
-          change="1 stale — auto-retrying"
-          changeType="neutral"
-        />
-        <StatCard
-          title="Avg Propagation"
-          value="203 ms"
-          icon={Clock}
-          change="Across all regions"
-          changeType="positive"
-        />
-        <StatCard
-          title="Changes (30d)"
-          value="28"
-          icon={RefreshCw}
-          change="All audited"
-          changeType="neutral"
-        />
+        <StatCard title="Total Changes" value={kpi?.totalChanges?.toString() || "0"} icon={Settings2} />
+        <StatCard title="Pending Changes" value={kpi?.pendingChanges?.toString() || "0"} icon={Clock} />
+        <StatCard title="Online Nodes" value={`${kpi?.onlineNodes}/${kpi?.totalNodes}`} icon={CheckCircle} />
+        <StatCard title="Stale Nodes" value={kpi?.staleNodes?.toString() || "0"} icon={AlertTriangle} />
+        <StatCard title="Avg Sync Lag" value={`${kpi?.avgSyncLag?.toFixed(0) || 0}ms`} icon={Clock} />
+        <StatCard title="Avg Latency" value={`${kpi?.avgLatency?.toFixed(0) || 0}ms`} icon={RefreshCw} />
+        <StatCard title="Applied Changes" value={kpi?.appliedChanges?.toString() || "0"} icon={CheckCircle} />
+        <StatCard title="Rolled Back" value={kpi?.rolledBackChanges?.toString() || "0"} icon={RotateCcw} />
       </div>
 
       <Card>
@@ -196,24 +194,21 @@ function AdminConfigSyncPage() {
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg border p-4">
-              <p className="font-medium">Central Config Store</p>
+              <p className="font-medium">Change Impact Analyzer</p>
               <p className="text-xs text-muted-foreground">
-                All configuration lives in a versioned, strongly-consistent key-value store. Every
-                change creates a new immutable version with a full diff and author audit trail.
+                Every config change auto-evaluates affected services, APIs, and risk level before apply.
               </p>
             </div>
             <div className="rounded-lg border p-4">
-              <p className="font-medium">Push + Pull Sync</p>
+              <p className="font-medium">Safe Apply Guard</p>
               <p className="text-xs text-muted-foreground">
-                New versions are pushed to all nodes via a fan-out pub/sub channel. Nodes also poll
-                every 30 s as a fallback to catch missed push events.
+                Config simulation blocks breaking changes and validates dependency chains before propagation.
               </p>
             </div>
             <div className="rounded-lg border p-4">
-              <p className="font-medium">Rollback Support</p>
+              <p className="font-medium">Auto Rollback</p>
               <p className="text-xs text-muted-foreground">
-                Any version can be instantly re-promoted as the current config, propagating to all
-                nodes with the same sub-second latency as a normal change.
+                Error spikes or service crashes trigger automatic rollback to last stable version.
               </p>
             </div>
           </div>
@@ -225,22 +220,72 @@ function AdminConfigSyncPage() {
         columns={[
           { header: "ID", accessorKey: "id" },
           {
-            header: "Key",
-            accessorKey: "key",
-            cell: ({ row }) => (
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{row.original.key}</code>
+            header: "Config Key",
+            accessorKey: "configKey",
+            cell: ({ row }: { row: { original: ConfigChange } }) => (
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{row.original.configKey}</code>
             ),
           },
-          { header: "Old Value", accessorKey: "oldValue" },
-          { header: "New Value", accessorKey: "newValue" },
-          { header: "Changed By", accessorKey: "changedBy" },
-          { header: "Propagated To", accessorKey: "propagatedTo" },
-          { header: "Propagation Time", accessorKey: "propagationTime" },
-          { header: "Changed At", accessorKey: "changedAt" },
+          {
+            header: "Version",
+            accessorKey: "version",
+            cell: ({ row }: { row: { original: ConfigChange } }) => (
+              <span className="font-mono">{row.original.version}</span>
+            ),
+          },
+          {
+            header: "Risk Level",
+            accessorKey: "riskLevel",
+            cell: ({ row }: { row: { original: ConfigChange } }) => (
+              <span className={
+                row.original.riskLevel === "critical" ? "text-red-600" :
+                row.original.riskLevel === "medium" ? "text-yellow-600" :
+                "text-green-600"
+              }>
+                {row.original.riskLevel.toUpperCase()}
+              </span>
+            ),
+          },
           {
             header: "Status",
             accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
+            cell: ({ row }: { row: { original: ConfigChange } }) => (
+              <span className={
+                row.original.status === "applied" ? "text-green-600" :
+                row.original.status === "pending" ? "text-yellow-600" :
+                row.original.status === "failed" ? "text-red-600" :
+                "text-muted-foreground"
+              }>
+                {row.original.status.replace("_", " ").toUpperCase()}
+              </span>
+            ),
+          },
+          { header: "Applied By", accessorKey: "appliedBy" },
+          {
+            header: "Applied At",
+            accessorKey: "appliedAt",
+            cell: ({ row }: { row: { original: ConfigChange } }) => formatDate(row.original.appliedAt),
+          },
+          {
+            header: "",
+            accessorKey: "id",
+            cell: ({ row }: { row: { original: ConfigChange } }) => (
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setSelectedChange(row.original)}>
+                  <Eye className="h-3 w-3" />
+                </Button>
+                {row.original.status === "pending" && (
+                  <Button size="sm" variant="outline" onClick={() => handleApplyChange(row.original.id)}>
+                    <CheckCircle className="h-3 w-3" />
+                  </Button>
+                )}
+                {row.original.status === "applied" && (
+                  <Button size="sm" variant="outline" onClick={() => handleRollback(row.original.id)}>
+                    <RotateCcw className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            ),
           },
         ]}
         data={configChanges}
@@ -249,36 +294,165 @@ function AdminConfigSyncPage() {
       <DataTable
         title="Node Sync Status"
         columns={[
-          { header: "Node", accessorKey: "node" },
-          { header: "Config Version", accessorKey: "version" },
-          { header: "Last Pull", accessorKey: "lastPull" },
+          { header: "Node", accessorKey: "name" },
+          { header: "Region", accessorKey: "region" },
           {
             header: "Status",
             accessorKey: "status",
-            cell: ({ row }) => <StatusBadge status={row.original.status} />,
+            cell: ({ row }: { row: { original: NodeInfo } }) => (
+              <span className={
+                row.original.status === "online" ? "text-green-600" :
+                row.original.status === "offline" ? "text-red-600" :
+                row.original.status === "degraded" ? "text-yellow-600" :
+                "text-orange-600"
+              }>
+                {row.original.status.toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Sync Status",
+            accessorKey: "syncStatus",
+            cell: ({ row }: { row: { original: NodeInfo } }) => (
+              <span className={
+                row.original.syncStatus === "synced" ? "text-green-600" :
+                row.original.syncStatus === "pending" ? "text-yellow-600" :
+                row.original.syncStatus === "failed" ? "text-red-600" :
+                "text-orange-600"
+              }>
+                {row.original.syncStatus.toUpperCase()}
+              </span>
+            ),
+          },
+          {
+            header: "Version",
+            accessorKey: "currentVersion",
+            cell: ({ row }: { row: { original: NodeInfo } }) => (
+              <span className="font-mono">{row.original.currentVersion}</span>
+            ),
+          },
+          {
+            header: "Latency",
+            accessorKey: "latency",
+            cell: ({ row }: { row: { original: NodeInfo } }) => formatLatency(row.original.latency),
+          },
+          {
+            header: "Sync Lag",
+            accessorKey: "syncLag",
+            cell: ({ row }: { row: { original: NodeInfo } }) => `${row.original.syncLag}ms`,
+          },
+          {
+            header: "Last Sync",
+            accessorKey: "lastSyncAt",
+            cell: ({ row }: { row: { original: NodeInfo } }) => formatDate(row.original.lastSyncAt),
+          },
+          {
+            header: "",
+            accessorKey: "id",
+            cell: ({ row }: { row: { original: NodeInfo } }) => (
+              <div className="flex gap-2">
+                {row.original.status === "isolated" ? (
+                  <Button size="sm" variant="outline" onClick={() => handleRejoinNode(row.original.id)}>
+                    <Shield className="h-3 w-3" />
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => handleIsolateNode(row.original.id)}>
+                    <Ban className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            ),
           },
         ]}
         data={nodes}
       />
 
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={handleViewStale} disabled={isViewingStale}>
-          {isViewingStale ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Eye className="mr-2 h-4 w-4" />
+      <Dialog open={!!selectedChange} onOpenChange={() => setSelectedChange(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Config Change Details</DialogTitle>
+          </DialogHeader>
+          {selectedChange && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">ID</label>
+                  <p className="text-sm">{selectedChange.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Version</label>
+                  <p className="text-sm font-mono">{selectedChange.version}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Config Key</label>
+                  <p className="text-sm"><code>{selectedChange.configKey}</code></p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Risk Level</label>
+                  <p className="text-sm">{selectedChange.riskLevel.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Status</label>
+                  <p className="text-sm">{selectedChange.status.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Applied By</label>
+                  <p className="text-sm">{selectedChange.appliedBy}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Applied At</label>
+                  <p className="text-sm">{formatDate(selectedChange.appliedAt)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Signature</label>
+                  <p className="text-sm font-mono">{selectedChange.signature}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Affected Services</label>
+                <div className="flex gap-2 mt-1">
+                  {selectedChange.affectedServices.map((service) => (
+                    <span key={service} className="rounded bg-muted px-2 py-1 text-xs">{service}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Affected APIs</label>
+                <div className="flex gap-2 mt-1">
+                  {selectedChange.affectedAPIs.map((api) => (
+                    <span key={api} className="rounded bg-muted px-2 py-1 text-xs">{api}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Previous Value</label>
+                <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-auto max-h-32">
+                  {JSON.stringify(selectedChange.previousValue, null, 2)}
+                </pre>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">New Value</label>
+                <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-auto max-h-32">
+                  {JSON.stringify(selectedChange.configValue, null, 2)}
+                </pre>
+              </div>
+
+              {selectedChange.rollbackVersion && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Rollback Info</label>
+                  <p className="text-sm">Rolled back to: {selectedChange.rollbackVersion}</p>
+                  <p className="text-sm">Reason: {selectedChange.failureReason}</p>
+                  <p className="text-sm">At: {formatDate(selectedChange.rollbackAt!)}</p>
+                </div>
+              )}
+            </div>
           )}
-          {isViewingStale ? "Loading..." : "View Stale Nodes"}
-        </Button>
-        <Button variant="outline" onClick={handleExportHistory} disabled={isExporting}>
-          {isExporting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <FileText className="mr-2 h-4 w-4" />
-          )}
-          {isExporting ? "Exporting..." : "Export Config History"}
-        </Button>
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
