@@ -900,3 +900,89 @@ const EXTRA_ITEMS: MarketItem[] = [
 // Append to ITEMS array (kept as let-style mutation via spread for backward compat).
 ITEMS.push(...EXTRA_ITEMS);
 
+// ── Helpers: counts for nano/micro using existing ITEMS + tree ────────────
+// Best-effort: matches by (sub.title === item.subcategory) and tag overlap for
+// nano/micro. Falls back to tree.count or 0. Pure functions, no side effects.
+export function countItemsForSub(topSlug: string, subTitle: string): number {
+  return ITEMS.filter(
+    (i) => i.category === topSlug && i.subcategory.toLowerCase() === subTitle.toLowerCase(),
+  ).length;
+}
+
+export function countItemsForNano(topSlug: string, subTitle: string, nano: NanoCategory): number {
+  const subItems = ITEMS.filter(
+    (i) => i.category === topSlug && i.subcategory.toLowerCase() === subTitle.toLowerCase(),
+  );
+  const needle = nano.slug.replace(/-/g, " ").toLowerCase();
+  const titleNeedle = nano.title.toLowerCase();
+  return subItems.filter((i) =>
+    i.tags.some(
+      (t) => t.toLowerCase().includes(needle) || t.toLowerCase().includes(titleNeedle),
+    ) ||
+      i.title.toLowerCase().includes(titleNeedle) ||
+      i.description.toLowerCase().includes(titleNeedle),
+  ).length;
+}
+
+export function countItemsForMicro(topSlug: string, micro: string): number {
+  const m = micro.toLowerCase();
+  return ITEMS.filter(
+    (i) =>
+      i.category === topSlug &&
+      (i.tags.some((t) => t.toLowerCase().includes(m)) ||
+        i.title.toLowerCase().includes(m) ||
+        i.description.toLowerCase().includes(m)),
+  ).length;
+}
+
+// Resolve a category by slug, with backward-compat fallback to legacy `subs`.
+export function resolveCategory(slug: string): TopCategory | undefined {
+  return CATEGORY_TREE.find((c) => c.slug === slug);
+}
+
+// Flatten a category's tree to a list of {sub, nano?, micro?} for selectors.
+export interface CategoryNode {
+  sub: SubCategory;
+  nano?: NanoCategory;
+  micro?: string;
+  count: number;
+  path: string[]; // [subTitle, nanoTitle?, micro?]
+}
+export function flattenCategoryTree(top: TopCategory): CategoryNode[] {
+  const out: CategoryNode[] = [];
+  if (!top.tree) {
+    // legacy: synthesize from subs
+    top.subs.forEach((s) => {
+      const sub: SubCategory = { slug: s.toLowerCase().replace(/\s+/g, "-"), title: s };
+      out.push({ sub, count: countItemsForSub(top.slug, s), path: [s] });
+    });
+    return out;
+  }
+  top.tree.forEach((sub) => {
+    out.push({
+      sub,
+      count: sub.count ?? countItemsForSub(top.slug, sub.title),
+      path: [sub.title],
+    });
+    sub.nano?.forEach((nano) => {
+      out.push({
+        sub,
+        nano,
+        count: countItemsForNano(top.slug, sub.title, nano),
+        path: [sub.title, nano.title],
+      });
+      nano.micro?.forEach((m) => {
+        out.push({
+          sub,
+          nano,
+          micro: m,
+          count: countItemsForMicro(top.slug, m),
+          path: [sub.title, nano.title, m],
+        });
+      });
+    });
+  });
+  return out;
+}
+
+
