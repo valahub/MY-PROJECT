@@ -322,7 +322,7 @@ export class CustomerActionsManager {
       const permissionResult = customerSecurityManager.validateDeletePermissions(
         customer,
         userId,
-        user: string
+        userEmail
       );
 
       if (!permissionResult.success) {
