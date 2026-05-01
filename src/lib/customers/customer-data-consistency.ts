@@ -153,6 +153,10 @@ export class DataConsistencyJobManager {
           console.error(`[DataConsistency] Error processing customer ${customer.id}:`, error);
         }
       }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errors.push(`job: ${errorMessage}`);
+      console.error('[DataConsistency] Job error:', error);
     }
 
     const duration = Date.now() - startTime;
