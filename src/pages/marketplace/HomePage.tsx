@@ -1,8 +1,10 @@
-// Marketplace Homepage
-// Full homepage with hero section, featured items, and navigation
+// Marketplace Homepage / Layout
+// Renders the shared marketplace shell (header + category strip) and an <Outlet />
+// so nested /marketplace/* routes (search, cart, item, etc.) render inside it.
+// When visited at the index, also renders the hero + featured/categories/trending sections.
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Search, Heart, ShoppingCart, User, ArrowRight } from 'lucide-react';
 import { ITEMS, CATEGORY_TREE } from '@/lib/marketplace-data';
 import { ItemCard } from '@/components/marketplace/ItemCard';
@@ -13,6 +15,8 @@ import { buildHomepageMeta, buildHomepageJsonLd } from '@/lib/marketplace-seo';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isIndex = location.pathname === '/marketplace' || location.pathname === '/marketplace/';
   const [heroSearchQuery, setHeroSearchQuery] = useState('');
 
   // Featured items (top rated/high sales)
