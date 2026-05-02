@@ -347,27 +347,25 @@ const App = () => (
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductDetailPage />} />
           <Route path="/marketplace" element={<HomePage />}>
-              <Route path="category/:slug" element={<CategoryPage />} />
+              <Route index element={<MarketplacePage />} />
               <Route path="categories" element={<CategoriesPage />} />
-              <Route path="search" element={<SearchPage />} />
-              <Route path="blog" element={<BlogPage />} />
+              <Route path="category/:slug" element={<MarketplaceCategorySlugPage />} />
+              <Route path="search" element={<MarketplaceSearchPage />} />
+              <Route path="blog" element={<MarketplaceBlogPage />} />
               <Route path="blog/:slug" element={<BlogDetailPage />} />
               <Route path="author/*" element={<AuthorRoutes />} />
               <Route path="authors" element={<MarketplaceAuthorsPage />} />
               <Route path="become-author" element={<MarketplaceBecomeauthorPage />} />
-              <Route path="blog" element={<MarketplaceBlogPage />} />
               <Route path="cart" element={<MarketplaceCartPage />} />
-              <Route path="category/:slug" element={<MarketplaceCategorySlugPage />} />
               <Route path="checkout" element={<MarketplaceCheckoutPage />} />
               <Route path="compare" element={<MarketplaceComparePage />} />
               <Route path="forums" element={<MarketplaceForumsPage />} />
               <Route path="forums/:slug" element={<MarketplaceForumsPage />} />
               <Route path="forums/:slug/:topicId" element={<MarketplaceForumsPage />} />
-              <Route index element={<MarketplacePage />} />
               <Route path="item/:slug" element={<MarketplaceItemSlugPage />} />
               <Route path="preview/:slug" element={<MarketplacePreviewSlugPage />} />
-              <Route path="search" element={<MarketplaceSearchPage />} />
               <Route path="wishlist" element={<MarketplaceWishlistPage />} />
+              <Route path="profile" element={<MarketplaceAuthorPage />} />
           </Route>
           <Route path="/reseller/software" element={<ResellerSoftwarePage />} />
           <Route path="/reseller/plugins" element={<ResellerPluginsPage />} />
