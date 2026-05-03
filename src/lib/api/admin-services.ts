@@ -30959,10 +30959,10 @@ class TaxCommissionService {
     }
 
     // Calculate digital service tax
-    const digitalServiceTax = (input.basePrice * rule.digitalServiceTax) / 100;
+    let digitalServiceTax = (input.basePrice * rule.digitalServiceTax) / 100;
 
     // Total tax
-    const totalTax = countryTax + stateTax + digitalServiceTax;
+    let totalTax = countryTax + stateTax + digitalServiceTax;
 
     // Final price
     let finalPrice: number;
