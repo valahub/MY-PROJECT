@@ -116,179 +116,267 @@ function AuthorMyItems() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
+  const statusOptions: { key: string; label: string }[] = [
+    { key: "all", label: "All" },
+    { key: "draft", label: "Draft" },
+    { key: "pending", label: "Pending" },
+    { key: "approved", label: "Approved" },
+    { key: "rejected", label: "Rejected" },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">My Items</h1>
-          <p className="text-muted-foreground">Manage your marketplace items</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Refresh
-          </Button>
-          <Button asChild>
-            <Link to="/author/upload">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Item
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Search and Filter */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={filterStatus === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("all")}
-              >
-                All
-              </Button>
-              <Button
-                variant={filterStatus === "draft" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("draft")}
-              >
-                Draft
-              </Button>
-              <Button
-                variant={filterStatus === "pending" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("pending")}
-              >
-                Pending
-              </Button>
-              <Button
-                variant={filterStatus === "approved" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("approved")}
-              >
-                Approved
-              </Button>
-              <Button
-                variant={filterStatus === "rejected" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("rejected")}
-              >
-                Rejected
-              </Button>
-            </div>
+    <TooltipProvider delayDuration={150}>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">My Items</h1>
+            <p className="text-sm text-muted-foreground">Manage your marketplace items</p>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              aria-label="Refresh items"
+            >
+              {isRefreshing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-2 h-4 w-4" />
+              )}
+              Refresh
+            </Button>
+            <Button asChild>
+              <Link to="/author/upload">
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Item
+              </Link>
+            </Button>
+          </div>
+        </div>
 
-      {/* Items Table */}
-      <DataTable
-        title="Your Items"
-        columns={[
-          { header: "Name", accessorKey: "name" },
-          { header: "Category", accessorKey: "category" },
-          { header: "Price", accessorKey: "price" },
-          { header: "Status", accessorKey: "status" },
-          { header: "Sales", accessorKey: "sales" },
-          { header: "Updated", accessorKey: "updated" },
-          { header: "Actions", accessorKey: "actions" },
-        ]}
-        data={filteredItems.map((item) => ({
-          id: item.id,
-          name: (
-            <div>
-              <div className="font-medium">{item.title}</div>
-              <div className="text-xs text-muted-foreground">{item.version}</div>
-            </div>
-          ),
-          category: (
-            <div>
-              <div className="text-sm">{item.category}</div>
-              <div className="text-xs text-muted-foreground">{item.subcategory}</div>
-            </div>
-          ),
-          price: `$${item.price.toFixed(2)}`,
-          status: getStatusBadge(item.status),
-          sales: item.sales,
-          updated: new Date(item.updatedAt).toLocaleDateString(),
-          actions: (
-            <div className="flex items-center gap-2">
-              {item.status === "approved" && (
-                <Button asChild variant="ghost" size="sm">
-                  <Link to={`/marketplace/item/${item.id}`}>
-                    <Eye className="h-4 w-4" />
-                  </Link>
-                </Button>
-              )}
-              <Button asChild variant="ghost" size="sm">
-                <Link to={`/author/items/${item.id}/edit`}>
-                  <Edit className="h-4 w-4" />
-                </Link>
-              </Button>
-              {item.status === "draft" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleSubmit(item)}
-                >
-                  Submit
-                </Button>
-              )}
-              {(item.status === "draft" || item.status === "rejected") && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDelete(item)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          ),
-        }))}
-      />
-
-      {/* Empty State */}
-      {filteredItems.length === 0 && (
+        {/* Search and Filter */}
         <Card>
-          <CardContent className="py-12 text-center">
-            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-medium mb-2">No items found</h3>
-            <p className="text-muted-foreground mb-4">
-              {items.length === 0
-                ? "You haven't uploaded any items yet."
-                : "No items match your search."}
-            </p>
-            {items.length === 0 && (
-              <Button asChild>
-                <Link to="/author/upload">Upload Your First Item</Link>
-              </Button>
-            )}
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search items by title or category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-10"
+                  aria-label="Search items"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {statusOptions.map((opt) => (
+                  <Button
+                    key={opt.key}
+                    variant={filterStatus === opt.key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFilterStatus(opt.key)}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
-    </div>
+
+        {/* Items Table or Empty State */}
+        {filteredItems.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-medium mb-2">No items found</h3>
+              <p className="text-muted-foreground mb-4">
+                {items.length === 0
+                  ? "You haven't uploaded any items yet."
+                  : "No items match your search or filter."}
+              </p>
+              {items.length === 0 ? (
+                <Button asChild>
+                  <Link to="/author/upload">
+                    <Upload className="mr-2 h-4 w-4" /> Upload Your First Item
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setFilterStatus("all");
+                  }}
+                >
+                  Clear filters
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <DataTable
+            title="Your Items"
+            searchable={false}
+            columns={[
+              {
+                key: "title",
+                header: "Item",
+                render: (item: ItemEntity) => (
+                  <div className="min-w-0">
+                    <div className="font-medium truncate max-w-[280px]" title={item.title}>
+                      {item.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">v{item.version}</div>
+                  </div>
+                ),
+              },
+              {
+                key: "category",
+                header: "Category",
+                render: (item: ItemEntity) => (
+                  <div>
+                    <div className="text-sm">{item.category}</div>
+                    <div className="text-xs text-muted-foreground">{item.subcategory}</div>
+                  </div>
+                ),
+              },
+              {
+                key: "price",
+                header: "Price",
+                render: (item: ItemEntity) => (
+                  <span className="tabular-nums">${item.price.toFixed(2)}</span>
+                ),
+              },
+              {
+                key: "status",
+                header: "Status",
+                render: (item: ItemEntity) => getStatusBadge(item.status),
+              },
+              {
+                key: "sales",
+                header: "Sales",
+                render: (item: ItemEntity) => (
+                  <span className="tabular-nums">{item.sales.toLocaleString()}</span>
+                ),
+              },
+              {
+                key: "updated",
+                header: "Updated",
+                render: (item: ItemEntity) => (
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(item.updatedAt).toLocaleDateString()}
+                  </span>
+                ),
+              },
+              {
+                key: "actions",
+                header: "Actions",
+                render: (item: ItemEntity) => (
+                  <div className="flex items-center gap-1">
+                    {item.status === "approved" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                            <Link to={`/marketplace/item/${item.id}`} aria-label={`View ${item.title}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>View</TooltipContent>
+                      </Tooltip>
+                    )}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                          <Link to={`/author/items/${item.id}/edit`} aria-label={`Edit ${item.title}`}>
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit</TooltipContent>
+                    </Tooltip>
+                    {item.status === "draft" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSubmit(item)}
+                            aria-label={`Submit ${item.title} for approval`}
+                          >
+                            <Send className="mr-1 h-3.5 w-3.5" /> Submit
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Submit for approval</TooltipContent>
+                      </Tooltip>
+                    )}
+                    {(item.status === "draft" || item.status === "rejected") && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleDelete(item)}
+                            aria-label={`Delete ${item.title}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Delete</TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+            data={filteredItems}
+          />
+        )}
+
+        {/* Status legend */}
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">Status legend:</span>
+          <span className="flex items-center gap-1.5">
+            <Badge variant="secondary">draft</Badge> not submitted
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Badge variant="outline">pending</Badge> in review
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Badge variant="default">approved</Badge> live on marketplace
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Badge variant="destructive">rejected</Badge> action required
+          </span>
+        </div>
+      </div>
+    </TooltipProvider>
   );
 }
 
