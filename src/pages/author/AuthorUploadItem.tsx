@@ -196,15 +196,32 @@ function AuthorUploadItem() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild><Link to="/author">Author</Link></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild><Link to="/author/items">My Items</Link></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Upload</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/author")}>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/author")} aria-label="Back">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Upload New Item</h1>
-          <p className="text-muted-foreground">Create a new marketplace item</p>
+          <h1 className="text-2xl font-bold tracking-tight">Upload New Item</h1>
+          <p className="text-sm text-muted-foreground">Create a new marketplace item</p>
         </div>
       </div>
 
