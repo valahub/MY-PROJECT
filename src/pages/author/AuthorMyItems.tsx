@@ -66,19 +66,12 @@ function AuthorMyItems() {
   };
 
   const handleDelete = async (item: ItemEntity) => {
-    if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
-
-    try {
-      const res = await authorItemsApiService.deleteItem(item.id, user?.id || "");
-      if (res.success) {
-        toast.success("Item deleted successfully");
-        loadItems();
-      } else {
-        toast.error(res.error || "Failed to delete item");
-      }
-    } catch (error) {
-      toast.error("Failed to delete item");
+    const res = await authorItemsApiService.deleteItem(item.id, user?.id || "");
+    if (!res.success) {
+      throw new Error(res.error || "Failed to delete item");
     }
+    // Refresh the list after successful delete
+    loadItems();
   };
 
   const handleSubmit = async (item: ItemEntity) => {
