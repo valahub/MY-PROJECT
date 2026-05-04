@@ -731,6 +731,29 @@ function AuthorEditItem() {
           </Card>
         </div>
       </div>
+
+      {/* Sticky save bar */}
+      {canEdit && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <p className="text-xs text-muted-foreground hidden sm:block">
+              Editing <span className="font-medium text-foreground truncate inline-block max-w-[240px] align-bottom">{item.title}</span>
+            </p>
+            <div className="flex items-center gap-2 ml-auto">
+              <Button variant="outline" size="sm" onClick={() => navigate("/author/items")} disabled={isSaving}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
