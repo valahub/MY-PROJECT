@@ -718,6 +718,40 @@ function AuthorUploadItem() {
           </Card>
         </div>
       </div>
+
+      {/* Sticky submit bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <p className="text-xs text-muted-foreground hidden sm:block">
+            Fields marked <span className="text-destructive">*</span> are required.
+          </p>
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSubmit(true)}
+              disabled={isSubmitting || isSavingDraft}
+            >
+              {isSavingDraft ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+              ) : (
+                "Save as Draft"
+              )}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleSubmit(false)}
+              disabled={isSubmitting || isSavingDraft}
+            >
+              {isSubmitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</>
+              ) : (
+                "Submit for Approval"
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
