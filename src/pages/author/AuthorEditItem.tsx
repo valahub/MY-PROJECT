@@ -504,11 +504,12 @@ function AuthorEditItem() {
               )}
 
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+                <Switch
                   id="licenseKeyRequired"
                   checked={formData.licenseKeyRequired}
-                  onChange={(e) => setFormData(prev => ({ ...prev, licenseKeyRequired: e.target.checked }))}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, licenseKeyRequired: checked }))
+                  }
                   disabled={!canEdit}
                 />
                 <Label htmlFor="licenseKeyRequired" className="text-sm">
