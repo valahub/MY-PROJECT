@@ -13,6 +13,18 @@ import { authorItemsApiService } from "@/lib/marketplace/author-items-api";
 import type { ItemEntity, ItemVersionEntity } from "@/lib/marketplace/author-items-schema";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Loader2, Upload as UploadIcon, History } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 function AuthorEditItem() {
   const navigate = useNavigate();
@@ -229,8 +241,26 @@ function AuthorEditItem() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6">
+        <Skeleton className="h-5 w-64" />
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-9 w-9" />
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="h-72 w-full" />
+            <Skeleton className="h-56 w-full" />
+            <Skeleton className="h-72 w-full" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -249,16 +279,46 @@ function AuthorEditItem() {
   const canEdit = item.status === "draft" || item.status === "rejected";
   const canCreateVersion = item.status === "approved";
 
+  const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+    approved: "default",
+    draft: "secondary",
+    pending: "outline",
+    rejected: "destructive",
+    soft_rejected: "destructive",
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild><Link to="/author">Author</Link></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild><Link to="/author/items">My Items</Link></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Edit</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/author/items")}>
+      <div className="flex items-center gap-4 flex-wrap">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/author/items")} aria-label="Back">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Edit Item</h1>
-          <p className="text-muted-foreground">{item.title}</p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl font-bold tracking-tight">Edit Item</h1>
+            <Badge variant={statusVariant[item.status] ?? "secondary"} className="capitalize">
+              {item.status}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground truncate" title={item.title}>{item.title}</p>
         </div>
       </div>
 
@@ -444,11 +504,12 @@ function AuthorEditItem() {
               )}
 
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+                <Switch
                   id="licenseKeyRequired"
                   checked={formData.licenseKeyRequired}
-                  onChange={(e) => setFormData(prev => ({ ...prev, licenseKeyRequired: e.target.checked }))}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, licenseKeyRequired: checked }))
+                  }
                   disabled={!canEdit}
                 />
                 <Label htmlFor="licenseKeyRequired" className="text-sm">
@@ -555,17 +616,11 @@ function AuthorEditItem() {
             </CardContent>
           </Card>
 
-          {canEdit && (
-            <Button onClick={handleSave} disabled={isSaving} className="w-full">
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
+          {!canEdit && (
+            <p className="text-xs text-muted-foreground rounded-md border border-dashed p-3">
+              This item is currently <span className="font-medium capitalize">{item.status}</span> and cannot be edited.
+              {canCreateVersion && " You can publish a new version from the sidebar."}
+            </p>
           )}
         </div>
 
@@ -676,6 +731,29 @@ function AuthorEditItem() {
           </Card>
         </div>
       </div>
+
+      {/* Sticky save bar */}
+      {canEdit && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <p className="text-xs text-muted-foreground hidden sm:block">
+              Editing <span className="font-medium text-foreground truncate inline-block max-w-[240px] align-bottom">{item.title}</span>
+            </p>
+            <div className="flex items-center gap-2 ml-auto">
+              <Button variant="outline" size="sm" onClick={() => navigate("/author/items")} disabled={isSaving}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

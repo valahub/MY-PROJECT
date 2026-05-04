@@ -13,6 +13,20 @@ import { toast } from "sonner";
 import { authorItemsApiService } from "@/lib/marketplace/author-items-api";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Upload as UploadIcon, Loader2 } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "react-router-dom";
+
+const TITLE_MAX = 100;
+const DESC_MAX = 5000;
+const META_TITLE_MAX = 60;
+const META_DESC_MAX = 160;
 
 function AuthorUploadItem() {
   const navigate = useNavigate();
@@ -182,15 +196,32 @@ function AuthorUploadItem() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild><Link to="/author">Author</Link></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild><Link to="/author/items">My Items</Link></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Upload</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/author")}>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/author")} aria-label="Back">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Upload New Item</h1>
-          <p className="text-muted-foreground">Create a new marketplace item</p>
+          <h1 className="text-2xl font-bold tracking-tight">Upload New Item</h1>
+          <p className="text-sm text-muted-foreground">Create a new marketplace item</p>
         </div>
       </div>
 
@@ -226,18 +257,31 @@ function AuthorUploadItem() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Title *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="title">Title <span className="text-destructive">*</span></Label>
+                  <span className={`text-xs tabular-nums ${formData.title.length > TITLE_MAX ? "text-destructive" : "text-muted-foreground"}`}>
+                    {formData.title.length}/{TITLE_MAX}
+                  </span>
+                </div>
                 <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="e.g., NovaPress WordPress Theme"
+                  maxLength={TITLE_MAX}
+                  required
+                  aria-required="true"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description">Description *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description">Description <span className="text-destructive">*</span></Label>
+                  <span className={`text-xs tabular-nums ${formData.description.length > DESC_MAX ? "text-destructive" : "text-muted-foreground"}`}>
+                    {formData.description.length}/{DESC_MAX}
+                  </span>
+                </div>
                 <Textarea
                   id="description"
                   name="description"
@@ -245,6 +289,9 @@ function AuthorUploadItem() {
                   onChange={handleInputChange}
                   placeholder="Describe your item in detail..."
                   rows={6}
+                  maxLength={DESC_MAX}
+                  required
+                  aria-required="true"
                 />
               </div>
 
@@ -669,6 +716,40 @@ function AuthorUploadItem() {
               </p>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* Sticky submit bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <p className="text-xs text-muted-foreground hidden sm:block">
+            Fields marked <span className="text-destructive">*</span> are required.
+          </p>
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSubmit(true)}
+              disabled={isSubmitting || isSavingDraft}
+            >
+              {isSavingDraft ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+              ) : (
+                "Save as Draft"
+              )}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleSubmit(false)}
+              disabled={isSubmitting || isSavingDraft}
+            >
+              {isSubmitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</>
+              ) : (
+                "Submit for Approval"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
