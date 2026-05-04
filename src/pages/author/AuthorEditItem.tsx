@@ -616,17 +616,11 @@ function AuthorEditItem() {
             </CardContent>
           </Card>
 
-          {canEdit && (
-            <Button onClick={handleSave} disabled={isSaving} className="w-full">
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
+          {!canEdit && (
+            <p className="text-xs text-muted-foreground rounded-md border border-dashed p-3">
+              This item is currently <span className="font-medium capitalize">{item.status}</span> and cannot be edited.
+              {canCreateVersion && " You can publish a new version from the sidebar."}
+            </p>
           )}
         </div>
 
