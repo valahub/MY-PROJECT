@@ -13,6 +13,18 @@ import { authorItemsApiService } from "@/lib/marketplace/author-items-api";
 import type { ItemEntity, ItemVersionEntity } from "@/lib/marketplace/author-items-schema";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Loader2, Upload as UploadIcon, History } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 function AuthorEditItem() {
   const navigate = useNavigate();
