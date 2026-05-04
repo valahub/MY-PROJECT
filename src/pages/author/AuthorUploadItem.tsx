@@ -257,18 +257,31 @@ function AuthorUploadItem() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Title *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="title">Title <span className="text-destructive">*</span></Label>
+                  <span className={`text-xs tabular-nums ${formData.title.length > TITLE_MAX ? "text-destructive" : "text-muted-foreground"}`}>
+                    {formData.title.length}/{TITLE_MAX}
+                  </span>
+                </div>
                 <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="e.g., NovaPress WordPress Theme"
+                  maxLength={TITLE_MAX}
+                  required
+                  aria-required="true"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description">Description *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description">Description <span className="text-destructive">*</span></Label>
+                  <span className={`text-xs tabular-nums ${formData.description.length > DESC_MAX ? "text-destructive" : "text-muted-foreground"}`}>
+                    {formData.description.length}/{DESC_MAX}
+                  </span>
+                </div>
                 <Textarea
                   id="description"
                   name="description"
@@ -276,6 +289,9 @@ function AuthorUploadItem() {
                   onChange={handleInputChange}
                   placeholder="Describe your item in detail..."
                   rows={6}
+                  maxLength={DESC_MAX}
+                  required
+                  aria-required="true"
                 />
               </div>
 
