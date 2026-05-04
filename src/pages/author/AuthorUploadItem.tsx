@@ -13,6 +13,20 @@ import { toast } from "sonner";
 import { authorItemsApiService } from "@/lib/marketplace/author-items-api";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Upload as UploadIcon, Loader2 } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "react-router-dom";
+
+const TITLE_MAX = 100;
+const DESC_MAX = 5000;
+const META_TITLE_MAX = 60;
+const META_DESC_MAX = 160;
 
 function AuthorUploadItem() {
   const navigate = useNavigate();
