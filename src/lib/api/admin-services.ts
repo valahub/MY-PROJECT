@@ -42440,76 +42440,86 @@ interface SelfHealResult {
 
 export const marketplaceManagerService = new MarketplaceManagerService();
 
-// Initialize mock data
-licenseService.initializeMockData();
-transactionService.initializeMockData();
-billingService.initializeMockData();
-dunningService.initializeMockData();
-currencyService.initializeMockData();
-customerProfileService.initializeMockData();
-marketplaceService.initializeMockData();
-reviewQueueService.initializeMockData();
-configSyncService.initializeMockData();
-customersManagementService.initializeMockData();
-marketplaceManagerService.initializeMockData();
-apiSelfTestService.initializeMockData();
-memoryRecoveryService.initializeMockData();
-costGovernorService.initializeMockData();
-digitalTwinService.initializeMockData();
-settingsService.initializeMockData();
-dataConsistencyService.initializeMockData();
-globalSettingsService.initializeMockData();
-recoveryLogService.initializeMockData();
-enhancedDataConsistencyService.initializeMockData();
-circuitBreakerEventService.initializeMockData();
-autoFixRecoveryEngineService.initializeMockData();
-systemHealthService.initializeMockData();
-circuitBreakerService.initializeMockData();
-backupHistoryService.initializeMockData();
-incidentManagementService.initializeMockData();
-sloSLAService.initializeMockData();
-alertService.initializeMockData();
-notificationService.initializeMockData();
-backupRestoreService.initializeMockData();
-securityService.initializeMockData();
-alertOrchestrationService.initializeMockData();
-auditLogTableService.initializeMockData();
-enhancedSecurityService.initializeMockData();
-apiRequestTableService.initializeMockData();
-systemAuditLogService.initializeMockData();
-webhookDeliveryLogService.initializeMockData();
-apiLogsService.initializeMockData();
-moduleLevelAccessService.initializeMockData();
-webhooksService.initializeMockData();
-rateLimitsService.initializeMockData();
-bruteForceProtectionService.initializeMockData();
-paymentsGodModeService.initializeMockData();
-serviceUptimeIncidentAlertService.initializeMockData();
-slaMonitoringAlertingService.initializeMockData();
-taxInvoiceComplianceService.initializeMockData();
-fraudRiskService.initializeMockData();
-blockedIPsService.initializeMockData();
-legalComplianceService.initializeMockData();
-taxRegulatoryService.initializeMockData();
-reviewModerationService.initializeMockData();
-displaySEOService.initializeMockData();
-taxCommissionService.initializeMockData();
-marketplaceSettingsService.initializeMockData();
-reportItemCardService.initializeMockData();
-criticalSecurityReportService.initializeMockData();
-topSellingItemsService.initializeMockData();
-reportsFlagsModerationService.initializeMockData();
-refundsManagementService.initializeMockData();
-dmcATakedownsService.initializeMockData();
-featuredHotItemsService.initializeMockData();
-authorPayoutsService.initializeMockData();
-marketplaceCollectionsService.initializeMockData();
-marketplaceCategoriesService.initializeMockData();
-marketplaceAuthorLevelsService.initializeMockData();
-marketplaceItemsService.initializeMockData();
-marketplaceAuthorsService.initializeMockData();
-marketplaceAdvancedControlsService.initializeMockData();
-reviewQueueService.initializeMockData();
+// Initialize mock data without letting one legacy seed crash the whole UI.
+const safeInitializeMockData = (service: { initializeMockData?: () => void }, name: string) => {
+  try {
+    service.initializeMockData?.();
+  } catch (error) {
+    console.warn(`[admin-services] Skipped mock data for ${name}`, error);
+  }
+};
+
+[
+  [licenseService, "licenseService"],
+  [transactionService, "transactionService"],
+  [billingService, "billingService"],
+  [dunningService, "dunningService"],
+  [currencyService, "currencyService"],
+  [customerProfileService, "customerProfileService"],
+  [marketplaceService, "marketplaceService"],
+  [reviewQueueService, "reviewQueueService"],
+  [configSyncService, "configSyncService"],
+  [customersManagementService, "customersManagementService"],
+  [marketplaceManagerService, "marketplaceManagerService"],
+  [apiSelfTestService, "apiSelfTestService"],
+  [memoryRecoveryService, "memoryRecoveryService"],
+  [costGovernorService, "costGovernorService"],
+  [digitalTwinService, "digitalTwinService"],
+  [settingsService, "settingsService"],
+  [dataConsistencyService, "dataConsistencyService"],
+  [globalSettingsService, "globalSettingsService"],
+  [recoveryLogService, "recoveryLogService"],
+  [enhancedDataConsistencyService, "enhancedDataConsistencyService"],
+  [circuitBreakerEventService, "circuitBreakerEventService"],
+  [autoFixRecoveryEngineService, "autoFixRecoveryEngineService"],
+  [systemHealthService, "systemHealthService"],
+  [circuitBreakerService, "circuitBreakerService"],
+  [backupHistoryService, "backupHistoryService"],
+  [incidentManagementService, "incidentManagementService"],
+  [sloSLAService, "sloSLAService"],
+  [alertService, "alertService"],
+  [notificationService, "notificationService"],
+  [backupRestoreService, "backupRestoreService"],
+  [securityService, "securityService"],
+  [alertOrchestrationService, "alertOrchestrationService"],
+  [auditLogTableService, "auditLogTableService"],
+  [enhancedSecurityService, "enhancedSecurityService"],
+  [apiRequestTableService, "apiRequestTableService"],
+  [systemAuditLogService, "systemAuditLogService"],
+  [webhookDeliveryLogService, "webhookDeliveryLogService"],
+  [apiLogsService, "apiLogsService"],
+  [moduleLevelAccessService, "moduleLevelAccessService"],
+  [webhooksService, "webhooksService"],
+  [rateLimitsService, "rateLimitsService"],
+  [bruteForceProtectionService, "bruteForceProtectionService"],
+  [paymentsGodModeService, "paymentsGodModeService"],
+  [serviceUptimeIncidentAlertService, "serviceUptimeIncidentAlertService"],
+  [slaMonitoringAlertingService, "slaMonitoringAlertingService"],
+  [taxInvoiceComplianceService, "taxInvoiceComplianceService"],
+  [fraudRiskService, "fraudRiskService"],
+  [blockedIPsService, "blockedIPsService"],
+  [legalComplianceService, "legalComplianceService"],
+  [taxRegulatoryService, "taxRegulatoryService"],
+  [reviewModerationService, "reviewModerationService"],
+  [displaySEOService, "displaySEOService"],
+  [taxCommissionService, "taxCommissionService"],
+  [marketplaceSettingsService, "marketplaceSettingsService"],
+  [reportItemCardService, "reportItemCardService"],
+  [criticalSecurityReportService, "criticalSecurityReportService"],
+  [topSellingItemsService, "topSellingItemsService"],
+  [reportsFlagsModerationService, "reportsFlagsModerationService"],
+  [refundsManagementService, "refundsManagementService"],
+  [dmcATakedownsService, "dmcATakedownsService"],
+  [featuredHotItemsService, "featuredHotItemsService"],
+  [authorPayoutsService, "authorPayoutsService"],
+  [marketplaceCollectionsService, "marketplaceCollectionsService"],
+  [marketplaceCategoriesService, "marketplaceCategoriesService"],
+  [marketplaceAuthorLevelsService, "marketplaceAuthorLevelsService"],
+  [marketplaceItemsService, "marketplaceItemsService"],
+  [marketplaceAuthorsService, "marketplaceAuthorsService"],
+  [marketplaceAdvancedControlsService, "marketplaceAdvancedControlsService"],
+  [reviewQueueService, "reviewQueueService:final"],
+].forEach(([service, name]) => safeInitializeMockData(service as { initializeMockData?: () => void }, name as string));
 
 // Set dependencies for proration and entitlements services
 prorationService.setSubscriptions(adminSubscriptionService.subscriptionsMap);
