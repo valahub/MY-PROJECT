@@ -227,7 +227,10 @@ export function usePricingModal(mode: 'create' | 'edit', initialPlan?: PricingPl
 
         const result = await safeAPICall(
           'create_plan',
-          () => createPlan(request, 'current_user'),
+          async () => {
+            const response = await createPlan(request, 'current_user');
+            return { success: response.success, data: response.plan, error: response.error };
+          },
           optimisticPlan
         );
 
@@ -270,7 +273,10 @@ export function usePricingModal(mode: 'create' | 'edit', initialPlan?: PricingPl
 
         const result = await safeAPICall(
           `update_plan_${planId}`,
-          () => updatePlan(planId, request, 'current_user'),
+          async () => {
+            const response = await updatePlan(planId, request, 'current_user');
+            return { success: response.success, data: response.plan, error: response.error };
+          },
           optimisticPlan
         );
 

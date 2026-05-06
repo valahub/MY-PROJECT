@@ -23,6 +23,7 @@ const CartesianGrid = lazy(() => import('recharts').then(m => ({ default: m.Cart
 const Tooltip = lazy(() => import('recharts').then(m => ({ default: m.Tooltip })));
 const Legend = lazy(() => import('recharts').then(m => ({ default: m.Legend })));
 const ResponsiveContainer = lazy(() => import('recharts').then(m => ({ default: m.ResponsiveContainer })));
+const Cell = lazy(() => import('recharts').then(m => ({ default: m.Cell })));
 
 // ============================================
 // CHART DATA TYPES
@@ -395,7 +396,7 @@ export function DashboardPieChart({
               animationDuration={500}
             >
               {data.map((entry, index) => (
-                <Pie key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
               ))}
             </Pie>
             {showTooltip && <Tooltip />}

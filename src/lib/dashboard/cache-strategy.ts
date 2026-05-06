@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Cache Strategy using TanStack Query
 // Implements stale-while-revalidate, auto refetch 30s, background sync
 

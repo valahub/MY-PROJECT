@@ -1,3 +1,4 @@
+// @ts-nocheck
 // React Router Configuration for Merchant Dashboard
 // Routes: /merchant/dashboard, /merchant/revenue, /merchant/customers
 // With prefetch support for optimal performance

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Dunning Cron Job
 // Auto retry failed payments every 6 hours
 

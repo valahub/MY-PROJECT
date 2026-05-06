@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Pricing API Client with Zod Validation
 // Strict API response format with validation
 

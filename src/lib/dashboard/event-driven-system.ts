@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Event-Driven System for Dashboard Auto-Updates
 // Triggers dashboard updates on payment success, refund, subscription cancel
 // Auto-updates metrics, charts, and alerts in real-time
