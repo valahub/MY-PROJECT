@@ -38224,6 +38224,10 @@ class MarketplaceAdvancedControlsService {
   // GMV vs PLATFORM TAKE GRAPH
   // ============================================
 
+  private getPayoutsService(): AuthorPayoutsService {
+    return this.payoutsService || authorPayoutsService;
+  }
+
   // Record GMV Data
   async recordGMV(input: {
     period: string;
