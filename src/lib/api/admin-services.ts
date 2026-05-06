@@ -42043,7 +42043,7 @@ class MarketplaceManagerService {
   private calculateKPIs(): MarketplaceManagerKPI {
     const items = this.itemsService.getAllItems();
     const authors = this.authorsService.getAllAuthors();
-    const payouts = this.payoutsService.filterPayouts({});
+    const payouts = this.getPayoutsService().filterPayouts({});
     const reviewItems = this.reviewQueueService.getAllReviewItems();
     const collections = this.collectionsService.listCollections();
     const categories = this.categoriesService.listCategories();
@@ -42327,7 +42327,7 @@ class MarketplaceManagerService {
   // Heal Payouts
   private async healPayouts(): Promise<number> {
     let healed = 0;
-    const payouts = this.payoutsService.filterPayouts({});
+    const payouts = this.getPayoutsService().filterPayouts({});
 
     for (const payout of payouts) {
       const author = this.authorsService.getAuthor(payout.authorId);
