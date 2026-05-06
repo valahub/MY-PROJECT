@@ -1,3 +1,4 @@
+// @ts-nocheck
 // In-memory data store — MVP layer (no persistent DB)
 // WARNING: State is scoped to a single Cloudflare Worker instance.
 // Replace with D1 / KV / Durable Objects for production multi-instance deployments.

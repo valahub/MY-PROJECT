@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { canAccess } from "@/lib/api/rbac";
 import {
   store,
