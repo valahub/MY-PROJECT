@@ -1834,6 +1834,7 @@ class AdminSubscriptionService {
 
 // Initialize services
 export const auditService = new AuditLogService();
+const auditLogService = auditService;
 export const pricingService = new PricingService();
 export const adminProductService = new AdminProductService();
 export const adminSubscriptionService = new AdminSubscriptionService();
