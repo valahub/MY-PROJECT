@@ -42005,7 +42005,7 @@ class MarketplaceManagerService {
     this.auditService = auditLogService;
     this.itemsService = marketplaceItemsService;
     this.authorsService = marketplaceAuthorsService;
-    this.payoutsService = authorPayoutsService;
+    this.payoutsService = undefined as any;
     this.reviewQueueService = reviewQueueService;
     this.collectionsService = marketplaceCollectionsService;
     this.categoriesService = marketplaceCategoriesService;
