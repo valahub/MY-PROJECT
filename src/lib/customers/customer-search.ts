@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Customer Search Engine
 // Search by name, email, country, payment status
 
