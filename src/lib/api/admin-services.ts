@@ -42019,6 +42019,10 @@ class MarketplaceManagerService {
   // LIVE KPI TRACKING
   // ============================================
 
+  private getPayoutsService(): AuthorPayoutsService {
+    return this.payoutsService || authorPayoutsService;
+  }
+
   // Get Live KPIs
   getLiveKPIs(): MarketplaceManagerKPI {
     // Check cache
