@@ -38215,7 +38215,7 @@ class MarketplaceAdvancedControlsService {
     this.itemsService = marketplaceItemsService;
     this.authorsService = marketplaceAuthorsService;
     this.authorLevelsService = marketplaceAuthorLevelsService;
-    this.payoutsService = authorPayoutsService;
+    this.payoutsService = undefined as any;
     this.refundsService = refundsManagementService;
     this.dmcaService = dmcATakedownsService;
   }
