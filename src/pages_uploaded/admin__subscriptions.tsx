@@ -1,6 +1,7 @@
 import { DataTable } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Eye, Settings, X, Loader2, RefreshCw, Play, Pause, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
